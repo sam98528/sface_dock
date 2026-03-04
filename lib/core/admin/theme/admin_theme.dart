@@ -29,38 +29,45 @@ class AdminTheme {
 
     final adminTextTheme = baseText.copyWith(
       bodyLarge: baseText.bodyLarge?.copyWith(
+        fontFamily: 'Pretendard',
         fontSize: 16,
         height: 1.4,
         letterSpacing: 0,
       ),
       bodyMedium: baseText.bodyMedium?.copyWith(
+        fontFamily: 'Pretendard',
         fontSize: 16,
         height: 1.4,
         letterSpacing: 0,
       ),
       bodySmall: baseText.bodySmall?.copyWith(
+        fontFamily: 'Pretendard',
         fontSize: 14,
         height: 1.4,
         letterSpacing: 0,
       ),
       titleMedium: baseText.titleMedium?.copyWith(
+        fontFamily: 'Pretendard',
         fontSize: 16,
         fontWeight: FontWeight.w600,
         height: 1.35,
         letterSpacing: 0,
       ),
       titleSmall: baseText.titleSmall?.copyWith(
+        fontFamily: 'Pretendard',
         fontSize: 15,
         fontWeight: FontWeight.w500,
         height: 1.35,
         letterSpacing: 0,
       ),
       labelLarge: baseText.labelLarge?.copyWith(
+        fontFamily: 'Pretendard',
         fontSize: 14,
         height: 1.35,
         letterSpacing: 0,
       ),
       headlineSmall: baseText.headlineSmall?.copyWith(
+        fontFamily: 'Pretendard',
         fontSize: 20,
         fontWeight: FontWeight.w600,
         height: 1.3,

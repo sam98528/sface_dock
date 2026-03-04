@@ -11,10 +11,25 @@ add_executable(${BINARY_NAME} WIN32
   "main.cpp"
   "utils.cpp"
   "win32_window.cpp"
+  "../plugin/named_pipe_client.cpp"
   "${FLUTTER_MANAGED_DIR}/generated_plugin_registrant.cc"
   "Runner.rc"
   "runner.exe.manifest"
 )
+
+# Export FFI functions for Named Pipe client
+# Using linker options to export functions from executable
+if(MSVC)
+    target_link_options(${BINARY_NAME} PRIVATE 
+        /EXPORT:createPipeClient
+        /EXPORT:connectPipe
+        /EXPORT:getLastError
+        /EXPORT:sendMessage
+        /EXPORT:receiveMessage
+        /EXPORT:isConnected
+        /EXPORT:closePipe
+    )
+endif()
 
 # Apply the standard set of build settings. This can be removed for applications
 # that need different build settings.

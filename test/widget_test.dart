@@ -8,13 +8,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:sfacedock/main.dart';
-import 'package:shimmer/main.dart';
+import 'package:sfacedock/app/sfacedock_app.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const ProviderScope(child: SFaceDockApp()));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
