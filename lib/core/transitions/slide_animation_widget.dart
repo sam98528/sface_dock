@@ -59,7 +59,9 @@ class _SlideAnimationWidgetState extends State<SlideAnimationWidget>
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(position: _animation, child: widget.child);
+    return RepaintBoundary(
+      child: SlideTransition(position: _animation, child: widget.child),
+    );
   }
 }
 

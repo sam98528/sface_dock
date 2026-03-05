@@ -16,4 +16,7 @@ class ApiConstants {
 
   static String photogoodsDetailEndpoint(int feedsIdx) =>
       '/v1/photogoods/$feedsIdx';
+
+  // Kiosk Endpoints
+  static const String kioskPhotosEndpoint = '/v1/kiosk/photos';
 }

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sfacedock/app/sfacedock_app.dart';
 
+import 'package:sfacedock/core/services/image_prefetch_service.dart';
+import 'package:sfacedock/core/theme/kiosk_colors.dart';
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
-import 'package:sfacedock/widgets/design_system/s_face_text.dart';
 import 'package:shimmer/shimmer.dart';
 
 class IntroScreen extends ConsumerStatefulWidget {
@@ -21,6 +22,11 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    // Start background pre-fetching of kiosk photos
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(imagePrefetchProvider.notifier).start();
+    });
   }
 
   @override
@@ -31,32 +37,10 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
 
   /// SFACE DOCK 로딩 화면으로 이동
   void _navigateToLoading() {
+    // Pause pre-fetching while user is actively using the kiosk
+    ref.read(imagePrefetchProvider.notifier).pause();
     Navigator.pushReplacementNamed(context, introLoadingRouteName);
   }
-
-  // /// RGB 세션 시작 (실제 RGB 통합)
-  // Future<void> _startRgbSession() async {
-  //   // try {
-  //   //   // 1. RGB 프로세스를 최전방으로 가져오기
-  //   //   final windowManager = WindowManagerService.instance;
-  //   //   // sfacedock or rgb studio excutable name
-  //   //   final processSuccess = await windowManager.bringProcessToFront(
-  //   //     'electron_test_app.exe', // 또는 실제 구동 환경에 맞게 RGB_Photo_Studio.exe
-  //   //   );
-
-  //   //   if (!processSuccess) {
-  //   //     debugPrint('WARNING: RGB 프로세스를 찾을 수 없음 (계속 진행)');
-  //   //   } else {
-  //   //     debugPrint('OK: RGB 프로세스 최전방 이동 성공');
-  //   //   }
-
-  //   //   setState(() {
-  //   //     _isRgbSessionActive = true;
-  //   //   });
-  //   // } catch (e) {
-  //   //   debugPrint('ERROR: RGB 세션 시작 중 오류: $e');
-  //   // }
-  // }
 
   /// 숨겨진 설정 버튼 탭 핸들러 (5번 탭하면 설정 화면으로)
   void _handleHiddenSetupTap() {
@@ -72,6 +56,9 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Watch prefetch state to show sync status indicator
+    final prefetchState = ref.watch(imagePrefetchProvider);
+    final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: Stack(
         children: [
@@ -94,117 +81,122 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
                 duration: const Duration(milliseconds: 800),
                 curve: Curves.easeOutCubic,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // 메인 화면 컨텐츠
-                    FadeAnimationWidget(
-                      duration: const Duration(milliseconds: 300),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            spacing: 40,
-                            children: [
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // AudioService가 sfacedock에 있는지 확인 필요, 없으면 주석처리 가능
-                                    // AudioService.instance.playButtonSound();
-                                    // _startRgbSession();
-                                  },
-                                  child: Container(
-                                    width: 800,
-                                    padding: const EdgeInsets.all(40),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.8,
-                                      ),
-                                      borderRadius: BorderRadius.circular(50),
-                                      border: Border.all(
-                                        color: const Color(
-                                          0xFF000000,
-                                        ).withValues(alpha: 0.05),
-                                        width: 5,
-                                        strokeAlign:
-                                            BorderSide.strokeAlignInside,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.1,
+                    Flexible(
+                      child: FadeAnimationWidget(
+                        duration: const Duration(milliseconds: 300),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              spacing: 40,
+                              children: [
+                                Expanded(
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.easeInOut,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        // AudioService.instance.playButtonSound();
+                                        // _startRgbSession();
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(40),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.8,
                                           ),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 4),
+                                          borderRadius: BorderRadius.circular(
+                                            50,
+                                          ),
+                                          border: Border.all(
+                                            color: const Color(
+                                              0xFF000000,
+                                            ).withValues(alpha: 0.05),
+                                            width: 5,
+                                            strokeAlign:
+                                                BorderSide.strokeAlignInside,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.1,
+                                              ),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 4),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    child: Image.asset(
-                                      'assets/images/RGB_image.png',
-                                      fit: BoxFit.cover,
+                                        child: Image.asset(
+                                          'assets/images/RGB_image.png',
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // AudioService.instance.playButtonSound();
-                                    _navigateToLoading();
-                                  },
-                                  child: Container(
-                                    width: 800,
-                                    padding: const EdgeInsets.all(0),
-                                    clipBehavior: Clip.hardEdge,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFff97d5),
-                                      borderRadius: BorderRadius.circular(50),
-                                      border: Border.all(
-                                        color: const Color(
-                                          0xFFF475C1,
-                                        ).withValues(alpha: 0.1),
-                                        strokeAlign:
-                                            BorderSide.strokeAlignOutside,
-                                        width: 5,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.1,
+                                Expanded(
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.easeInOut,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        // AudioService.instance.playButtonSound();
+                                        _navigateToLoading();
+                                      },
+                                      child: Container(
+                                        clipBehavior: Clip.hardEdge,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFff97d5),
+                                          borderRadius: BorderRadius.circular(
+                                            50,
                                           ),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 4),
+                                          border: Border.all(
+                                            color: const Color(
+                                              0xFFF475C1,
+                                            ).withValues(alpha: 0.1),
+                                            strokeAlign:
+                                                BorderSide.strokeAlignOutside,
+                                            width: 5,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.1,
+                                              ),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 4),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    child: Image.asset(
-                                      'assets/images/sface_image.png',
-                                      fit: BoxFit.contain,
+                                        child: Image.asset(
+                                          'assets/images/sface_image.png',
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 80),
-                          Shimmer.fromColors(
-                            baseColor: Colors.black,
-                            highlightColor: Colors.white.withValues(alpha: 0.5),
-                            period: const Duration(milliseconds: 3000),
-                            direction: ShimmerDirection.ltr,
-                            child: SFText.pre(
-                              '화면을 터치해 시작해주세요!',
-                              fontWeight: FontWeight.w900,
-                              textAlign: TextAlign.center,
-                              color: Colors.black,
-                              fontSize: 48,
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 80),
+                            Shimmer.fromColors(
+                              baseColor: KioskColors.tertiary,
+                              highlightColor: KioskColors.primary.withValues(
+                                alpha: 0.9,
+                              ),
+                              period: const Duration(milliseconds: 3000),
+                              direction: ShimmerDirection.ltr,
+                              child: Text(
+                                '화면을 터치해 시작해주세요!',
+                                style: textTheme.displaySmall?.copyWith(),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -238,6 +230,44 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
               ),
             ),
           ),
+
+          // Pre-fetch status indicator (하단 우측, 디버그용)
+          if (prefetchState.isSyncing)
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 12,
+                      height: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${prefetchState.photos.length}장 준비됨',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );

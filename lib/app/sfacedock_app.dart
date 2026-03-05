@@ -3,11 +3,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sfacedock/core/theme/kiosk_typography.dart';
 import 'package:sfacedock/presentation/screens/photo_grid_screen.dart';
 
 import '../core/admin/controllers/admin_controller.dart';
 import '../core/admin/screens/admin_screen.dart';
+import '../core/services/image_prefetch_service.dart';
 import '../core/theme/app_theme.dart';
 import '../utils/app_lifecycle.dart';
 import '../widgets/kiosk_viewport.dart';
@@ -15,6 +18,7 @@ import 'kiosk_navigator_observer.dart';
 import '../presentation/screens/intro_screen.dart';
 import '../presentation/screens/intro_loading_screen.dart';
 import '../presentation/screens/cart_screen.dart';
+import '../presentation/screens/qr_scanner_screen.dart';
 
 /// Route names
 const String adminRouteName = '/admin';
@@ -26,6 +30,7 @@ const String photoGridRouteName = '/photo-grid';
 const String cartRouteName = '/cart';
 const String paymentRouteName = '/payment';
 const String endRouteName = '/end';
+const String qrScannerRouteName = '/qr-scanner';
 
 /// Main SFaceDock kiosk application widget.
 /// - Wraps content in KioskViewport (1920x1080 fixed)
@@ -57,6 +62,13 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
         title: 'SFace Photo Kiosk',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.buildTheme(),
+        locale: const Locale('ko'),
+        supportedLocales: const [Locale('ko')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
         scrollBehavior: const MaterialScrollBehavior().copyWith(
           dragDevices: {
             PointerDeviceKind.touch,
@@ -67,7 +79,10 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
         navigatorKey: _navigatorKey,
         navigatorObservers: [navigatorObserver],
         builder: (context, child) {
-          return KioskViewport(child: child ?? const SizedBox.shrink());
+          return DefaultTextHeightBehavior(
+            textHeightBehavior: KioskTypography.textHeightBehavior,
+            child: KioskViewport(child: child ?? const SizedBox.shrink()),
+          );
         },
         home: const IntroScreen(), // Start with IntroScreen
         routes: {
@@ -76,6 +91,7 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
           introLoadingRouteName: (context) => const IntroLoadingScreen(),
           photoGridRouteName: (context) => const PhotoGridScreen(),
           cartRouteName: (context) => const CartScreen(),
+          qrScannerRouteName: (context) => const QrScannerScreen(),
         },
       ),
     );
@@ -97,8 +113,13 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
 
     // F2: Return to home screen
     if (event.logicalKey == LogicalKeyboardKey.f2) {
-      if (currentRoute != homeRouteName) {
-        _navigatorKey.currentState?.popUntil((route) => route.isFirst);
+      if (currentRoute != homeRouteName && currentRoute != introRouteName) {
+        // Resume background pre-fetching when returning to idle screen
+        ref.read(imagePrefetchProvider.notifier).resume();
+        _navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          introRouteName,
+          (route) => false,
+        );
       }
       return;
     }

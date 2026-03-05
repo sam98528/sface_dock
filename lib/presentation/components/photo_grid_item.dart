@@ -21,10 +21,18 @@ class PhotoGridItem extends StatelessWidget {
       key: ValueKey(item.feedsIdx),
       child: GestureDetector(
         onTap: () {
-          showDialog(
-            context: context,
-            barrierColor: Colors.black.withValues(alpha: 0.6),
-            builder: (context) => PhotoDetailDialog(feedsIdx: item.feedsIdx),
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              barrierColor: Colors.transparent,
+              pageBuilder: (context, _, __) =>
+                  PhotoDetailDialog(feedsIdx: item.feedsIdx),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+            ),
           );
         },
         child: SizedBox(
@@ -47,38 +55,42 @@ class PhotoGridItem extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                CachedNetworkImage(
-                  imageUrl: '${ApiConstants.awsIp}${item.feedsThumbnailAttach}',
-                  memCacheWidth: 300,
-                  placeholder: (context, url) =>
-                      const SizedBox.expand(), // Transparent instead of ugly white box
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    child: const Center(
-                      child: Icon(
-                        Icons.broken_image,
-                        size: 48,
-                        color: Colors.white54,
+                Hero(
+                  tag: 'photo_${item.feedsIdx}',
+                  child: CachedNetworkImage(
+                    imageUrl:
+                        '${ApiConstants.awsIp}${item.feedsThumbnailAttach}',
+                    memCacheWidth: 300,
+                    placeholder: (context, url) =>
+                        const SizedBox.expand(), // Transparent instead of ugly white box
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      child: const Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          size: 48,
+                          color: Colors.white54,
+                        ),
                       ),
                     ),
+                    imageBuilder: (context, imageProvider) {
+                      return TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0.0, end: 1.0),
+                        duration: const Duration(milliseconds: 700),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, value, child) {
+                          return Opacity(
+                            opacity: value,
+                            child: Transform.scale(
+                              scale: 0.95 + (0.05 * value), // 0.95 -> 1.0
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Image(image: imageProvider, fit: BoxFit.cover),
+                      );
+                    },
                   ),
-                  imageBuilder: (context, imageProvider) {
-                    return TweenAnimationBuilder<double>(
-                      tween: Tween<double>(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 700),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, value, child) {
-                        return Opacity(
-                          opacity: value,
-                          child: Transform.scale(
-                            scale: 0.95 + (0.05 * value), // 0.95 -> 1.0
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: Image(image: imageProvider, fit: BoxFit.cover),
-                    );
-                  },
                 ),
 
                 // Bottom Info Overlay

@@ -46,10 +46,32 @@ class IpcCameraService implements CameraService {
   }
 
   @override
+  Future<Map<String, dynamic>?> enableQrDetection(bool enable) {
+    return _proxy.enableQrDetection(enable);
+  }
+
+  @override
+  Future<Map<String, dynamic>?> resetQrDetection() {
+    return _proxy.resetQrDetection();
+  }
+
+  @override
   Stream<Map<String, dynamic>> get captureEvents {
     return _proxy.eventStream.where((event) {
       return event['kind'] == 'event' &&
           event['eventType'] == 'camera_capture_complete';
     });
+  }
+
+  @override
+  Stream<String> get qrDetectedEvents {
+    return _proxy.eventStream
+        .where((event) =>
+            event['kind'] == 'event' &&
+            event['eventType'] == 'qr_code_detected')
+        .map((event) {
+      final data = event['data'] as Map<String, dynamic>?;
+      return data?['qrText']?.toString() ?? '';
+    }).where((text) => text.isNotEmpty);
   }
 }

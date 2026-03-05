@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-/// Premium Kiosk Typography
-/// Uses 'Outfit' (Google Font) for English/Numbers
-/// Uses 'LINESeedKR' (Local Asset) for Korean
+/// Kiosk Typography — LINESeed font family
 class KioskTypography {
   KioskTypography._();
 
-  static const String fontFamilyKR = 'LINESeedKR';
-  static final String fontFamilyEN = GoogleFonts.outfit().fontFamily!;
+  static const String fontFamily = 'LINESeed';
 
   /// 1920x1080 터치스크린 키오스크용 가독성 크기.
   static TextTheme get textTheme {
@@ -19,9 +15,9 @@ class KioskTypography {
       headlineLarge: _style(40, FontWeight.w600),
       headlineMedium: _style(34, FontWeight.w600),
       headlineSmall: _style(28, FontWeight.w600),
-      titleLarge: _style(26, FontWeight.w500),
-      titleMedium: _style(20, FontWeight.w500),
-      titleSmall: _style(18, FontWeight.w500),
+      titleLarge: _style(26, FontWeight.w400),
+      titleMedium: _style(20, FontWeight.w400),
+      titleSmall: _style(18, FontWeight.w400),
       bodyLarge: _style(20, FontWeight.normal),
       bodyMedium: _style(18, FontWeight.normal),
       bodySmall: _style(15, FontWeight.normal),
@@ -31,13 +27,16 @@ class KioskTypography {
     );
   }
 
-  /// Helper to create composite text style
+  static const TextHeightBehavior textHeightBehavior = TextHeightBehavior(
+    leadingDistribution: TextLeadingDistribution.even,
+  );
+
   static TextStyle _style(double size, FontWeight weight) {
     return TextStyle(
+      fontFamily: fontFamily,
       fontSize: size,
       fontWeight: weight,
-      fontFamilyFallback: [fontFamilyKR], // Fallback to Korean font
-      fontFamily: fontFamilyEN, // Primary is English (Outfit)
+      height: 1.2,
     );
   }
 }

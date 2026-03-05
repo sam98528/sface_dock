@@ -72,6 +72,7 @@ dependencies:
 
   # Character encoding (CP949/EUC-KR support)
   charset: ^1.2.0
+  flutter_cache_manager: ^3.4.1
 
 dev_dependencies:
   flutter_test:
@@ -85,18 +86,25 @@ dev_dependencies:
   auto_route_generator: ^7.3.2
 
 flutter:
-  generate: true
   uses-material-design: true
 
   assets:
     - .env
     - assets/images/
-    - assets/vector/
-    - assets/sounds/effects/
-    - assets/sounds/background/
+    # - assets/vector/
+    # - assets/sounds/effects/
+    # - assets/sounds/background/
     - assets/fonts/
 
   fonts:
+    - family: LINESeed
+      fonts:
+        - asset: assets/fonts/lineseed/LINESeedKR-Th.otf
+          weight: 100
+        - asset: assets/fonts/lineseed/LINESeedKR-Rg.otf
+          weight: 400
+        - asset: assets/fonts/lineseed/LINESeedKR-Bd.otf
+          weight: 700
     - family: Pretendard
       fonts:
         - asset: assets/fonts/pretendard/Pretendard-Regular.otf

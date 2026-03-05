@@ -34,10 +34,10 @@ class ApiClient {
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          _logger.d(
-            'Response: ${response.statusCode} ${response.requestOptions.path}',
-          );
-          _logger.d('Response data: ${response.data}');
+          // _logger.d(
+          //   'Response: ${response.statusCode} ${response.requestOptions.path}',
+          // );
+          // _logger.d('Response data: ${response.data}');
           handler.next(response);
         },
         onError: (error, handler) {

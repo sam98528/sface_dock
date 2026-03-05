@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sfacedock/app/sfacedock_app.dart';
 import 'package:sfacedock/core/device/device_controller_proxy_provider.dart';
 import 'package:sfacedock/core/admin/controllers/admin_controller.dart';
+import 'package:sfacedock/core/theme/kiosk_colors.dart';
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
-import 'package:sfacedock/widgets/design_system/s_face_text.dart';
 import 'package:shimmer/shimmer.dart';
 
 class IntroLoadingScreen extends ConsumerStatefulWidget {
@@ -18,13 +18,22 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
     with WidgetsBindingObserver {
   bool _isConnecting = true;
   bool _hasInitialized = false;
+  bool _animationReady = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Precache the GIF before starting animation to avoid jank
+      await precacheImage(
+        const AssetImage('assets/images/loading_logo.gif'),
+        context,
+      );
+      if (mounted) {
+        setState(() => _animationReady = true);
+      }
       _initializeAndNavigate();
     });
     _hasInitialized = true;
@@ -199,6 +208,7 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
   }
 
   void _showErrorDialog(String bodyMessage) {
+    final textTheme = Theme.of(context).textTheme;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -210,22 +220,24 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
           children: [
             const Icon(Icons.error_outline, color: Colors.red, size: 28),
             const SizedBox(height: 12),
-            SFText.pre(
+            Text(
               '오류가 발생했습니다',
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Colors.black,
+              style: textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+              ),
             ),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SFText.pre(
+            Text(
               bodyMessage,
-              fontSize: 16,
-              color: Colors.black87,
-              textAlign: TextAlign.center,
+              style: textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+              ),
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -245,11 +257,12 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
                   ),
                   elevation: 2,
                 ),
-                child: SFText.pre(
+                child: Text(
                   '다시 시도',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  style: textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -270,11 +283,12 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
                   ),
                   elevation: 2,
                 ),
-                child: SFText.pre(
+                child: Text(
                   '돌아가기',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  style: textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black,
+                  ),
                 ),
               ),
             ),
@@ -306,6 +320,7 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(64),
@@ -318,38 +333,43 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
           ),
         ),
         child: Center(
-          child: SlideAnimationWidget(
-            duration: const Duration(milliseconds: 800),
-            curve: Curves.easeOutCubic,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 1000,
-                  height: 500,
-                  child: Image.asset(
-                    'assets/images/loading_logo.gif',
-                    fit: BoxFit.cover,
-                    // If file unavailable, it will throw. Ensure asset exists.
-                    errorBuilder: (context, error, stackTrace) =>
-                        const CircularProgressIndicator(),
+          child: !_animationReady
+              ? const SizedBox.shrink()
+              : SlideAnimationWidget(
+                  duration: const Duration(milliseconds: 800),
+                  curve: Curves.easeOutCubic,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 1000,
+                        height: 500,
+                        child: Image.asset(
+                          'assets/images/loading_logo.gif',
+                          fit: BoxFit.cover,
+                          // If file unavailable, it will throw. Ensure asset exists.
+                          errorBuilder: (context, error, stackTrace) =>
+                              const CircularProgressIndicator(),
+                        ),
+                      ),
+                      Shimmer.fromColors(
+                        baseColor: KioskColors.tertiary,
+                        highlightColor: KioskColors.primary.withValues(
+                          alpha: 0.9,
+                        ),
+                        period: const Duration(milliseconds: 3000),
+                        direction: ShimmerDirection.ltr,
+                        child: Text(
+                          '잠시만 기다려주세요!',
+                          style: textTheme.displaySmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Shimmer.fromColors(
-                  baseColor: Colors.black,
-                  highlightColor: const Color(0xFFF475C1).withValues(alpha: 1),
-                  period: const Duration(milliseconds: 3000),
-                  direction: ShimmerDirection.ltr,
-                  child: SFText.pre(
-                    '잠시만 기다려주세요!',
-                    fontSize: 57,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );

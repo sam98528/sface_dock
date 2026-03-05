@@ -25,6 +25,15 @@ abstract class CameraService {
   /// 카메라 재연결 (EDSDK shutdown → reinit).
   Future<Map<String, dynamic>?> reconnect();
 
+  /// QR 감지 활성화/비활성화.
+  Future<Map<String, dynamic>?> enableQrDetection(bool enable);
+
+  /// QR 감지 상태 초기화 (같은 QR 재감지 허용).
+  Future<Map<String, dynamic>?> resetQrDetection();
+
   /// 카메라 관련 이벤트 스트림 (capture_complete 등).
   Stream<Map<String, dynamic>> get captureEvents;
+
+  /// QR 코드 감지 이벤트 스트림. 감지된 QR 텍스트를 방출.
+  Stream<String> get qrDetectedEvents;
 }

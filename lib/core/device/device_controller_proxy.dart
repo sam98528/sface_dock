@@ -273,6 +273,19 @@ class DeviceControllerProxy {
     return await sendCommand('camera_reconnect', {});
   }
 
+  /// QR 감지 활성화/비활성화
+  Future<Map<String, dynamic>?> enableQrDetection(bool enable) async {
+    return await sendCommand(
+      enable ? 'camera_enable_qr_detection' : 'camera_disable_qr_detection',
+      {},
+    );
+  }
+
+  /// QR 감지 상태 초기화 (같은 QR 재감지 허용)
+  Future<Map<String, dynamic>?> resetQrDetection() async {
+    return await sendCommand('camera_reset_qr_detection', {});
+  }
+
   /// LiveView 프레임 클립 녹화 시작 (MP4 움짤용)
   Future<Map<String, dynamic>?> startClipRecording({
     required String outputDir,

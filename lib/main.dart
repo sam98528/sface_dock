@@ -11,6 +11,10 @@ import 'utils/file_logger.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // ImageCache: memCacheWidth=360 -> ~0.5MB/image, 500장 = ~250MB
+  PaintingBinding.instance.imageCache.maximumSize = 500;
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 250 * 1024 * 1024;
+
   // Load .env file
   try {
     await dotenv.load(fileName: '.env');
@@ -33,6 +37,8 @@ Future<void> main() async {
       backgroundColor: Colors.transparent,
       titleBarStyle: TitleBarStyle.normal,
       title: 'SFace Kiosk',
+
+      // skipTaskbar: true,
       // fullScreen: true,
       // alwaysOnTop: true,
     );

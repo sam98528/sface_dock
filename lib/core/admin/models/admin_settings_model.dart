@@ -122,7 +122,8 @@ class AdminSettings {
   bool get debugDisablePhaseTimers => kDebugMode && _debugDisablePhaseTimers;
   bool get debugSkipBackendApi => kDebugMode && _debugSkipBackendApi;
   bool get debugPausePhotoCapture => kDebugMode && _debugPausePhotoCapture;
-  bool get debugSkipDeviceConnection => kDebugMode && _debugSkipDeviceConnection;
+  bool get debugSkipDeviceConnection =>
+      kDebugMode && _debugSkipDeviceConnection;
 
   /// 테스트용 인쇄 대기 시간(초). 확정 후 실제 코드에 반영할 때 사용.
   final int printWaitDurationSeconds;
@@ -206,7 +207,8 @@ class AdminSettings {
           debugDisablePhaseTimers ?? _debugDisablePhaseTimers,
       debugSkipBackendApi: debugSkipBackendApi ?? _debugSkipBackendApi,
       debugPausePhotoCapture: debugPausePhotoCapture ?? _debugPausePhotoCapture,
-      debugSkipDeviceConnection: debugSkipDeviceConnection ?? _debugSkipDeviceConnection,
+      debugSkipDeviceConnection:
+          debugSkipDeviceConnection ?? _debugSkipDeviceConnection,
       printWaitDurationSeconds:
           printWaitDurationSeconds ?? this.printWaitDurationSeconds,
       themeBackgroundValue: themeBackgroundValue ?? this.themeBackgroundValue,
@@ -320,7 +322,8 @@ class AdminSettings {
           json['debugDisablePhaseTimers'] as bool? ?? false,
       debugSkipBackendApi: json['debugSkipBackendApi'] as bool? ?? false,
       debugPausePhotoCapture: json['debugPausePhotoCapture'] as bool? ?? false,
-      debugSkipDeviceConnection: json['debugSkipDeviceConnection'] as bool? ?? false,
+      debugSkipDeviceConnection:
+          json['debugSkipDeviceConnection'] as bool? ?? false,
       printWaitDurationSeconds:
           (json['printWaitDurationSeconds'] as num?)?.toInt() ?? 20,
       themeBackgroundValue:

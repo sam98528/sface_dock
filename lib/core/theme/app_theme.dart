@@ -7,14 +7,14 @@ import 'kiosk_typography.dart';
 class AppTheme {
   AppTheme._();
 
-  // Admin 테마 상태 (Defaults to Premium Light)
+  // Admin 테마 상태 (Defaults)
   static Color themeBackground = KioskColors.background;
   static Color themeKeyColor = KioskColors.primary;
   static Color themeTextColor = KioskColors.textPrimary;
   static Color themeButtonBg = KioskColors.primary;
-  static Color themeButtonText = Colors.white;
+  static Color themeButtonText = KioskColors.white;
 
-  // Legacy compatibility (Mapped to new system)
+  // Legacy compatibility
   static Color get keyColor => themeKeyColor;
   static Color get subColor => KioskColors.secondary;
 
@@ -34,52 +34,51 @@ class AppTheme {
   }
 
   /// MaterialApp용 ThemeData 생성
-  /// Light Theme 기반으로 변경.
   static ThemeData buildTheme() {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light, // Switch to Light
+      brightness: Brightness.light,
+      fontFamily: KioskTypography.fontFamily,
       scaffoldBackgroundColor: themeBackground,
 
-      // ColorScheme: Admin 색 + 파생 색 명시
       colorScheme: ColorScheme.light(
         primary: themeKeyColor,
         onPrimary: themeButtonText,
         primaryContainer: themeKeyColor.withValues(alpha: 0.1),
         onPrimaryContainer: themeKeyColor,
         secondary: KioskColors.secondary,
-        onSecondary: Colors.white,
+        onSecondary: KioskColors.white,
         secondaryContainer: KioskColors.secondary.withValues(alpha: 0.1),
         onSecondaryContainer: KioskColors.secondary,
+        tertiary: KioskColors.tertiary,
+        onTertiary: KioskColors.white,
         surface: themeBackground,
         onSurface: themeTextColor,
         surfaceContainerHighest: KioskColors.surfaceHighlight,
-        surfaceContainerLow: Colors.white,
-        outline: themeTextColor.withValues(alpha: 0.2),
-        outlineVariant: themeTextColor.withValues(alpha: 0.1),
+        surfaceContainerLow: KioskColors.white,
+        outline: KioskColors.grey200,
+        outlineVariant: KioskColors.grey100,
         onSurfaceVariant: KioskColors.textSecondary,
         error: KioskColors.error,
-        onError: Colors.white,
+        onError: KioskColors.white,
         errorContainer: KioskColors.error.withValues(alpha: 0.1),
         onErrorContainer: KioskColors.error,
       ),
 
-      // Typography
       textTheme: KioskTypography.textTheme.apply(
         bodyColor: themeTextColor,
         displayColor: themeTextColor,
       ),
 
-      // Component Themes
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: themeButtonBg,
           foregroundColor: themeButtonText,
           textStyle: KioskTypography.textTheme.labelLarge,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16), // Larger radius
+            borderRadius: BorderRadius.circular(16),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20), // Larger padding
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
           elevation: 0,
         ),
       ),
