@@ -973,6 +973,9 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         debugPausePhotoCapture: draft.debugPausePhotoCapture,
         onDebugPausePhotoCaptureChanged: (v) =>
             notifier.updateDraft((d) => d.copyWith(debugPausePhotoCapture: v)),
+        debugSkipDeviceConnection: draft.debugSkipDeviceConnection,
+        onDebugSkipDeviceConnectionChanged: (v) =>
+            notifier.updateDraft((d) => d.copyWith(debugSkipDeviceConnection: v)),
         bgmVolume: draft.bgmVolume,
         onBgmVolumeChanged: (v) =>
             notifier.updateDraft((d) => d.copyWith(bgmVolume: v)),

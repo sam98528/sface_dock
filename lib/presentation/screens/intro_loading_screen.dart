@@ -73,6 +73,15 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
       final adminState = ref.read(adminControllerProvider);
       final proxy = ref.read(deviceControllerProxyProvider);
 
+      // 디버그 모드: 장비 연결 확인 스킵 옵션 체크
+      if (adminState.debugSkipDeviceConnection) {
+        debugPrint('🔧 [DEBUG] 장비 연결 확인 스킵 - 바로 다음 화면으로 이동');
+        await loadingFuture;
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, photoGridRouteName);
+        return;
+      }
+
       // IPC Pipe 연결 체크 - ai-kiosk-client 방식의 Exponential Backoff 재시도 로직
       bool isConnected = await proxy.ensureConnected();
 

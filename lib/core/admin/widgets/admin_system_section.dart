@@ -25,6 +25,8 @@ class AdminSystemSection extends StatelessWidget {
     this.onDebugSkipBackendApiChanged,
     this.debugPausePhotoCapture = false,
     this.onDebugPausePhotoCaptureChanged,
+    this.debugSkipDeviceConnection = false,
+    this.onDebugSkipDeviceConnectionChanged,
     this.bgmVolume = 0.5,
     this.onBgmVolumeChanged,
   });
@@ -48,6 +50,10 @@ class AdminSystemSection extends StatelessWidget {
   /// 디버그: 자동 촬영 스킵
   final bool debugPausePhotoCapture;
   final ValueChanged<bool>? onDebugPausePhotoCaptureChanged;
+
+  /// 디버그: 장비 연결 여부 확인 스킵 (UI 디버깅용)
+  final bool debugSkipDeviceConnection;
+  final ValueChanged<bool>? onDebugSkipDeviceConnectionChanged;
 
   /// BGM Volume (0.0 to 1.0)
   final double bgmVolume;
@@ -150,6 +156,14 @@ class AdminSystemSection extends StatelessWidget {
                     label: '카메라 자동 촬영 일시정지 (수동 촬영만 가능)',
                     value: debugPausePhotoCapture,
                     onChanged: onDebugPausePhotoCaptureChanged!,
+                  ),
+                ],
+                if (onDebugSkipDeviceConnectionChanged != null) ...[
+                  const SizedBox(height: 12),
+                  AdminSwitchField(
+                    label: '장비 연결 확인 스킵 (UI 디버깅용)',
+                    value: debugSkipDeviceConnection,
+                    onChanged: onDebugSkipDeviceConnectionChanged!,
                   ),
                 ],
               ],

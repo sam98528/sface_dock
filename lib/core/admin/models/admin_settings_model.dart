@@ -43,6 +43,9 @@ class AdminSettings {
     /// 디버그용: true면 카메라 자동 촬영을 멈추고 수동 촬영만 가능하게 함
     bool debugPausePhotoCapture = false,
 
+    /// 디버그용: true면 장비 연결 여부 확인 스킵 (UI 디버깅용)
+    bool debugSkipDeviceConnection = false,
+
     /// 인쇄 대기 시간(초). 프린터 장당 약 20초 기준. Admin에서 조절 가능.
     this.printWaitDurationSeconds = 20,
     // 테마 (저장은 value 저장)
@@ -55,6 +58,7 @@ class AdminSettings {
   }) : _debugDisablePhaseTimers = debugDisablePhaseTimers,
        _debugSkipBackendApi = debugSkipBackendApi,
        _debugPausePhotoCapture = debugPausePhotoCapture,
+       _debugSkipDeviceConnection = debugSkipDeviceConnection,
        timeoutsAndGuides = timeoutsAndGuides ?? _defaultTimeoutsAndGuides;
 
   static const int _defaultTimeout = 30;
@@ -112,9 +116,13 @@ class AdminSettings {
   /// 디버그용. true면 사진 자동 촬영을 멈춤.
   final bool _debugPausePhotoCapture;
 
+  /// 디버그용. true면 장비 연결 여부 확인 스킵 (UI 디버깅용).
+  final bool _debugSkipDeviceConnection;
+
   bool get debugDisablePhaseTimers => kDebugMode && _debugDisablePhaseTimers;
   bool get debugSkipBackendApi => kDebugMode && _debugSkipBackendApi;
   bool get debugPausePhotoCapture => kDebugMode && _debugPausePhotoCapture;
+  bool get debugSkipDeviceConnection => kDebugMode && _debugSkipDeviceConnection;
 
   /// 테스트용 인쇄 대기 시간(초). 확정 후 실제 코드에 반영할 때 사용.
   final int printWaitDurationSeconds;
@@ -158,6 +166,7 @@ class AdminSettings {
     bool? debugDisablePhaseTimers,
     bool? debugSkipBackendApi,
     bool? debugPausePhotoCapture,
+    bool? debugSkipDeviceConnection,
     int? printWaitDurationSeconds,
     int? themeBackgroundValue,
     int? themeKeyColorValue,
@@ -197,6 +206,7 @@ class AdminSettings {
           debugDisablePhaseTimers ?? _debugDisablePhaseTimers,
       debugSkipBackendApi: debugSkipBackendApi ?? _debugSkipBackendApi,
       debugPausePhotoCapture: debugPausePhotoCapture ?? _debugPausePhotoCapture,
+      debugSkipDeviceConnection: debugSkipDeviceConnection ?? _debugSkipDeviceConnection,
       printWaitDurationSeconds:
           printWaitDurationSeconds ?? this.printWaitDurationSeconds,
       themeBackgroundValue: themeBackgroundValue ?? this.themeBackgroundValue,
@@ -243,6 +253,7 @@ class AdminSettings {
       'debugDisablePhaseTimers': _debugDisablePhaseTimers,
       'debugSkipBackendApi': _debugSkipBackendApi,
       'debugPausePhotoCapture': _debugPausePhotoCapture,
+      'debugSkipDeviceConnection': _debugSkipDeviceConnection,
       'printWaitDurationSeconds': printWaitDurationSeconds,
       'themeBackgroundValue': themeBackgroundValue,
       'themeKeyColorValue': themeKeyColorValue,
@@ -309,6 +320,7 @@ class AdminSettings {
           json['debugDisablePhaseTimers'] as bool? ?? false,
       debugSkipBackendApi: json['debugSkipBackendApi'] as bool? ?? false,
       debugPausePhotoCapture: json['debugPausePhotoCapture'] as bool? ?? false,
+      debugSkipDeviceConnection: json['debugSkipDeviceConnection'] as bool? ?? false,
       printWaitDurationSeconds:
           (json['printWaitDurationSeconds'] as num?)?.toInt() ?? 20,
       themeBackgroundValue:
