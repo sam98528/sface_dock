@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sfacedock/app/sfacedock_app.dart';
 
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
 import 'package:sfacedock/widgets/design_system/s_face_text.dart';
@@ -30,7 +31,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
 
   /// SFACE DOCK 로딩 화면으로 이동
   void _navigateToLoading() {
-    Navigator.pushReplacementNamed(context, '/loading');
+    Navigator.pushReplacementNamed(context, introLoadingRouteName);
   }
 
   // /// RGB 세션 시작 (실제 RGB 통합)

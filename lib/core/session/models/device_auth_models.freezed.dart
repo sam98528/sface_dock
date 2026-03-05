@@ -12,8 +12,7 @@ part of 'device_auth_models.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 DeviceLoginResponse _$DeviceLoginResponseFromJson(Map<String, dynamic> json) {
   return _DeviceLoginResponse.fromJson(json);
@@ -25,12 +24,8 @@ mixin _$DeviceLoginResponse {
   String? get message => throw _privateConstructorUsedError;
   DeviceLoginData? get data => throw _privateConstructorUsedError;
 
-  /// Serializes this DeviceLoginResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of DeviceLoginResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $DeviceLoginResponseCopyWith<DeviceLoginResponse> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -38,9 +33,8 @@ mixin _$DeviceLoginResponse {
 /// @nodoc
 abstract class $DeviceLoginResponseCopyWith<$Res> {
   factory $DeviceLoginResponseCopyWith(
-    DeviceLoginResponse value,
-    $Res Function(DeviceLoginResponse) then,
-  ) = _$DeviceLoginResponseCopyWithImpl<$Res, DeviceLoginResponse>;
+          DeviceLoginResponse value, $Res Function(DeviceLoginResponse) then) =
+      _$DeviceLoginResponseCopyWithImpl<$Res, DeviceLoginResponse>;
   @useResult
   $Res call({bool success, String? message, DeviceLoginData? data});
 
@@ -57,8 +51,6 @@ class _$DeviceLoginResponseCopyWithImpl<$Res, $Val extends DeviceLoginResponse>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of DeviceLoginResponse
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -66,27 +58,22 @@ class _$DeviceLoginResponseCopyWithImpl<$Res, $Val extends DeviceLoginResponse>
     Object? message = freezed,
     Object? data = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            success: null == success
-                ? _value.success
-                : success // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            message: freezed == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            data: freezed == data
-                ? _value.data
-                : data // ignore: cast_nullable_to_non_nullable
-                      as DeviceLoginData?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      success: null == success
+          ? _value.success
+          : success // ignore: cast_nullable_to_non_nullable
+              as bool,
+      message: freezed == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
+      data: freezed == data
+          ? _value.data
+          : data // ignore: cast_nullable_to_non_nullable
+              as DeviceLoginData?,
+    ) as $Val);
   }
 
-  /// Create a copy of DeviceLoginResponse
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $DeviceLoginDataCopyWith<$Res>? get data {
@@ -103,10 +90,9 @@ class _$DeviceLoginResponseCopyWithImpl<$Res, $Val extends DeviceLoginResponse>
 /// @nodoc
 abstract class _$$DeviceLoginResponseImplCopyWith<$Res>
     implements $DeviceLoginResponseCopyWith<$Res> {
-  factory _$$DeviceLoginResponseImplCopyWith(
-    _$DeviceLoginResponseImpl value,
-    $Res Function(_$DeviceLoginResponseImpl) then,
-  ) = __$$DeviceLoginResponseImplCopyWithImpl<$Res>;
+  factory _$$DeviceLoginResponseImplCopyWith(_$DeviceLoginResponseImpl value,
+          $Res Function(_$DeviceLoginResponseImpl) then) =
+      __$$DeviceLoginResponseImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({bool success, String? message, DeviceLoginData? data});
@@ -119,13 +105,10 @@ abstract class _$$DeviceLoginResponseImplCopyWith<$Res>
 class __$$DeviceLoginResponseImplCopyWithImpl<$Res>
     extends _$DeviceLoginResponseCopyWithImpl<$Res, _$DeviceLoginResponseImpl>
     implements _$$DeviceLoginResponseImplCopyWith<$Res> {
-  __$$DeviceLoginResponseImplCopyWithImpl(
-    _$DeviceLoginResponseImpl _value,
-    $Res Function(_$DeviceLoginResponseImpl) _then,
-  ) : super(_value, _then);
+  __$$DeviceLoginResponseImplCopyWithImpl(_$DeviceLoginResponseImpl _value,
+      $Res Function(_$DeviceLoginResponseImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of DeviceLoginResponse
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -133,33 +116,28 @@ class __$$DeviceLoginResponseImplCopyWithImpl<$Res>
     Object? message = freezed,
     Object? data = freezed,
   }) {
-    return _then(
-      _$DeviceLoginResponseImpl(
-        success: null == success
-            ? _value.success
-            : success // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        message: freezed == message
-            ? _value.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        data: freezed == data
-            ? _value.data
-            : data // ignore: cast_nullable_to_non_nullable
-                  as DeviceLoginData?,
-      ),
-    );
+    return _then(_$DeviceLoginResponseImpl(
+      success: null == success
+          ? _value.success
+          : success // ignore: cast_nullable_to_non_nullable
+              as bool,
+      message: freezed == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
+      data: freezed == data
+          ? _value.data
+          : data // ignore: cast_nullable_to_non_nullable
+              as DeviceLoginData?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$DeviceLoginResponseImpl implements _DeviceLoginResponse {
-  const _$DeviceLoginResponseImpl({
-    required this.success,
-    this.message,
-    this.data,
-  });
+  const _$DeviceLoginResponseImpl(
+      {required this.success, this.message, this.data});
 
   factory _$DeviceLoginResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$DeviceLoginResponseImplFromJson(json);
@@ -186,33 +164,30 @@ class _$DeviceLoginResponseImpl implements _DeviceLoginResponse {
             (identical(other.data, data) || other.data == data));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, success, message, data);
 
-  /// Create a copy of DeviceLoginResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$DeviceLoginResponseImplCopyWith<_$DeviceLoginResponseImpl> get copyWith =>
       __$$DeviceLoginResponseImplCopyWithImpl<_$DeviceLoginResponseImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$DeviceLoginResponseImplToJson(this);
+    return _$$DeviceLoginResponseImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _DeviceLoginResponse implements DeviceLoginResponse {
-  const factory _DeviceLoginResponse({
-    required final bool success,
-    final String? message,
-    final DeviceLoginData? data,
-  }) = _$DeviceLoginResponseImpl;
+  const factory _DeviceLoginResponse(
+      {required final bool success,
+      final String? message,
+      final DeviceLoginData? data}) = _$DeviceLoginResponseImpl;
 
   factory _DeviceLoginResponse.fromJson(Map<String, dynamic> json) =
       _$DeviceLoginResponseImpl.fromJson;
@@ -223,11 +198,8 @@ abstract class _DeviceLoginResponse implements DeviceLoginResponse {
   String? get message;
   @override
   DeviceLoginData? get data;
-
-  /// Create a copy of DeviceLoginResponse
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$DeviceLoginResponseImplCopyWith<_$DeviceLoginResponseImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -238,19 +210,15 @@ DeviceLoginData _$DeviceLoginDataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$DeviceLoginData {
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   String? get device_id =>
       throw _privateConstructorUsedError; // ignore: non_constant_identifier_names
   String? get device_name =>
       throw _privateConstructorUsedError; // ignore: non_constant_identifier_names
   String? get device_password => throw _privateConstructorUsedError;
 
-  /// Serializes this DeviceLoginData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of DeviceLoginData
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $DeviceLoginDataCopyWith<DeviceLoginData> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -258,9 +226,8 @@ mixin _$DeviceLoginData {
 /// @nodoc
 abstract class $DeviceLoginDataCopyWith<$Res> {
   factory $DeviceLoginDataCopyWith(
-    DeviceLoginData value,
-    $Res Function(DeviceLoginData) then,
-  ) = _$DeviceLoginDataCopyWithImpl<$Res, DeviceLoginData>;
+          DeviceLoginData value, $Res Function(DeviceLoginData) then) =
+      _$DeviceLoginDataCopyWithImpl<$Res, DeviceLoginData>;
   @useResult
   $Res call({String? device_id, String? device_name, String? device_password});
 }
@@ -275,8 +242,6 @@ class _$DeviceLoginDataCopyWithImpl<$Res, $Val extends DeviceLoginData>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of DeviceLoginData
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -284,33 +249,29 @@ class _$DeviceLoginDataCopyWithImpl<$Res, $Val extends DeviceLoginData>
     Object? device_name = freezed,
     Object? device_password = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            device_id: freezed == device_id
-                ? _value.device_id
-                : device_id // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            device_name: freezed == device_name
-                ? _value.device_name
-                : device_name // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            device_password: freezed == device_password
-                ? _value.device_password
-                : device_password // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      device_id: freezed == device_id
+          ? _value.device_id
+          : device_id // ignore: cast_nullable_to_non_nullable
+              as String?,
+      device_name: freezed == device_name
+          ? _value.device_name
+          : device_name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      device_password: freezed == device_password
+          ? _value.device_password
+          : device_password // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$DeviceLoginDataImplCopyWith<$Res>
     implements $DeviceLoginDataCopyWith<$Res> {
-  factory _$$DeviceLoginDataImplCopyWith(
-    _$DeviceLoginDataImpl value,
-    $Res Function(_$DeviceLoginDataImpl) then,
-  ) = __$$DeviceLoginDataImplCopyWithImpl<$Res>;
+  factory _$$DeviceLoginDataImplCopyWith(_$DeviceLoginDataImpl value,
+          $Res Function(_$DeviceLoginDataImpl) then) =
+      __$$DeviceLoginDataImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String? device_id, String? device_name, String? device_password});
@@ -321,12 +282,9 @@ class __$$DeviceLoginDataImplCopyWithImpl<$Res>
     extends _$DeviceLoginDataCopyWithImpl<$Res, _$DeviceLoginDataImpl>
     implements _$$DeviceLoginDataImplCopyWith<$Res> {
   __$$DeviceLoginDataImplCopyWithImpl(
-    _$DeviceLoginDataImpl _value,
-    $Res Function(_$DeviceLoginDataImpl) _then,
-  ) : super(_value, _then);
+      _$DeviceLoginDataImpl _value, $Res Function(_$DeviceLoginDataImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of DeviceLoginData
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -334,44 +292,39 @@ class __$$DeviceLoginDataImplCopyWithImpl<$Res>
     Object? device_name = freezed,
     Object? device_password = freezed,
   }) {
-    return _then(
-      _$DeviceLoginDataImpl(
-        device_id: freezed == device_id
-            ? _value.device_id
-            : device_id // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        device_name: freezed == device_name
-            ? _value.device_name
-            : device_name // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        device_password: freezed == device_password
-            ? _value.device_password
-            : device_password // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
+    return _then(_$DeviceLoginDataImpl(
+      device_id: freezed == device_id
+          ? _value.device_id
+          : device_id // ignore: cast_nullable_to_non_nullable
+              as String?,
+      device_name: freezed == device_name
+          ? _value.device_name
+          : device_name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      device_password: freezed == device_password
+          ? _value.device_password
+          : device_password // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$DeviceLoginDataImpl implements _DeviceLoginData {
-  const _$DeviceLoginDataImpl({
-    this.device_id,
-    this.device_name,
-    this.device_password,
-  });
+  const _$DeviceLoginDataImpl(
+      {this.device_id, this.device_name, this.device_password});
 
   factory _$DeviceLoginDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$DeviceLoginDataImplFromJson(json);
 
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? device_id;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? device_name;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? device_password;
 
@@ -393,50 +346,43 @@ class _$DeviceLoginDataImpl implements _DeviceLoginData {
                 other.device_password == device_password));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, device_id, device_name, device_password);
 
-  /// Create a copy of DeviceLoginData
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$DeviceLoginDataImplCopyWith<_$DeviceLoginDataImpl> get copyWith =>
       __$$DeviceLoginDataImplCopyWithImpl<_$DeviceLoginDataImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$DeviceLoginDataImplToJson(this);
+    return _$$DeviceLoginDataImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _DeviceLoginData implements DeviceLoginData {
-  const factory _DeviceLoginData({
-    final String? device_id,
-    final String? device_name,
-    final String? device_password,
-  }) = _$DeviceLoginDataImpl;
+  const factory _DeviceLoginData(
+      {final String? device_id,
+      final String? device_name,
+      final String? device_password}) = _$DeviceLoginDataImpl;
 
   factory _DeviceLoginData.fromJson(Map<String, dynamic> json) =
       _$DeviceLoginDataImpl.fromJson;
 
-  // ignore: non_constant_identifier_names
-  @override
-  String? get device_id; // ignore: non_constant_identifier_names
-  @override
-  String? get device_name; // ignore: non_constant_identifier_names
-  @override
+  @override // ignore: non_constant_identifier_names
+  String? get device_id;
+  @override // ignore: non_constant_identifier_names
+  String? get device_name;
+  @override // ignore: non_constant_identifier_names
   String? get device_password;
-
-  /// Create a copy of DeviceLoginData
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$DeviceLoginDataImplCopyWith<_$DeviceLoginDataImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -447,7 +393,7 @@ UpdateDeviceRequest _$UpdateDeviceRequestFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$UpdateDeviceRequest {
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   String? get device_name =>
       throw _privateConstructorUsedError; // ignore: non_constant_identifier_names
   String? get software_type =>
@@ -515,12 +461,8 @@ mixin _$UpdateDeviceRequest {
       throw _privateConstructorUsedError; // ignore: non_constant_identifier_names
   String? get is_verified => throw _privateConstructorUsedError;
 
-  /// Serializes this UpdateDeviceRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of UpdateDeviceRequest
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $UpdateDeviceRequestCopyWith<UpdateDeviceRequest> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -528,46 +470,44 @@ mixin _$UpdateDeviceRequest {
 /// @nodoc
 abstract class $UpdateDeviceRequestCopyWith<$Res> {
   factory $UpdateDeviceRequestCopyWith(
-    UpdateDeviceRequest value,
-    $Res Function(UpdateDeviceRequest) then,
-  ) = _$UpdateDeviceRequestCopyWithImpl<$Res, UpdateDeviceRequest>;
+          UpdateDeviceRequest value, $Res Function(UpdateDeviceRequest) then) =
+      _$UpdateDeviceRequestCopyWithImpl<$Res, UpdateDeviceRequest>;
   @useResult
-  $Res call({
-    String? device_name,
-    String? software_type,
-    bool? is_active,
-    bool? allow_update,
-    bool? disabled_select_filter,
-    String? app_version,
-    String? before_app_version,
-    bool? is_tester,
-    bool? allow_select_paper_type,
-    bool? enabled_basic_paper,
-    String? additional_paper_types,
-    int? remotecon_type,
-    String? camera_angle,
-    String? camera_model,
-    String? camera_lens,
-    String? printer_model,
-    int? printer_lifecounter,
-    String? printer_remaining,
-    String? payment_methods,
-    String? cardreader_num,
-    String? billacceptor_num,
-    String? print_types,
-    String? photo_types,
-    String? liveview_modes,
-    String? note,
-    bool? print_greyscale_additional,
-    bool? fix_print_quantity,
-    int? winning_probability,
-    int? liveview_timer_countDown,
-    int? liveview_timer_remote,
-    int? liveview_timer_remote_cont,
-    String? send_userphotos_methods,
-    bool? is_offline_mode,
-    String? is_verified,
-  });
+  $Res call(
+      {String? device_name,
+      String? software_type,
+      bool? is_active,
+      bool? allow_update,
+      bool? disabled_select_filter,
+      String? app_version,
+      String? before_app_version,
+      bool? is_tester,
+      bool? allow_select_paper_type,
+      bool? enabled_basic_paper,
+      String? additional_paper_types,
+      int? remotecon_type,
+      String? camera_angle,
+      String? camera_model,
+      String? camera_lens,
+      String? printer_model,
+      int? printer_lifecounter,
+      String? printer_remaining,
+      String? payment_methods,
+      String? cardreader_num,
+      String? billacceptor_num,
+      String? print_types,
+      String? photo_types,
+      String? liveview_modes,
+      String? note,
+      bool? print_greyscale_additional,
+      bool? fix_print_quantity,
+      int? winning_probability,
+      int? liveview_timer_countDown,
+      int? liveview_timer_remote,
+      int? liveview_timer_remote_cont,
+      String? send_userphotos_methods,
+      bool? is_offline_mode,
+      String? is_verified});
 }
 
 /// @nodoc
@@ -580,8 +520,6 @@ class _$UpdateDeviceRequestCopyWithImpl<$Res, $Val extends UpdateDeviceRequest>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of UpdateDeviceRequest
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -620,208 +558,200 @@ class _$UpdateDeviceRequestCopyWithImpl<$Res, $Val extends UpdateDeviceRequest>
     Object? is_offline_mode = freezed,
     Object? is_verified = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            device_name: freezed == device_name
-                ? _value.device_name
-                : device_name // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            software_type: freezed == software_type
-                ? _value.software_type
-                : software_type // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            is_active: freezed == is_active
-                ? _value.is_active
-                : is_active // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            allow_update: freezed == allow_update
-                ? _value.allow_update
-                : allow_update // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            disabled_select_filter: freezed == disabled_select_filter
-                ? _value.disabled_select_filter
-                : disabled_select_filter // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            app_version: freezed == app_version
-                ? _value.app_version
-                : app_version // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            before_app_version: freezed == before_app_version
-                ? _value.before_app_version
-                : before_app_version // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            is_tester: freezed == is_tester
-                ? _value.is_tester
-                : is_tester // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            allow_select_paper_type: freezed == allow_select_paper_type
-                ? _value.allow_select_paper_type
-                : allow_select_paper_type // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            enabled_basic_paper: freezed == enabled_basic_paper
-                ? _value.enabled_basic_paper
-                : enabled_basic_paper // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            additional_paper_types: freezed == additional_paper_types
-                ? _value.additional_paper_types
-                : additional_paper_types // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            remotecon_type: freezed == remotecon_type
-                ? _value.remotecon_type
-                : remotecon_type // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            camera_angle: freezed == camera_angle
-                ? _value.camera_angle
-                : camera_angle // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            camera_model: freezed == camera_model
-                ? _value.camera_model
-                : camera_model // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            camera_lens: freezed == camera_lens
-                ? _value.camera_lens
-                : camera_lens // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            printer_model: freezed == printer_model
-                ? _value.printer_model
-                : printer_model // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            printer_lifecounter: freezed == printer_lifecounter
-                ? _value.printer_lifecounter
-                : printer_lifecounter // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            printer_remaining: freezed == printer_remaining
-                ? _value.printer_remaining
-                : printer_remaining // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            payment_methods: freezed == payment_methods
-                ? _value.payment_methods
-                : payment_methods // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            cardreader_num: freezed == cardreader_num
-                ? _value.cardreader_num
-                : cardreader_num // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            billacceptor_num: freezed == billacceptor_num
-                ? _value.billacceptor_num
-                : billacceptor_num // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            print_types: freezed == print_types
-                ? _value.print_types
-                : print_types // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            photo_types: freezed == photo_types
-                ? _value.photo_types
-                : photo_types // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            liveview_modes: freezed == liveview_modes
-                ? _value.liveview_modes
-                : liveview_modes // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            note: freezed == note
-                ? _value.note
-                : note // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            print_greyscale_additional: freezed == print_greyscale_additional
-                ? _value.print_greyscale_additional
-                : print_greyscale_additional // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            fix_print_quantity: freezed == fix_print_quantity
-                ? _value.fix_print_quantity
-                : fix_print_quantity // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            winning_probability: freezed == winning_probability
-                ? _value.winning_probability
-                : winning_probability // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            liveview_timer_countDown: freezed == liveview_timer_countDown
-                ? _value.liveview_timer_countDown
-                : liveview_timer_countDown // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            liveview_timer_remote: freezed == liveview_timer_remote
-                ? _value.liveview_timer_remote
-                : liveview_timer_remote // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            liveview_timer_remote_cont: freezed == liveview_timer_remote_cont
-                ? _value.liveview_timer_remote_cont
-                : liveview_timer_remote_cont // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            send_userphotos_methods: freezed == send_userphotos_methods
-                ? _value.send_userphotos_methods
-                : send_userphotos_methods // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            is_offline_mode: freezed == is_offline_mode
-                ? _value.is_offline_mode
-                : is_offline_mode // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            is_verified: freezed == is_verified
-                ? _value.is_verified
-                : is_verified // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      device_name: freezed == device_name
+          ? _value.device_name
+          : device_name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      software_type: freezed == software_type
+          ? _value.software_type
+          : software_type // ignore: cast_nullable_to_non_nullable
+              as String?,
+      is_active: freezed == is_active
+          ? _value.is_active
+          : is_active // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      allow_update: freezed == allow_update
+          ? _value.allow_update
+          : allow_update // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      disabled_select_filter: freezed == disabled_select_filter
+          ? _value.disabled_select_filter
+          : disabled_select_filter // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      app_version: freezed == app_version
+          ? _value.app_version
+          : app_version // ignore: cast_nullable_to_non_nullable
+              as String?,
+      before_app_version: freezed == before_app_version
+          ? _value.before_app_version
+          : before_app_version // ignore: cast_nullable_to_non_nullable
+              as String?,
+      is_tester: freezed == is_tester
+          ? _value.is_tester
+          : is_tester // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      allow_select_paper_type: freezed == allow_select_paper_type
+          ? _value.allow_select_paper_type
+          : allow_select_paper_type // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      enabled_basic_paper: freezed == enabled_basic_paper
+          ? _value.enabled_basic_paper
+          : enabled_basic_paper // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      additional_paper_types: freezed == additional_paper_types
+          ? _value.additional_paper_types
+          : additional_paper_types // ignore: cast_nullable_to_non_nullable
+              as String?,
+      remotecon_type: freezed == remotecon_type
+          ? _value.remotecon_type
+          : remotecon_type // ignore: cast_nullable_to_non_nullable
+              as int?,
+      camera_angle: freezed == camera_angle
+          ? _value.camera_angle
+          : camera_angle // ignore: cast_nullable_to_non_nullable
+              as String?,
+      camera_model: freezed == camera_model
+          ? _value.camera_model
+          : camera_model // ignore: cast_nullable_to_non_nullable
+              as String?,
+      camera_lens: freezed == camera_lens
+          ? _value.camera_lens
+          : camera_lens // ignore: cast_nullable_to_non_nullable
+              as String?,
+      printer_model: freezed == printer_model
+          ? _value.printer_model
+          : printer_model // ignore: cast_nullable_to_non_nullable
+              as String?,
+      printer_lifecounter: freezed == printer_lifecounter
+          ? _value.printer_lifecounter
+          : printer_lifecounter // ignore: cast_nullable_to_non_nullable
+              as int?,
+      printer_remaining: freezed == printer_remaining
+          ? _value.printer_remaining
+          : printer_remaining // ignore: cast_nullable_to_non_nullable
+              as String?,
+      payment_methods: freezed == payment_methods
+          ? _value.payment_methods
+          : payment_methods // ignore: cast_nullable_to_non_nullable
+              as String?,
+      cardreader_num: freezed == cardreader_num
+          ? _value.cardreader_num
+          : cardreader_num // ignore: cast_nullable_to_non_nullable
+              as String?,
+      billacceptor_num: freezed == billacceptor_num
+          ? _value.billacceptor_num
+          : billacceptor_num // ignore: cast_nullable_to_non_nullable
+              as String?,
+      print_types: freezed == print_types
+          ? _value.print_types
+          : print_types // ignore: cast_nullable_to_non_nullable
+              as String?,
+      photo_types: freezed == photo_types
+          ? _value.photo_types
+          : photo_types // ignore: cast_nullable_to_non_nullable
+              as String?,
+      liveview_modes: freezed == liveview_modes
+          ? _value.liveview_modes
+          : liveview_modes // ignore: cast_nullable_to_non_nullable
+              as String?,
+      note: freezed == note
+          ? _value.note
+          : note // ignore: cast_nullable_to_non_nullable
+              as String?,
+      print_greyscale_additional: freezed == print_greyscale_additional
+          ? _value.print_greyscale_additional
+          : print_greyscale_additional // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      fix_print_quantity: freezed == fix_print_quantity
+          ? _value.fix_print_quantity
+          : fix_print_quantity // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      winning_probability: freezed == winning_probability
+          ? _value.winning_probability
+          : winning_probability // ignore: cast_nullable_to_non_nullable
+              as int?,
+      liveview_timer_countDown: freezed == liveview_timer_countDown
+          ? _value.liveview_timer_countDown
+          : liveview_timer_countDown // ignore: cast_nullable_to_non_nullable
+              as int?,
+      liveview_timer_remote: freezed == liveview_timer_remote
+          ? _value.liveview_timer_remote
+          : liveview_timer_remote // ignore: cast_nullable_to_non_nullable
+              as int?,
+      liveview_timer_remote_cont: freezed == liveview_timer_remote_cont
+          ? _value.liveview_timer_remote_cont
+          : liveview_timer_remote_cont // ignore: cast_nullable_to_non_nullable
+              as int?,
+      send_userphotos_methods: freezed == send_userphotos_methods
+          ? _value.send_userphotos_methods
+          : send_userphotos_methods // ignore: cast_nullable_to_non_nullable
+              as String?,
+      is_offline_mode: freezed == is_offline_mode
+          ? _value.is_offline_mode
+          : is_offline_mode // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      is_verified: freezed == is_verified
+          ? _value.is_verified
+          : is_verified // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$UpdateDeviceRequestImplCopyWith<$Res>
     implements $UpdateDeviceRequestCopyWith<$Res> {
-  factory _$$UpdateDeviceRequestImplCopyWith(
-    _$UpdateDeviceRequestImpl value,
-    $Res Function(_$UpdateDeviceRequestImpl) then,
-  ) = __$$UpdateDeviceRequestImplCopyWithImpl<$Res>;
+  factory _$$UpdateDeviceRequestImplCopyWith(_$UpdateDeviceRequestImpl value,
+          $Res Function(_$UpdateDeviceRequestImpl) then) =
+      __$$UpdateDeviceRequestImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String? device_name,
-    String? software_type,
-    bool? is_active,
-    bool? allow_update,
-    bool? disabled_select_filter,
-    String? app_version,
-    String? before_app_version,
-    bool? is_tester,
-    bool? allow_select_paper_type,
-    bool? enabled_basic_paper,
-    String? additional_paper_types,
-    int? remotecon_type,
-    String? camera_angle,
-    String? camera_model,
-    String? camera_lens,
-    String? printer_model,
-    int? printer_lifecounter,
-    String? printer_remaining,
-    String? payment_methods,
-    String? cardreader_num,
-    String? billacceptor_num,
-    String? print_types,
-    String? photo_types,
-    String? liveview_modes,
-    String? note,
-    bool? print_greyscale_additional,
-    bool? fix_print_quantity,
-    int? winning_probability,
-    int? liveview_timer_countDown,
-    int? liveview_timer_remote,
-    int? liveview_timer_remote_cont,
-    String? send_userphotos_methods,
-    bool? is_offline_mode,
-    String? is_verified,
-  });
+  $Res call(
+      {String? device_name,
+      String? software_type,
+      bool? is_active,
+      bool? allow_update,
+      bool? disabled_select_filter,
+      String? app_version,
+      String? before_app_version,
+      bool? is_tester,
+      bool? allow_select_paper_type,
+      bool? enabled_basic_paper,
+      String? additional_paper_types,
+      int? remotecon_type,
+      String? camera_angle,
+      String? camera_model,
+      String? camera_lens,
+      String? printer_model,
+      int? printer_lifecounter,
+      String? printer_remaining,
+      String? payment_methods,
+      String? cardreader_num,
+      String? billacceptor_num,
+      String? print_types,
+      String? photo_types,
+      String? liveview_modes,
+      String? note,
+      bool? print_greyscale_additional,
+      bool? fix_print_quantity,
+      int? winning_probability,
+      int? liveview_timer_countDown,
+      int? liveview_timer_remote,
+      int? liveview_timer_remote_cont,
+      String? send_userphotos_methods,
+      bool? is_offline_mode,
+      String? is_verified});
 }
 
 /// @nodoc
 class __$$UpdateDeviceRequestImplCopyWithImpl<$Res>
     extends _$UpdateDeviceRequestCopyWithImpl<$Res, _$UpdateDeviceRequestImpl>
     implements _$$UpdateDeviceRequestImplCopyWith<$Res> {
-  __$$UpdateDeviceRequestImplCopyWithImpl(
-    _$UpdateDeviceRequestImpl _value,
-    $Res Function(_$UpdateDeviceRequestImpl) _then,
-  ) : super(_value, _then);
+  __$$UpdateDeviceRequestImplCopyWithImpl(_$UpdateDeviceRequestImpl _value,
+      $Res Function(_$UpdateDeviceRequestImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of UpdateDeviceRequest
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -860,291 +790,288 @@ class __$$UpdateDeviceRequestImplCopyWithImpl<$Res>
     Object? is_offline_mode = freezed,
     Object? is_verified = freezed,
   }) {
-    return _then(
-      _$UpdateDeviceRequestImpl(
-        device_name: freezed == device_name
-            ? _value.device_name
-            : device_name // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        software_type: freezed == software_type
-            ? _value.software_type
-            : software_type // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        is_active: freezed == is_active
-            ? _value.is_active
-            : is_active // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        allow_update: freezed == allow_update
-            ? _value.allow_update
-            : allow_update // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        disabled_select_filter: freezed == disabled_select_filter
-            ? _value.disabled_select_filter
-            : disabled_select_filter // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        app_version: freezed == app_version
-            ? _value.app_version
-            : app_version // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        before_app_version: freezed == before_app_version
-            ? _value.before_app_version
-            : before_app_version // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        is_tester: freezed == is_tester
-            ? _value.is_tester
-            : is_tester // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        allow_select_paper_type: freezed == allow_select_paper_type
-            ? _value.allow_select_paper_type
-            : allow_select_paper_type // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        enabled_basic_paper: freezed == enabled_basic_paper
-            ? _value.enabled_basic_paper
-            : enabled_basic_paper // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        additional_paper_types: freezed == additional_paper_types
-            ? _value.additional_paper_types
-            : additional_paper_types // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        remotecon_type: freezed == remotecon_type
-            ? _value.remotecon_type
-            : remotecon_type // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        camera_angle: freezed == camera_angle
-            ? _value.camera_angle
-            : camera_angle // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        camera_model: freezed == camera_model
-            ? _value.camera_model
-            : camera_model // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        camera_lens: freezed == camera_lens
-            ? _value.camera_lens
-            : camera_lens // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        printer_model: freezed == printer_model
-            ? _value.printer_model
-            : printer_model // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        printer_lifecounter: freezed == printer_lifecounter
-            ? _value.printer_lifecounter
-            : printer_lifecounter // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        printer_remaining: freezed == printer_remaining
-            ? _value.printer_remaining
-            : printer_remaining // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        payment_methods: freezed == payment_methods
-            ? _value.payment_methods
-            : payment_methods // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        cardreader_num: freezed == cardreader_num
-            ? _value.cardreader_num
-            : cardreader_num // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        billacceptor_num: freezed == billacceptor_num
-            ? _value.billacceptor_num
-            : billacceptor_num // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        print_types: freezed == print_types
-            ? _value.print_types
-            : print_types // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        photo_types: freezed == photo_types
-            ? _value.photo_types
-            : photo_types // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        liveview_modes: freezed == liveview_modes
-            ? _value.liveview_modes
-            : liveview_modes // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        note: freezed == note
-            ? _value.note
-            : note // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        print_greyscale_additional: freezed == print_greyscale_additional
-            ? _value.print_greyscale_additional
-            : print_greyscale_additional // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        fix_print_quantity: freezed == fix_print_quantity
-            ? _value.fix_print_quantity
-            : fix_print_quantity // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        winning_probability: freezed == winning_probability
-            ? _value.winning_probability
-            : winning_probability // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        liveview_timer_countDown: freezed == liveview_timer_countDown
-            ? _value.liveview_timer_countDown
-            : liveview_timer_countDown // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        liveview_timer_remote: freezed == liveview_timer_remote
-            ? _value.liveview_timer_remote
-            : liveview_timer_remote // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        liveview_timer_remote_cont: freezed == liveview_timer_remote_cont
-            ? _value.liveview_timer_remote_cont
-            : liveview_timer_remote_cont // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        send_userphotos_methods: freezed == send_userphotos_methods
-            ? _value.send_userphotos_methods
-            : send_userphotos_methods // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        is_offline_mode: freezed == is_offline_mode
-            ? _value.is_offline_mode
-            : is_offline_mode // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        is_verified: freezed == is_verified
-            ? _value.is_verified
-            : is_verified // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
+    return _then(_$UpdateDeviceRequestImpl(
+      device_name: freezed == device_name
+          ? _value.device_name
+          : device_name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      software_type: freezed == software_type
+          ? _value.software_type
+          : software_type // ignore: cast_nullable_to_non_nullable
+              as String?,
+      is_active: freezed == is_active
+          ? _value.is_active
+          : is_active // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      allow_update: freezed == allow_update
+          ? _value.allow_update
+          : allow_update // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      disabled_select_filter: freezed == disabled_select_filter
+          ? _value.disabled_select_filter
+          : disabled_select_filter // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      app_version: freezed == app_version
+          ? _value.app_version
+          : app_version // ignore: cast_nullable_to_non_nullable
+              as String?,
+      before_app_version: freezed == before_app_version
+          ? _value.before_app_version
+          : before_app_version // ignore: cast_nullable_to_non_nullable
+              as String?,
+      is_tester: freezed == is_tester
+          ? _value.is_tester
+          : is_tester // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      allow_select_paper_type: freezed == allow_select_paper_type
+          ? _value.allow_select_paper_type
+          : allow_select_paper_type // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      enabled_basic_paper: freezed == enabled_basic_paper
+          ? _value.enabled_basic_paper
+          : enabled_basic_paper // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      additional_paper_types: freezed == additional_paper_types
+          ? _value.additional_paper_types
+          : additional_paper_types // ignore: cast_nullable_to_non_nullable
+              as String?,
+      remotecon_type: freezed == remotecon_type
+          ? _value.remotecon_type
+          : remotecon_type // ignore: cast_nullable_to_non_nullable
+              as int?,
+      camera_angle: freezed == camera_angle
+          ? _value.camera_angle
+          : camera_angle // ignore: cast_nullable_to_non_nullable
+              as String?,
+      camera_model: freezed == camera_model
+          ? _value.camera_model
+          : camera_model // ignore: cast_nullable_to_non_nullable
+              as String?,
+      camera_lens: freezed == camera_lens
+          ? _value.camera_lens
+          : camera_lens // ignore: cast_nullable_to_non_nullable
+              as String?,
+      printer_model: freezed == printer_model
+          ? _value.printer_model
+          : printer_model // ignore: cast_nullable_to_non_nullable
+              as String?,
+      printer_lifecounter: freezed == printer_lifecounter
+          ? _value.printer_lifecounter
+          : printer_lifecounter // ignore: cast_nullable_to_non_nullable
+              as int?,
+      printer_remaining: freezed == printer_remaining
+          ? _value.printer_remaining
+          : printer_remaining // ignore: cast_nullable_to_non_nullable
+              as String?,
+      payment_methods: freezed == payment_methods
+          ? _value.payment_methods
+          : payment_methods // ignore: cast_nullable_to_non_nullable
+              as String?,
+      cardreader_num: freezed == cardreader_num
+          ? _value.cardreader_num
+          : cardreader_num // ignore: cast_nullable_to_non_nullable
+              as String?,
+      billacceptor_num: freezed == billacceptor_num
+          ? _value.billacceptor_num
+          : billacceptor_num // ignore: cast_nullable_to_non_nullable
+              as String?,
+      print_types: freezed == print_types
+          ? _value.print_types
+          : print_types // ignore: cast_nullable_to_non_nullable
+              as String?,
+      photo_types: freezed == photo_types
+          ? _value.photo_types
+          : photo_types // ignore: cast_nullable_to_non_nullable
+              as String?,
+      liveview_modes: freezed == liveview_modes
+          ? _value.liveview_modes
+          : liveview_modes // ignore: cast_nullable_to_non_nullable
+              as String?,
+      note: freezed == note
+          ? _value.note
+          : note // ignore: cast_nullable_to_non_nullable
+              as String?,
+      print_greyscale_additional: freezed == print_greyscale_additional
+          ? _value.print_greyscale_additional
+          : print_greyscale_additional // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      fix_print_quantity: freezed == fix_print_quantity
+          ? _value.fix_print_quantity
+          : fix_print_quantity // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      winning_probability: freezed == winning_probability
+          ? _value.winning_probability
+          : winning_probability // ignore: cast_nullable_to_non_nullable
+              as int?,
+      liveview_timer_countDown: freezed == liveview_timer_countDown
+          ? _value.liveview_timer_countDown
+          : liveview_timer_countDown // ignore: cast_nullable_to_non_nullable
+              as int?,
+      liveview_timer_remote: freezed == liveview_timer_remote
+          ? _value.liveview_timer_remote
+          : liveview_timer_remote // ignore: cast_nullable_to_non_nullable
+              as int?,
+      liveview_timer_remote_cont: freezed == liveview_timer_remote_cont
+          ? _value.liveview_timer_remote_cont
+          : liveview_timer_remote_cont // ignore: cast_nullable_to_non_nullable
+              as int?,
+      send_userphotos_methods: freezed == send_userphotos_methods
+          ? _value.send_userphotos_methods
+          : send_userphotos_methods // ignore: cast_nullable_to_non_nullable
+              as String?,
+      is_offline_mode: freezed == is_offline_mode
+          ? _value.is_offline_mode
+          : is_offline_mode // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      is_verified: freezed == is_verified
+          ? _value.is_verified
+          : is_verified // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$UpdateDeviceRequestImpl implements _UpdateDeviceRequest {
-  const _$UpdateDeviceRequestImpl({
-    this.device_name,
-    this.software_type,
-    this.is_active,
-    this.allow_update,
-    this.disabled_select_filter,
-    this.app_version,
-    this.before_app_version,
-    this.is_tester,
-    this.allow_select_paper_type,
-    this.enabled_basic_paper,
-    this.additional_paper_types,
-    this.remotecon_type,
-    this.camera_angle,
-    this.camera_model,
-    this.camera_lens,
-    this.printer_model,
-    this.printer_lifecounter,
-    this.printer_remaining,
-    this.payment_methods,
-    this.cardreader_num,
-    this.billacceptor_num,
-    this.print_types,
-    this.photo_types,
-    this.liveview_modes,
-    this.note,
-    this.print_greyscale_additional,
-    this.fix_print_quantity,
-    this.winning_probability,
-    this.liveview_timer_countDown,
-    this.liveview_timer_remote,
-    this.liveview_timer_remote_cont,
-    this.send_userphotos_methods,
-    this.is_offline_mode,
-    this.is_verified,
-  });
+  const _$UpdateDeviceRequestImpl(
+      {this.device_name,
+      this.software_type,
+      this.is_active,
+      this.allow_update,
+      this.disabled_select_filter,
+      this.app_version,
+      this.before_app_version,
+      this.is_tester,
+      this.allow_select_paper_type,
+      this.enabled_basic_paper,
+      this.additional_paper_types,
+      this.remotecon_type,
+      this.camera_angle,
+      this.camera_model,
+      this.camera_lens,
+      this.printer_model,
+      this.printer_lifecounter,
+      this.printer_remaining,
+      this.payment_methods,
+      this.cardreader_num,
+      this.billacceptor_num,
+      this.print_types,
+      this.photo_types,
+      this.liveview_modes,
+      this.note,
+      this.print_greyscale_additional,
+      this.fix_print_quantity,
+      this.winning_probability,
+      this.liveview_timer_countDown,
+      this.liveview_timer_remote,
+      this.liveview_timer_remote_cont,
+      this.send_userphotos_methods,
+      this.is_offline_mode,
+      this.is_verified});
 
   factory _$UpdateDeviceRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$UpdateDeviceRequestImplFromJson(json);
 
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? device_name;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? software_type;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final bool? is_active;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final bool? allow_update;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final bool? disabled_select_filter;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? app_version;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? before_app_version;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final bool? is_tester;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final bool? allow_select_paper_type;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final bool? enabled_basic_paper;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? additional_paper_types;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final int? remotecon_type;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? camera_angle;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? camera_model;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? camera_lens;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? printer_model;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final int? printer_lifecounter;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? printer_remaining;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? payment_methods;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? cardreader_num;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? billacceptor_num;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? print_types;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? photo_types;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? liveview_modes;
   @override
   final String? note;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final bool? print_greyscale_additional;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final bool? fix_print_quantity;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final int? winning_probability;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final int? liveview_timer_countDown;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final int? liveview_timer_remote;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final int? liveview_timer_remote_cont;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? send_userphotos_methods;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final bool? is_offline_mode;
-  // ignore: non_constant_identifier_names
+// ignore: non_constant_identifier_names
   @override
   final String? is_verified;
 
@@ -1174,10 +1101,7 @@ class _$UpdateDeviceRequestImpl implements _UpdateDeviceRequest {
                 other.before_app_version == before_app_version) &&
             (identical(other.is_tester, is_tester) ||
                 other.is_tester == is_tester) &&
-            (identical(
-                  other.allow_select_paper_type,
-                  allow_select_paper_type,
-                ) ||
+            (identical(other.allow_select_paper_type, allow_select_paper_type) ||
                 other.allow_select_paper_type == allow_select_paper_type) &&
             (identical(other.enabled_basic_paper, enabled_basic_paper) ||
                 other.enabled_basic_paper == enabled_basic_paper) &&
@@ -1210,212 +1134,192 @@ class _$UpdateDeviceRequestImpl implements _UpdateDeviceRequest {
             (identical(other.liveview_modes, liveview_modes) ||
                 other.liveview_modes == liveview_modes) &&
             (identical(other.note, note) || other.note == note) &&
-            (identical(
-                  other.print_greyscale_additional,
-                  print_greyscale_additional,
-                ) ||
+            (identical(other.print_greyscale_additional, print_greyscale_additional) ||
                 other.print_greyscale_additional ==
                     print_greyscale_additional) &&
             (identical(other.fix_print_quantity, fix_print_quantity) ||
                 other.fix_print_quantity == fix_print_quantity) &&
             (identical(other.winning_probability, winning_probability) ||
                 other.winning_probability == winning_probability) &&
-            (identical(
-                  other.liveview_timer_countDown,
-                  liveview_timer_countDown,
-                ) ||
+            (identical(other.liveview_timer_countDown, liveview_timer_countDown) ||
                 other.liveview_timer_countDown == liveview_timer_countDown) &&
             (identical(other.liveview_timer_remote, liveview_timer_remote) ||
                 other.liveview_timer_remote == liveview_timer_remote) &&
-            (identical(
-                  other.liveview_timer_remote_cont,
-                  liveview_timer_remote_cont,
-                ) ||
+            (identical(other.liveview_timer_remote_cont, liveview_timer_remote_cont) ||
                 other.liveview_timer_remote_cont ==
                     liveview_timer_remote_cont) &&
-            (identical(
-                  other.send_userphotos_methods,
-                  send_userphotos_methods,
-                ) ||
+            (identical(other.send_userphotos_methods, send_userphotos_methods) ||
                 other.send_userphotos_methods == send_userphotos_methods) &&
             (identical(other.is_offline_mode, is_offline_mode) ||
                 other.is_offline_mode == is_offline_mode) &&
-            (identical(other.is_verified, is_verified) ||
-                other.is_verified == is_verified));
+            (identical(other.is_verified, is_verified) || other.is_verified == is_verified));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hashAll([
-    runtimeType,
-    device_name,
-    software_type,
-    is_active,
-    allow_update,
-    disabled_select_filter,
-    app_version,
-    before_app_version,
-    is_tester,
-    allow_select_paper_type,
-    enabled_basic_paper,
-    additional_paper_types,
-    remotecon_type,
-    camera_angle,
-    camera_model,
-    camera_lens,
-    printer_model,
-    printer_lifecounter,
-    printer_remaining,
-    payment_methods,
-    cardreader_num,
-    billacceptor_num,
-    print_types,
-    photo_types,
-    liveview_modes,
-    note,
-    print_greyscale_additional,
-    fix_print_quantity,
-    winning_probability,
-    liveview_timer_countDown,
-    liveview_timer_remote,
-    liveview_timer_remote_cont,
-    send_userphotos_methods,
-    is_offline_mode,
-    is_verified,
-  ]);
+        runtimeType,
+        device_name,
+        software_type,
+        is_active,
+        allow_update,
+        disabled_select_filter,
+        app_version,
+        before_app_version,
+        is_tester,
+        allow_select_paper_type,
+        enabled_basic_paper,
+        additional_paper_types,
+        remotecon_type,
+        camera_angle,
+        camera_model,
+        camera_lens,
+        printer_model,
+        printer_lifecounter,
+        printer_remaining,
+        payment_methods,
+        cardreader_num,
+        billacceptor_num,
+        print_types,
+        photo_types,
+        liveview_modes,
+        note,
+        print_greyscale_additional,
+        fix_print_quantity,
+        winning_probability,
+        liveview_timer_countDown,
+        liveview_timer_remote,
+        liveview_timer_remote_cont,
+        send_userphotos_methods,
+        is_offline_mode,
+        is_verified
+      ]);
 
-  /// Create a copy of UpdateDeviceRequest
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$UpdateDeviceRequestImplCopyWith<_$UpdateDeviceRequestImpl> get copyWith =>
       __$$UpdateDeviceRequestImplCopyWithImpl<_$UpdateDeviceRequestImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UpdateDeviceRequestImplToJson(this);
+    return _$$UpdateDeviceRequestImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _UpdateDeviceRequest implements UpdateDeviceRequest {
-  const factory _UpdateDeviceRequest({
-    final String? device_name,
-    final String? software_type,
-    final bool? is_active,
-    final bool? allow_update,
-    final bool? disabled_select_filter,
-    final String? app_version,
-    final String? before_app_version,
-    final bool? is_tester,
-    final bool? allow_select_paper_type,
-    final bool? enabled_basic_paper,
-    final String? additional_paper_types,
-    final int? remotecon_type,
-    final String? camera_angle,
-    final String? camera_model,
-    final String? camera_lens,
-    final String? printer_model,
-    final int? printer_lifecounter,
-    final String? printer_remaining,
-    final String? payment_methods,
-    final String? cardreader_num,
-    final String? billacceptor_num,
-    final String? print_types,
-    final String? photo_types,
-    final String? liveview_modes,
-    final String? note,
-    final bool? print_greyscale_additional,
-    final bool? fix_print_quantity,
-    final int? winning_probability,
-    final int? liveview_timer_countDown,
-    final int? liveview_timer_remote,
-    final int? liveview_timer_remote_cont,
-    final String? send_userphotos_methods,
-    final bool? is_offline_mode,
-    final String? is_verified,
-  }) = _$UpdateDeviceRequestImpl;
+  const factory _UpdateDeviceRequest(
+      {final String? device_name,
+      final String? software_type,
+      final bool? is_active,
+      final bool? allow_update,
+      final bool? disabled_select_filter,
+      final String? app_version,
+      final String? before_app_version,
+      final bool? is_tester,
+      final bool? allow_select_paper_type,
+      final bool? enabled_basic_paper,
+      final String? additional_paper_types,
+      final int? remotecon_type,
+      final String? camera_angle,
+      final String? camera_model,
+      final String? camera_lens,
+      final String? printer_model,
+      final int? printer_lifecounter,
+      final String? printer_remaining,
+      final String? payment_methods,
+      final String? cardreader_num,
+      final String? billacceptor_num,
+      final String? print_types,
+      final String? photo_types,
+      final String? liveview_modes,
+      final String? note,
+      final bool? print_greyscale_additional,
+      final bool? fix_print_quantity,
+      final int? winning_probability,
+      final int? liveview_timer_countDown,
+      final int? liveview_timer_remote,
+      final int? liveview_timer_remote_cont,
+      final String? send_userphotos_methods,
+      final bool? is_offline_mode,
+      final String? is_verified}) = _$UpdateDeviceRequestImpl;
 
   factory _UpdateDeviceRequest.fromJson(Map<String, dynamic> json) =
       _$UpdateDeviceRequestImpl.fromJson;
 
-  // ignore: non_constant_identifier_names
-  @override
-  String? get device_name; // ignore: non_constant_identifier_names
-  @override
-  String? get software_type; // ignore: non_constant_identifier_names
-  @override
-  bool? get is_active; // ignore: non_constant_identifier_names
-  @override
-  bool? get allow_update; // ignore: non_constant_identifier_names
-  @override
-  bool? get disabled_select_filter; // ignore: non_constant_identifier_names
-  @override
-  String? get app_version; // ignore: non_constant_identifier_names
-  @override
-  String? get before_app_version; // ignore: non_constant_identifier_names
-  @override
-  bool? get is_tester; // ignore: non_constant_identifier_names
-  @override
-  bool? get allow_select_paper_type; // ignore: non_constant_identifier_names
-  @override
-  bool? get enabled_basic_paper; // ignore: non_constant_identifier_names
-  @override
-  String? get additional_paper_types; // ignore: non_constant_identifier_names
-  @override
-  int? get remotecon_type; // ignore: non_constant_identifier_names
-  @override
-  String? get camera_angle; // ignore: non_constant_identifier_names
-  @override
-  String? get camera_model; // ignore: non_constant_identifier_names
-  @override
-  String? get camera_lens; // ignore: non_constant_identifier_names
-  @override
-  String? get printer_model; // ignore: non_constant_identifier_names
-  @override
-  int? get printer_lifecounter; // ignore: non_constant_identifier_names
-  @override
-  String? get printer_remaining; // ignore: non_constant_identifier_names
-  @override
-  String? get payment_methods; // ignore: non_constant_identifier_names
-  @override
-  String? get cardreader_num; // ignore: non_constant_identifier_names
-  @override
-  String? get billacceptor_num; // ignore: non_constant_identifier_names
-  @override
-  String? get print_types; // ignore: non_constant_identifier_names
-  @override
-  String? get photo_types; // ignore: non_constant_identifier_names
-  @override
+  @override // ignore: non_constant_identifier_names
+  String? get device_name;
+  @override // ignore: non_constant_identifier_names
+  String? get software_type;
+  @override // ignore: non_constant_identifier_names
+  bool? get is_active;
+  @override // ignore: non_constant_identifier_names
+  bool? get allow_update;
+  @override // ignore: non_constant_identifier_names
+  bool? get disabled_select_filter;
+  @override // ignore: non_constant_identifier_names
+  String? get app_version;
+  @override // ignore: non_constant_identifier_names
+  String? get before_app_version;
+  @override // ignore: non_constant_identifier_names
+  bool? get is_tester;
+  @override // ignore: non_constant_identifier_names
+  bool? get allow_select_paper_type;
+  @override // ignore: non_constant_identifier_names
+  bool? get enabled_basic_paper;
+  @override // ignore: non_constant_identifier_names
+  String? get additional_paper_types;
+  @override // ignore: non_constant_identifier_names
+  int? get remotecon_type;
+  @override // ignore: non_constant_identifier_names
+  String? get camera_angle;
+  @override // ignore: non_constant_identifier_names
+  String? get camera_model;
+  @override // ignore: non_constant_identifier_names
+  String? get camera_lens;
+  @override // ignore: non_constant_identifier_names
+  String? get printer_model;
+  @override // ignore: non_constant_identifier_names
+  int? get printer_lifecounter;
+  @override // ignore: non_constant_identifier_names
+  String? get printer_remaining;
+  @override // ignore: non_constant_identifier_names
+  String? get payment_methods;
+  @override // ignore: non_constant_identifier_names
+  String? get cardreader_num;
+  @override // ignore: non_constant_identifier_names
+  String? get billacceptor_num;
+  @override // ignore: non_constant_identifier_names
+  String? get print_types;
+  @override // ignore: non_constant_identifier_names
+  String? get photo_types;
+  @override // ignore: non_constant_identifier_names
   String? get liveview_modes;
   @override
-  String? get note; // ignore: non_constant_identifier_names
-  @override
-  bool? get print_greyscale_additional; // ignore: non_constant_identifier_names
-  @override
-  bool? get fix_print_quantity; // ignore: non_constant_identifier_names
-  @override
-  int? get winning_probability; // ignore: non_constant_identifier_names
-  @override
-  int? get liveview_timer_countDown; // ignore: non_constant_identifier_names
-  @override
-  int? get liveview_timer_remote; // ignore: non_constant_identifier_names
-  @override
-  int? get liveview_timer_remote_cont; // ignore: non_constant_identifier_names
-  @override
-  String? get send_userphotos_methods; // ignore: non_constant_identifier_names
-  @override
-  bool? get is_offline_mode; // ignore: non_constant_identifier_names
-  @override
+  String? get note;
+  @override // ignore: non_constant_identifier_names
+  bool? get print_greyscale_additional;
+  @override // ignore: non_constant_identifier_names
+  bool? get fix_print_quantity;
+  @override // ignore: non_constant_identifier_names
+  int? get winning_probability;
+  @override // ignore: non_constant_identifier_names
+  int? get liveview_timer_countDown;
+  @override // ignore: non_constant_identifier_names
+  int? get liveview_timer_remote;
+  @override // ignore: non_constant_identifier_names
+  int? get liveview_timer_remote_cont;
+  @override // ignore: non_constant_identifier_names
+  String? get send_userphotos_methods;
+  @override // ignore: non_constant_identifier_names
+  bool? get is_offline_mode;
+  @override // ignore: non_constant_identifier_names
   String? get is_verified;
-
-  /// Create a copy of UpdateDeviceRequest
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$UpdateDeviceRequestImplCopyWith<_$UpdateDeviceRequestImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1431,12 +1335,8 @@ mixin _$ApiError {
   String? get error => throw _privateConstructorUsedError;
   int? get code => throw _privateConstructorUsedError;
 
-  /// Serializes this ApiError to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of ApiError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $ApiErrorCopyWith<ApiError> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1459,8 +1359,6 @@ class _$ApiErrorCopyWithImpl<$Res, $Val extends ApiError>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of ApiError
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1469,27 +1367,24 @@ class _$ApiErrorCopyWithImpl<$Res, $Val extends ApiError>
     Object? error = freezed,
     Object? code = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            statusCode: freezed == statusCode
-                ? _value.statusCode
-                : statusCode // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            message: freezed == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            error: freezed == error
-                ? _value.error
-                : error // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            code: freezed == code
-                ? _value.code
-                : code // ignore: cast_nullable_to_non_nullable
-                      as int?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      statusCode: freezed == statusCode
+          ? _value.statusCode
+          : statusCode // ignore: cast_nullable_to_non_nullable
+              as int?,
+      message: freezed == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
+      error: freezed == error
+          ? _value.error
+          : error // ignore: cast_nullable_to_non_nullable
+              as String?,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ) as $Val);
   }
 }
 
@@ -1497,9 +1392,8 @@ class _$ApiErrorCopyWithImpl<$Res, $Val extends ApiError>
 abstract class _$$ApiErrorImplCopyWith<$Res>
     implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiErrorImplCopyWith(
-    _$ApiErrorImpl value,
-    $Res Function(_$ApiErrorImpl) then,
-  ) = __$$ApiErrorImplCopyWithImpl<$Res>;
+          _$ApiErrorImpl value, $Res Function(_$ApiErrorImpl) then) =
+      __$$ApiErrorImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({int? statusCode, String? message, String? error, int? code});
@@ -1510,12 +1404,9 @@ class __$$ApiErrorImplCopyWithImpl<$Res>
     extends _$ApiErrorCopyWithImpl<$Res, _$ApiErrorImpl>
     implements _$$ApiErrorImplCopyWith<$Res> {
   __$$ApiErrorImplCopyWithImpl(
-    _$ApiErrorImpl _value,
-    $Res Function(_$ApiErrorImpl) _then,
-  ) : super(_value, _then);
+      _$ApiErrorImpl _value, $Res Function(_$ApiErrorImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of ApiError
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1524,26 +1415,24 @@ class __$$ApiErrorImplCopyWithImpl<$Res>
     Object? error = freezed,
     Object? code = freezed,
   }) {
-    return _then(
-      _$ApiErrorImpl(
-        statusCode: freezed == statusCode
-            ? _value.statusCode
-            : statusCode // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        message: freezed == message
-            ? _value.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        error: freezed == error
-            ? _value.error
-            : error // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        code: freezed == code
-            ? _value.code
-            : code // ignore: cast_nullable_to_non_nullable
-                  as int?,
-      ),
-    );
+    return _then(_$ApiErrorImpl(
+      statusCode: freezed == statusCode
+          ? _value.statusCode
+          : statusCode // ignore: cast_nullable_to_non_nullable
+              as int?,
+      message: freezed == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
+      error: freezed == error
+          ? _value.error
+          : error // ignore: cast_nullable_to_non_nullable
+              as String?,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ));
   }
 }
 
@@ -1581,14 +1470,12 @@ class _$ApiErrorImpl implements _ApiError {
             (identical(other.code, code) || other.code == code));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, statusCode, message, error, code);
 
-  /// Create a copy of ApiError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$ApiErrorImplCopyWith<_$ApiErrorImpl> get copyWith =>
@@ -1596,17 +1483,18 @@ class _$ApiErrorImpl implements _ApiError {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ApiErrorImplToJson(this);
+    return _$$ApiErrorImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _ApiError implements ApiError {
-  const factory _ApiError({
-    final int? statusCode,
-    final String? message,
-    final String? error,
-    final int? code,
-  }) = _$ApiErrorImpl;
+  const factory _ApiError(
+      {final int? statusCode,
+      final String? message,
+      final String? error,
+      final int? code}) = _$ApiErrorImpl;
 
   factory _ApiError.fromJson(Map<String, dynamic> json) =
       _$ApiErrorImpl.fromJson;
@@ -1619,11 +1507,8 @@ abstract class _ApiError implements ApiError {
   String? get error;
   @override
   int? get code;
-
-  /// Create a copy of ApiError
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$ApiErrorImplCopyWith<_$ApiErrorImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

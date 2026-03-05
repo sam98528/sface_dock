@@ -12,8 +12,7 @@ part of 'device_auth_state.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$DeviceAuthState {
@@ -23,40 +22,34 @@ mixin _$DeviceAuthState {
     required TResult Function() notLoggedIn,
     required TResult Function() loggingIn,
     required TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)
+        loggedIn,
     required TResult Function(String message) error,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? notLoggedIn,
     TResult? Function()? loggingIn,
     TResult? Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult? Function(String message)? error,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? notLoggedIn,
     TResult Function()? loggingIn,
     TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult Function(String message)? error,
     required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(DeviceAuthInitial value) initial,
@@ -64,7 +57,8 @@ mixin _$DeviceAuthState {
     required TResult Function(DeviceAuthLoggingIn value) loggingIn,
     required TResult Function(DeviceAuthLoggedIn value) loggedIn,
     required TResult Function(DeviceAuthError value) error,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(DeviceAuthInitial value)? initial,
@@ -72,7 +66,8 @@ mixin _$DeviceAuthState {
     TResult? Function(DeviceAuthLoggingIn value)? loggingIn,
     TResult? Function(DeviceAuthLoggedIn value)? loggedIn,
     TResult? Function(DeviceAuthError value)? error,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(DeviceAuthInitial value)? initial,
@@ -81,15 +76,15 @@ mixin _$DeviceAuthState {
     TResult Function(DeviceAuthLoggedIn value)? loggedIn,
     TResult Function(DeviceAuthError value)? error,
     required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $DeviceAuthStateCopyWith<$Res> {
   factory $DeviceAuthStateCopyWith(
-    DeviceAuthState value,
-    $Res Function(DeviceAuthState) then,
-  ) = _$DeviceAuthStateCopyWithImpl<$Res, DeviceAuthState>;
+          DeviceAuthState value, $Res Function(DeviceAuthState) then) =
+      _$DeviceAuthStateCopyWithImpl<$Res, DeviceAuthState>;
 }
 
 /// @nodoc
@@ -101,30 +96,22 @@ class _$DeviceAuthStateCopyWithImpl<$Res, $Val extends DeviceAuthState>
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
-
-  /// Create a copy of DeviceAuthState
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 abstract class _$$DeviceAuthInitialImplCopyWith<$Res> {
-  factory _$$DeviceAuthInitialImplCopyWith(
-    _$DeviceAuthInitialImpl value,
-    $Res Function(_$DeviceAuthInitialImpl) then,
-  ) = __$$DeviceAuthInitialImplCopyWithImpl<$Res>;
+  factory _$$DeviceAuthInitialImplCopyWith(_$DeviceAuthInitialImpl value,
+          $Res Function(_$DeviceAuthInitialImpl) then) =
+      __$$DeviceAuthInitialImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
 class __$$DeviceAuthInitialImplCopyWithImpl<$Res>
     extends _$DeviceAuthStateCopyWithImpl<$Res, _$DeviceAuthInitialImpl>
     implements _$$DeviceAuthInitialImplCopyWith<$Res> {
-  __$$DeviceAuthInitialImplCopyWithImpl(
-    _$DeviceAuthInitialImpl _value,
-    $Res Function(_$DeviceAuthInitialImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of DeviceAuthState
-  /// with the given fields replaced by the non-null parameter values.
+  __$$DeviceAuthInitialImplCopyWithImpl(_$DeviceAuthInitialImpl _value,
+      $Res Function(_$DeviceAuthInitialImpl) _then)
+      : super(_value, _then);
 }
 
 /// @nodoc
@@ -153,11 +140,8 @@ class _$DeviceAuthInitialImpl implements DeviceAuthInitial {
     required TResult Function() notLoggedIn,
     required TResult Function() loggingIn,
     required TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)
+        loggedIn,
     required TResult Function(String message) error,
   }) {
     return initial();
@@ -170,11 +154,8 @@ class _$DeviceAuthInitialImpl implements DeviceAuthInitial {
     TResult? Function()? notLoggedIn,
     TResult? Function()? loggingIn,
     TResult? Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult? Function(String message)? error,
   }) {
     return initial?.call();
@@ -187,11 +168,8 @@ class _$DeviceAuthInitialImpl implements DeviceAuthInitial {
     TResult Function()? notLoggedIn,
     TResult Function()? loggingIn,
     TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -249,22 +227,18 @@ abstract class DeviceAuthInitial implements DeviceAuthState {
 /// @nodoc
 abstract class _$$DeviceAuthNotLoggedInImplCopyWith<$Res> {
   factory _$$DeviceAuthNotLoggedInImplCopyWith(
-    _$DeviceAuthNotLoggedInImpl value,
-    $Res Function(_$DeviceAuthNotLoggedInImpl) then,
-  ) = __$$DeviceAuthNotLoggedInImplCopyWithImpl<$Res>;
+          _$DeviceAuthNotLoggedInImpl value,
+          $Res Function(_$DeviceAuthNotLoggedInImpl) then) =
+      __$$DeviceAuthNotLoggedInImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
 class __$$DeviceAuthNotLoggedInImplCopyWithImpl<$Res>
     extends _$DeviceAuthStateCopyWithImpl<$Res, _$DeviceAuthNotLoggedInImpl>
     implements _$$DeviceAuthNotLoggedInImplCopyWith<$Res> {
-  __$$DeviceAuthNotLoggedInImplCopyWithImpl(
-    _$DeviceAuthNotLoggedInImpl _value,
-    $Res Function(_$DeviceAuthNotLoggedInImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of DeviceAuthState
-  /// with the given fields replaced by the non-null parameter values.
+  __$$DeviceAuthNotLoggedInImplCopyWithImpl(_$DeviceAuthNotLoggedInImpl _value,
+      $Res Function(_$DeviceAuthNotLoggedInImpl) _then)
+      : super(_value, _then);
 }
 
 /// @nodoc
@@ -294,11 +268,8 @@ class _$DeviceAuthNotLoggedInImpl implements DeviceAuthNotLoggedIn {
     required TResult Function() notLoggedIn,
     required TResult Function() loggingIn,
     required TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)
+        loggedIn,
     required TResult Function(String message) error,
   }) {
     return notLoggedIn();
@@ -311,11 +282,8 @@ class _$DeviceAuthNotLoggedInImpl implements DeviceAuthNotLoggedIn {
     TResult? Function()? notLoggedIn,
     TResult? Function()? loggingIn,
     TResult? Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult? Function(String message)? error,
   }) {
     return notLoggedIn?.call();
@@ -328,11 +296,8 @@ class _$DeviceAuthNotLoggedInImpl implements DeviceAuthNotLoggedIn {
     TResult Function()? notLoggedIn,
     TResult Function()? loggingIn,
     TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -389,23 +354,18 @@ abstract class DeviceAuthNotLoggedIn implements DeviceAuthState {
 
 /// @nodoc
 abstract class _$$DeviceAuthLoggingInImplCopyWith<$Res> {
-  factory _$$DeviceAuthLoggingInImplCopyWith(
-    _$DeviceAuthLoggingInImpl value,
-    $Res Function(_$DeviceAuthLoggingInImpl) then,
-  ) = __$$DeviceAuthLoggingInImplCopyWithImpl<$Res>;
+  factory _$$DeviceAuthLoggingInImplCopyWith(_$DeviceAuthLoggingInImpl value,
+          $Res Function(_$DeviceAuthLoggingInImpl) then) =
+      __$$DeviceAuthLoggingInImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
 class __$$DeviceAuthLoggingInImplCopyWithImpl<$Res>
     extends _$DeviceAuthStateCopyWithImpl<$Res, _$DeviceAuthLoggingInImpl>
     implements _$$DeviceAuthLoggingInImplCopyWith<$Res> {
-  __$$DeviceAuthLoggingInImplCopyWithImpl(
-    _$DeviceAuthLoggingInImpl _value,
-    $Res Function(_$DeviceAuthLoggingInImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of DeviceAuthState
-  /// with the given fields replaced by the non-null parameter values.
+  __$$DeviceAuthLoggingInImplCopyWithImpl(_$DeviceAuthLoggingInImpl _value,
+      $Res Function(_$DeviceAuthLoggingInImpl) _then)
+      : super(_value, _then);
 }
 
 /// @nodoc
@@ -435,11 +395,8 @@ class _$DeviceAuthLoggingInImpl implements DeviceAuthLoggingIn {
     required TResult Function() notLoggedIn,
     required TResult Function() loggingIn,
     required TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)
+        loggedIn,
     required TResult Function(String message) error,
   }) {
     return loggingIn();
@@ -452,11 +409,8 @@ class _$DeviceAuthLoggingInImpl implements DeviceAuthLoggingIn {
     TResult? Function()? notLoggedIn,
     TResult? Function()? loggingIn,
     TResult? Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult? Function(String message)? error,
   }) {
     return loggingIn?.call();
@@ -469,11 +423,8 @@ class _$DeviceAuthLoggingInImpl implements DeviceAuthLoggingIn {
     TResult Function()? notLoggedIn,
     TResult Function()? loggingIn,
     TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -530,10 +481,9 @@ abstract class DeviceAuthLoggingIn implements DeviceAuthState {
 
 /// @nodoc
 abstract class _$$DeviceAuthLoggedInImplCopyWith<$Res> {
-  factory _$$DeviceAuthLoggedInImplCopyWith(
-    _$DeviceAuthLoggedInImpl value,
-    $Res Function(_$DeviceAuthLoggedInImpl) then,
-  ) = __$$DeviceAuthLoggedInImplCopyWithImpl<$Res>;
+  factory _$$DeviceAuthLoggedInImplCopyWith(_$DeviceAuthLoggedInImpl value,
+          $Res Function(_$DeviceAuthLoggedInImpl) then) =
+      __$$DeviceAuthLoggedInImplCopyWithImpl<$Res>;
   @useResult
   $Res call({String devicePassword, String? deviceId, String? deviceName});
 }
@@ -542,13 +492,10 @@ abstract class _$$DeviceAuthLoggedInImplCopyWith<$Res> {
 class __$$DeviceAuthLoggedInImplCopyWithImpl<$Res>
     extends _$DeviceAuthStateCopyWithImpl<$Res, _$DeviceAuthLoggedInImpl>
     implements _$$DeviceAuthLoggedInImplCopyWith<$Res> {
-  __$$DeviceAuthLoggedInImplCopyWithImpl(
-    _$DeviceAuthLoggedInImpl _value,
-    $Res Function(_$DeviceAuthLoggedInImpl) _then,
-  ) : super(_value, _then);
+  __$$DeviceAuthLoggedInImplCopyWithImpl(_$DeviceAuthLoggedInImpl _value,
+      $Res Function(_$DeviceAuthLoggedInImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of DeviceAuthState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -556,33 +503,28 @@ class __$$DeviceAuthLoggedInImplCopyWithImpl<$Res>
     Object? deviceId = freezed,
     Object? deviceName = freezed,
   }) {
-    return _then(
-      _$DeviceAuthLoggedInImpl(
-        devicePassword: null == devicePassword
-            ? _value.devicePassword
-            : devicePassword // ignore: cast_nullable_to_non_nullable
-                  as String,
-        deviceId: freezed == deviceId
-            ? _value.deviceId
-            : deviceId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        deviceName: freezed == deviceName
-            ? _value.deviceName
-            : deviceName // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
+    return _then(_$DeviceAuthLoggedInImpl(
+      devicePassword: null == devicePassword
+          ? _value.devicePassword
+          : devicePassword // ignore: cast_nullable_to_non_nullable
+              as String,
+      deviceId: freezed == deviceId
+          ? _value.deviceId
+          : deviceId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      deviceName: freezed == deviceName
+          ? _value.deviceName
+          : deviceName // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$DeviceAuthLoggedInImpl implements DeviceAuthLoggedIn {
-  const _$DeviceAuthLoggedInImpl({
-    required this.devicePassword,
-    this.deviceId,
-    this.deviceName,
-  });
+  const _$DeviceAuthLoggedInImpl(
+      {required this.devicePassword, this.deviceId, this.deviceName});
 
   @override
   final String devicePassword;
@@ -613,16 +555,12 @@ class _$DeviceAuthLoggedInImpl implements DeviceAuthLoggedIn {
   int get hashCode =>
       Object.hash(runtimeType, devicePassword, deviceId, deviceName);
 
-  /// Create a copy of DeviceAuthState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$DeviceAuthLoggedInImplCopyWith<_$DeviceAuthLoggedInImpl> get copyWith =>
       __$$DeviceAuthLoggedInImplCopyWithImpl<_$DeviceAuthLoggedInImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -631,11 +569,8 @@ class _$DeviceAuthLoggedInImpl implements DeviceAuthLoggedIn {
     required TResult Function() notLoggedIn,
     required TResult Function() loggingIn,
     required TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)
+        loggedIn,
     required TResult Function(String message) error,
   }) {
     return loggedIn(devicePassword, deviceId, deviceName);
@@ -648,11 +583,8 @@ class _$DeviceAuthLoggedInImpl implements DeviceAuthLoggedIn {
     TResult? Function()? notLoggedIn,
     TResult? Function()? loggingIn,
     TResult? Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult? Function(String message)? error,
   }) {
     return loggedIn?.call(devicePassword, deviceId, deviceName);
@@ -665,11 +597,8 @@ class _$DeviceAuthLoggedInImpl implements DeviceAuthLoggedIn {
     TResult Function()? notLoggedIn,
     TResult Function()? loggingIn,
     TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -721,29 +650,24 @@ class _$DeviceAuthLoggedInImpl implements DeviceAuthLoggedIn {
 }
 
 abstract class DeviceAuthLoggedIn implements DeviceAuthState {
-  const factory DeviceAuthLoggedIn({
-    required final String devicePassword,
-    final String? deviceId,
-    final String? deviceName,
-  }) = _$DeviceAuthLoggedInImpl;
+  const factory DeviceAuthLoggedIn(
+      {required final String devicePassword,
+      final String? deviceId,
+      final String? deviceName}) = _$DeviceAuthLoggedInImpl;
 
   String get devicePassword;
   String? get deviceId;
   String? get deviceName;
-
-  /// Create a copy of DeviceAuthState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$DeviceAuthLoggedInImplCopyWith<_$DeviceAuthLoggedInImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class _$$DeviceAuthErrorImplCopyWith<$Res> {
-  factory _$$DeviceAuthErrorImplCopyWith(
-    _$DeviceAuthErrorImpl value,
-    $Res Function(_$DeviceAuthErrorImpl) then,
-  ) = __$$DeviceAuthErrorImplCopyWithImpl<$Res>;
+  factory _$$DeviceAuthErrorImplCopyWith(_$DeviceAuthErrorImpl value,
+          $Res Function(_$DeviceAuthErrorImpl) then) =
+      __$$DeviceAuthErrorImplCopyWithImpl<$Res>;
   @useResult
   $Res call({String message});
 }
@@ -753,23 +677,20 @@ class __$$DeviceAuthErrorImplCopyWithImpl<$Res>
     extends _$DeviceAuthStateCopyWithImpl<$Res, _$DeviceAuthErrorImpl>
     implements _$$DeviceAuthErrorImplCopyWith<$Res> {
   __$$DeviceAuthErrorImplCopyWithImpl(
-    _$DeviceAuthErrorImpl _value,
-    $Res Function(_$DeviceAuthErrorImpl) _then,
-  ) : super(_value, _then);
+      _$DeviceAuthErrorImpl _value, $Res Function(_$DeviceAuthErrorImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of DeviceAuthState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? message = null}) {
-    return _then(
-      _$DeviceAuthErrorImpl(
-        message: null == message
-            ? _value.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
+  $Res call({
+    Object? message = null,
+  }) {
+    return _then(_$DeviceAuthErrorImpl(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
   }
 }
 
@@ -797,16 +718,12 @@ class _$DeviceAuthErrorImpl implements DeviceAuthError {
   @override
   int get hashCode => Object.hash(runtimeType, message);
 
-  /// Create a copy of DeviceAuthState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$DeviceAuthErrorImplCopyWith<_$DeviceAuthErrorImpl> get copyWith =>
       __$$DeviceAuthErrorImplCopyWithImpl<_$DeviceAuthErrorImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -815,11 +732,8 @@ class _$DeviceAuthErrorImpl implements DeviceAuthError {
     required TResult Function() notLoggedIn,
     required TResult Function() loggingIn,
     required TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)
+        loggedIn,
     required TResult Function(String message) error,
   }) {
     return error(message);
@@ -832,11 +746,8 @@ class _$DeviceAuthErrorImpl implements DeviceAuthError {
     TResult? Function()? notLoggedIn,
     TResult? Function()? loggingIn,
     TResult? Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult? Function(String message)? error,
   }) {
     return error?.call(message);
@@ -849,11 +760,8 @@ class _$DeviceAuthErrorImpl implements DeviceAuthError {
     TResult Function()? notLoggedIn,
     TResult Function()? loggingIn,
     TResult Function(
-      String devicePassword,
-      String? deviceId,
-      String? deviceName,
-    )?
-    loggedIn,
+            String devicePassword, String? deviceId, String? deviceName)?
+        loggedIn,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -909,10 +817,7 @@ abstract class DeviceAuthError implements DeviceAuthState {
       _$DeviceAuthErrorImpl;
 
   String get message;
-
-  /// Create a copy of DeviceAuthState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$DeviceAuthErrorImplCopyWith<_$DeviceAuthErrorImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

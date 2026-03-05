@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sfacedock/presentation/screens/photo_grid_screen.dart';
 
 import '../core/admin/controllers/admin_controller.dart';
 import '../core/admin/screens/admin_screen.dart';
@@ -12,11 +13,13 @@ import '../widgets/kiosk_viewport.dart';
 import 'kiosk_navigator_observer.dart';
 import '../presentation/screens/intro_screen.dart';
 import '../presentation/screens/intro_loading_screen.dart';
+import '../presentation/screens/cart_screen.dart';
 
 /// Route names
 const String adminRouteName = '/admin';
 const String homeRouteName = '/';
 const String introRouteName = '/intro';
+const String introLoadingRouteName = '/intro-loading';
 const String startRouteName = '/start';
 const String photoGridRouteName = '/photo-grid';
 const String cartRouteName = '/cart';
@@ -62,8 +65,9 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
         routes: {
           adminRouteName: (context) => const AdminScreen(),
           introRouteName: (context) => const IntroScreen(),
-          '/loading': (context) => const IntroLoadingScreen(),
-          // TODO: Add other routes as screens are implemented
+          introLoadingRouteName: (context) => const IntroLoadingScreen(),
+          photoGridRouteName: (context) => const PhotoGridScreen(),
+          cartRouteName: (context) => const CartScreen(),
         },
       ),
     );

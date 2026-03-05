@@ -12,8 +12,7 @@ part of 'session_state.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$SessionState {
@@ -23,14 +22,16 @@ mixin _$SessionState {
     required TResult Function() active,
     required TResult Function(SessionEndReason reason) ended,
     required TResult Function(List<String> errorCodes) deviceError,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? idle,
     TResult? Function()? active,
     TResult? Function(SessionEndReason reason)? ended,
     TResult? Function(List<String> errorCodes)? deviceError,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? idle,
@@ -38,21 +39,24 @@ mixin _$SessionState {
     TResult Function(SessionEndReason reason)? ended,
     TResult Function(List<String> errorCodes)? deviceError,
     required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Idle value) idle,
     required TResult Function(_Active value) active,
     required TResult Function(_Ended value) ended,
     required TResult Function(_DeviceError value) deviceError,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Idle value)? idle,
     TResult? Function(_Active value)? active,
     TResult? Function(_Ended value)? ended,
     TResult? Function(_DeviceError value)? deviceError,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Idle value)? idle,
@@ -60,15 +64,15 @@ mixin _$SessionState {
     TResult Function(_Ended value)? ended,
     TResult Function(_DeviceError value)? deviceError,
     required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $SessionStateCopyWith<$Res> {
   factory $SessionStateCopyWith(
-    SessionState value,
-    $Res Function(SessionState) then,
-  ) = _$SessionStateCopyWithImpl<$Res, SessionState>;
+          SessionState value, $Res Function(SessionState) then) =
+      _$SessionStateCopyWithImpl<$Res, SessionState>;
 }
 
 /// @nodoc
@@ -80,17 +84,13 @@ class _$SessionStateCopyWithImpl<$Res, $Val extends SessionState>
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
-
-  /// Create a copy of SessionState
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 abstract class _$$IdleImplCopyWith<$Res> {
   factory _$$IdleImplCopyWith(
-    _$IdleImpl value,
-    $Res Function(_$IdleImpl) then,
-  ) = __$$IdleImplCopyWithImpl<$Res>;
+          _$IdleImpl value, $Res Function(_$IdleImpl) then) =
+      __$$IdleImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
@@ -98,10 +98,7 @@ class __$$IdleImplCopyWithImpl<$Res>
     extends _$SessionStateCopyWithImpl<$Res, _$IdleImpl>
     implements _$$IdleImplCopyWith<$Res> {
   __$$IdleImplCopyWithImpl(_$IdleImpl _value, $Res Function(_$IdleImpl) _then)
-    : super(_value, _then);
-
-  /// Create a copy of SessionState
-  /// with the given fields replaced by the non-null parameter values.
+      : super(_value, _then);
 }
 
 /// @nodoc
@@ -205,9 +202,8 @@ abstract class _Idle implements SessionState {
 /// @nodoc
 abstract class _$$ActiveImplCopyWith<$Res> {
   factory _$$ActiveImplCopyWith(
-    _$ActiveImpl value,
-    $Res Function(_$ActiveImpl) then,
-  ) = __$$ActiveImplCopyWithImpl<$Res>;
+          _$ActiveImpl value, $Res Function(_$ActiveImpl) then) =
+      __$$ActiveImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
@@ -215,12 +211,8 @@ class __$$ActiveImplCopyWithImpl<$Res>
     extends _$SessionStateCopyWithImpl<$Res, _$ActiveImpl>
     implements _$$ActiveImplCopyWith<$Res> {
   __$$ActiveImplCopyWithImpl(
-    _$ActiveImpl _value,
-    $Res Function(_$ActiveImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of SessionState
-  /// with the given fields replaced by the non-null parameter values.
+      _$ActiveImpl _value, $Res Function(_$ActiveImpl) _then)
+      : super(_value, _then);
 }
 
 /// @nodoc
@@ -324,9 +316,8 @@ abstract class _Active implements SessionState {
 /// @nodoc
 abstract class _$$EndedImplCopyWith<$Res> {
   factory _$$EndedImplCopyWith(
-    _$EndedImpl value,
-    $Res Function(_$EndedImpl) then,
-  ) = __$$EndedImplCopyWithImpl<$Res>;
+          _$EndedImpl value, $Res Function(_$EndedImpl) then) =
+      __$$EndedImplCopyWithImpl<$Res>;
   @useResult
   $Res call({SessionEndReason reason});
 }
@@ -336,23 +327,20 @@ class __$$EndedImplCopyWithImpl<$Res>
     extends _$SessionStateCopyWithImpl<$Res, _$EndedImpl>
     implements _$$EndedImplCopyWith<$Res> {
   __$$EndedImplCopyWithImpl(
-    _$EndedImpl _value,
-    $Res Function(_$EndedImpl) _then,
-  ) : super(_value, _then);
+      _$EndedImpl _value, $Res Function(_$EndedImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of SessionState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? reason = null}) {
-    return _then(
-      _$EndedImpl(
-        reason: null == reason
-            ? _value.reason
-            : reason // ignore: cast_nullable_to_non_nullable
-                  as SessionEndReason,
-      ),
-    );
+  $Res call({
+    Object? reason = null,
+  }) {
+    return _then(_$EndedImpl(
+      reason: null == reason
+          ? _value.reason
+          : reason // ignore: cast_nullable_to_non_nullable
+              as SessionEndReason,
+    ));
   }
 }
 
@@ -380,9 +368,7 @@ class _$EndedImpl implements _Ended {
   @override
   int get hashCode => Object.hash(runtimeType, reason);
 
-  /// Create a copy of SessionState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$EndedImplCopyWith<_$EndedImpl> get copyWith =>
@@ -467,10 +453,7 @@ abstract class _Ended implements SessionState {
   const factory _Ended({required final SessionEndReason reason}) = _$EndedImpl;
 
   SessionEndReason get reason;
-
-  /// Create a copy of SessionState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$EndedImplCopyWith<_$EndedImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -478,9 +461,8 @@ abstract class _Ended implements SessionState {
 /// @nodoc
 abstract class _$$DeviceErrorImplCopyWith<$Res> {
   factory _$$DeviceErrorImplCopyWith(
-    _$DeviceErrorImpl value,
-    $Res Function(_$DeviceErrorImpl) then,
-  ) = __$$DeviceErrorImplCopyWithImpl<$Res>;
+          _$DeviceErrorImpl value, $Res Function(_$DeviceErrorImpl) then) =
+      __$$DeviceErrorImplCopyWithImpl<$Res>;
   @useResult
   $Res call({List<String> errorCodes});
 }
@@ -490,23 +472,20 @@ class __$$DeviceErrorImplCopyWithImpl<$Res>
     extends _$SessionStateCopyWithImpl<$Res, _$DeviceErrorImpl>
     implements _$$DeviceErrorImplCopyWith<$Res> {
   __$$DeviceErrorImplCopyWithImpl(
-    _$DeviceErrorImpl _value,
-    $Res Function(_$DeviceErrorImpl) _then,
-  ) : super(_value, _then);
+      _$DeviceErrorImpl _value, $Res Function(_$DeviceErrorImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of SessionState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? errorCodes = null}) {
-    return _then(
-      _$DeviceErrorImpl(
-        errorCodes: null == errorCodes
-            ? _value._errorCodes
-            : errorCodes // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-      ),
-    );
+  $Res call({
+    Object? errorCodes = null,
+  }) {
+    return _then(_$DeviceErrorImpl(
+      errorCodes: null == errorCodes
+          ? _value._errorCodes
+          : errorCodes // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+    ));
   }
 }
 
@@ -514,7 +493,7 @@ class __$$DeviceErrorImplCopyWithImpl<$Res>
 
 class _$DeviceErrorImpl implements _DeviceError {
   const _$DeviceErrorImpl({required final List<String> errorCodes})
-    : _errorCodes = errorCodes;
+      : _errorCodes = errorCodes;
 
   final List<String> _errorCodes;
   @override
@@ -534,21 +513,15 @@ class _$DeviceErrorImpl implements _DeviceError {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$DeviceErrorImpl &&
-            const DeepCollectionEquality().equals(
-              other._errorCodes,
-              _errorCodes,
-            ));
+            const DeepCollectionEquality()
+                .equals(other._errorCodes, _errorCodes));
   }
 
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    const DeepCollectionEquality().hash(_errorCodes),
-  );
+      runtimeType, const DeepCollectionEquality().hash(_errorCodes));
 
-  /// Create a copy of SessionState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$DeviceErrorImplCopyWith<_$DeviceErrorImpl> get copyWith =>
@@ -634,10 +607,7 @@ abstract class _DeviceError implements SessionState {
       _$DeviceErrorImpl;
 
   List<String> get errorCodes;
-
-  /// Create a copy of SessionState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$DeviceErrorImplCopyWith<_$DeviceErrorImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

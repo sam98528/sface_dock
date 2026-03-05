@@ -12,17 +12,14 @@ part of 'device_summary_state.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$DeviceSummaryState {
   bool get connected => throw _privateConstructorUsedError;
   Map<String, dynamic>? get summary => throw _privateConstructorUsedError;
 
-  /// Create a copy of DeviceSummaryState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $DeviceSummaryStateCopyWith<DeviceSummaryState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -30,9 +27,8 @@ mixin _$DeviceSummaryState {
 /// @nodoc
 abstract class $DeviceSummaryStateCopyWith<$Res> {
   factory $DeviceSummaryStateCopyWith(
-    DeviceSummaryState value,
-    $Res Function(DeviceSummaryState) then,
-  ) = _$DeviceSummaryStateCopyWithImpl<$Res, DeviceSummaryState>;
+          DeviceSummaryState value, $Res Function(DeviceSummaryState) then) =
+      _$DeviceSummaryStateCopyWithImpl<$Res, DeviceSummaryState>;
   @useResult
   $Res call({bool connected, Map<String, dynamic>? summary});
 }
@@ -47,34 +43,31 @@ class _$DeviceSummaryStateCopyWithImpl<$Res, $Val extends DeviceSummaryState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of DeviceSummaryState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? connected = null, Object? summary = freezed}) {
-    return _then(
-      _value.copyWith(
-            connected: null == connected
-                ? _value.connected
-                : connected // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            summary: freezed == summary
-                ? _value.summary
-                : summary // ignore: cast_nullable_to_non_nullable
-                      as Map<String, dynamic>?,
-          )
-          as $Val,
-    );
+  $Res call({
+    Object? connected = null,
+    Object? summary = freezed,
+  }) {
+    return _then(_value.copyWith(
+      connected: null == connected
+          ? _value.connected
+          : connected // ignore: cast_nullable_to_non_nullable
+              as bool,
+      summary: freezed == summary
+          ? _value.summary
+          : summary // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$DeviceSummaryStateImplCopyWith<$Res>
     implements $DeviceSummaryStateCopyWith<$Res> {
-  factory _$$DeviceSummaryStateImplCopyWith(
-    _$DeviceSummaryStateImpl value,
-    $Res Function(_$DeviceSummaryStateImpl) then,
-  ) = __$$DeviceSummaryStateImplCopyWithImpl<$Res>;
+  factory _$$DeviceSummaryStateImplCopyWith(_$DeviceSummaryStateImpl value,
+          $Res Function(_$DeviceSummaryStateImpl) then) =
+      __$$DeviceSummaryStateImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({bool connected, Map<String, dynamic>? summary});
@@ -84,38 +77,35 @@ abstract class _$$DeviceSummaryStateImplCopyWith<$Res>
 class __$$DeviceSummaryStateImplCopyWithImpl<$Res>
     extends _$DeviceSummaryStateCopyWithImpl<$Res, _$DeviceSummaryStateImpl>
     implements _$$DeviceSummaryStateImplCopyWith<$Res> {
-  __$$DeviceSummaryStateImplCopyWithImpl(
-    _$DeviceSummaryStateImpl _value,
-    $Res Function(_$DeviceSummaryStateImpl) _then,
-  ) : super(_value, _then);
+  __$$DeviceSummaryStateImplCopyWithImpl(_$DeviceSummaryStateImpl _value,
+      $Res Function(_$DeviceSummaryStateImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of DeviceSummaryState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? connected = null, Object? summary = freezed}) {
-    return _then(
-      _$DeviceSummaryStateImpl(
-        connected: null == connected
-            ? _value.connected
-            : connected // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        summary: freezed == summary
-            ? _value._summary
-            : summary // ignore: cast_nullable_to_non_nullable
-                  as Map<String, dynamic>?,
-      ),
-    );
+  $Res call({
+    Object? connected = null,
+    Object? summary = freezed,
+  }) {
+    return _then(_$DeviceSummaryStateImpl(
+      connected: null == connected
+          ? _value.connected
+          : connected // ignore: cast_nullable_to_non_nullable
+              as bool,
+      summary: freezed == summary
+          ? _value._summary
+          : summary // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$DeviceSummaryStateImpl implements _DeviceSummaryState {
-  const _$DeviceSummaryStateImpl({
-    required this.connected,
-    required final Map<String, dynamic>? summary,
-  }) : _summary = summary;
+  const _$DeviceSummaryStateImpl(
+      {required this.connected, required final Map<String, dynamic>? summary})
+      : _summary = summary;
 
   @override
   final bool connected;
@@ -146,38 +136,27 @@ class _$DeviceSummaryStateImpl implements _DeviceSummaryState {
 
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    connected,
-    const DeepCollectionEquality().hash(_summary),
-  );
+      runtimeType, connected, const DeepCollectionEquality().hash(_summary));
 
-  /// Create a copy of DeviceSummaryState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$DeviceSummaryStateImplCopyWith<_$DeviceSummaryStateImpl> get copyWith =>
       __$$DeviceSummaryStateImplCopyWithImpl<_$DeviceSummaryStateImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 }
 
 abstract class _DeviceSummaryState implements DeviceSummaryState {
-  const factory _DeviceSummaryState({
-    required final bool connected,
-    required final Map<String, dynamic>? summary,
-  }) = _$DeviceSummaryStateImpl;
+  const factory _DeviceSummaryState(
+      {required final bool connected,
+      required final Map<String, dynamic>? summary}) = _$DeviceSummaryStateImpl;
 
   @override
   bool get connected;
   @override
   Map<String, dynamic>? get summary;
-
-  /// Create a copy of DeviceSummaryState
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$DeviceSummaryStateImplCopyWith<_$DeviceSummaryStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

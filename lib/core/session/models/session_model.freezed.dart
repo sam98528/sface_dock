@@ -12,8 +12,7 @@ part of 'session_model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 SessionModel _$SessionModelFromJson(Map<String, dynamic> json) {
   return _SessionModel.fromJson(json);
@@ -28,12 +27,8 @@ mixin _$SessionModel {
   List<String> get layoutOptions => throw _privateConstructorUsedError;
   Map<String, dynamic> get pricing => throw _privateConstructorUsedError;
 
-  /// Serializes this SessionModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of SessionModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SessionModelCopyWith<SessionModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -41,17 +36,15 @@ mixin _$SessionModel {
 /// @nodoc
 abstract class $SessionModelCopyWith<$Res> {
   factory $SessionModelCopyWith(
-    SessionModel value,
-    $Res Function(SessionModel) then,
-  ) = _$SessionModelCopyWithImpl<$Res, SessionModel>;
+          SessionModel value, $Res Function(SessionModel) then) =
+      _$SessionModelCopyWithImpl<$Res, SessionModel>;
   @useResult
-  $Res call({
-    String sessionId,
-    DateTime startTime,
-    Map<String, dynamic> contentSnapshot,
-    List<String> layoutOptions,
-    Map<String, dynamic> pricing,
-  });
+  $Res call(
+      {String sessionId,
+      DateTime startTime,
+      Map<String, dynamic> contentSnapshot,
+      List<String> layoutOptions,
+      Map<String, dynamic> pricing});
 }
 
 /// @nodoc
@@ -64,8 +57,6 @@ class _$SessionModelCopyWithImpl<$Res, $Val extends SessionModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SessionModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -75,31 +66,28 @@ class _$SessionModelCopyWithImpl<$Res, $Val extends SessionModel>
     Object? layoutOptions = null,
     Object? pricing = null,
   }) {
-    return _then(
-      _value.copyWith(
-            sessionId: null == sessionId
-                ? _value.sessionId
-                : sessionId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            startTime: null == startTime
-                ? _value.startTime
-                : startTime // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-            contentSnapshot: null == contentSnapshot
-                ? _value.contentSnapshot
-                : contentSnapshot // ignore: cast_nullable_to_non_nullable
-                      as Map<String, dynamic>,
-            layoutOptions: null == layoutOptions
-                ? _value.layoutOptions
-                : layoutOptions // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            pricing: null == pricing
-                ? _value.pricing
-                : pricing // ignore: cast_nullable_to_non_nullable
-                      as Map<String, dynamic>,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      startTime: null == startTime
+          ? _value.startTime
+          : startTime // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      contentSnapshot: null == contentSnapshot
+          ? _value.contentSnapshot
+          : contentSnapshot // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+      layoutOptions: null == layoutOptions
+          ? _value.layoutOptions
+          : layoutOptions // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      pricing: null == pricing
+          ? _value.pricing
+          : pricing // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+    ) as $Val);
   }
 }
 
@@ -107,18 +95,16 @@ class _$SessionModelCopyWithImpl<$Res, $Val extends SessionModel>
 abstract class _$$SessionModelImplCopyWith<$Res>
     implements $SessionModelCopyWith<$Res> {
   factory _$$SessionModelImplCopyWith(
-    _$SessionModelImpl value,
-    $Res Function(_$SessionModelImpl) then,
-  ) = __$$SessionModelImplCopyWithImpl<$Res>;
+          _$SessionModelImpl value, $Res Function(_$SessionModelImpl) then) =
+      __$$SessionModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String sessionId,
-    DateTime startTime,
-    Map<String, dynamic> contentSnapshot,
-    List<String> layoutOptions,
-    Map<String, dynamic> pricing,
-  });
+  $Res call(
+      {String sessionId,
+      DateTime startTime,
+      Map<String, dynamic> contentSnapshot,
+      List<String> layoutOptions,
+      Map<String, dynamic> pricing});
 }
 
 /// @nodoc
@@ -126,12 +112,9 @@ class __$$SessionModelImplCopyWithImpl<$Res>
     extends _$SessionModelCopyWithImpl<$Res, _$SessionModelImpl>
     implements _$$SessionModelImplCopyWith<$Res> {
   __$$SessionModelImplCopyWithImpl(
-    _$SessionModelImpl _value,
-    $Res Function(_$SessionModelImpl) _then,
-  ) : super(_value, _then);
+      _$SessionModelImpl _value, $Res Function(_$SessionModelImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of SessionModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -141,45 +124,43 @@ class __$$SessionModelImplCopyWithImpl<$Res>
     Object? layoutOptions = null,
     Object? pricing = null,
   }) {
-    return _then(
-      _$SessionModelImpl(
-        sessionId: null == sessionId
-            ? _value.sessionId
-            : sessionId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        startTime: null == startTime
-            ? _value.startTime
-            : startTime // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-        contentSnapshot: null == contentSnapshot
-            ? _value._contentSnapshot
-            : contentSnapshot // ignore: cast_nullable_to_non_nullable
-                  as Map<String, dynamic>,
-        layoutOptions: null == layoutOptions
-            ? _value._layoutOptions
-            : layoutOptions // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        pricing: null == pricing
-            ? _value._pricing
-            : pricing // ignore: cast_nullable_to_non_nullable
-                  as Map<String, dynamic>,
-      ),
-    );
+    return _then(_$SessionModelImpl(
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      startTime: null == startTime
+          ? _value.startTime
+          : startTime // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      contentSnapshot: null == contentSnapshot
+          ? _value._contentSnapshot
+          : contentSnapshot // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+      layoutOptions: null == layoutOptions
+          ? _value._layoutOptions
+          : layoutOptions // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      pricing: null == pricing
+          ? _value._pricing
+          : pricing // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$SessionModelImpl implements _SessionModel {
-  const _$SessionModelImpl({
-    required this.sessionId,
-    required this.startTime,
-    required final Map<String, dynamic> contentSnapshot,
-    required final List<String> layoutOptions,
-    required final Map<String, dynamic> pricing,
-  }) : _contentSnapshot = contentSnapshot,
-       _layoutOptions = layoutOptions,
-       _pricing = pricing;
+  const _$SessionModelImpl(
+      {required this.sessionId,
+      required this.startTime,
+      required final Map<String, dynamic> contentSnapshot,
+      required final List<String> layoutOptions,
+      required final Map<String, dynamic> pricing})
+      : _contentSnapshot = contentSnapshot,
+        _layoutOptions = layoutOptions,
+        _pricing = pricing;
 
   factory _$SessionModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$SessionModelImplFromJson(json);
@@ -226,31 +207,24 @@ class _$SessionModelImpl implements _SessionModel {
                 other.sessionId == sessionId) &&
             (identical(other.startTime, startTime) ||
                 other.startTime == startTime) &&
-            const DeepCollectionEquality().equals(
-              other._contentSnapshot,
-              _contentSnapshot,
-            ) &&
-            const DeepCollectionEquality().equals(
-              other._layoutOptions,
-              _layoutOptions,
-            ) &&
+            const DeepCollectionEquality()
+                .equals(other._contentSnapshot, _contentSnapshot) &&
+            const DeepCollectionEquality()
+                .equals(other._layoutOptions, _layoutOptions) &&
             const DeepCollectionEquality().equals(other._pricing, _pricing));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    sessionId,
-    startTime,
-    const DeepCollectionEquality().hash(_contentSnapshot),
-    const DeepCollectionEquality().hash(_layoutOptions),
-    const DeepCollectionEquality().hash(_pricing),
-  );
+      runtimeType,
+      sessionId,
+      startTime,
+      const DeepCollectionEquality().hash(_contentSnapshot),
+      const DeepCollectionEquality().hash(_layoutOptions),
+      const DeepCollectionEquality().hash(_pricing));
 
-  /// Create a copy of SessionModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SessionModelImplCopyWith<_$SessionModelImpl> get copyWith =>
@@ -258,18 +232,19 @@ class _$SessionModelImpl implements _SessionModel {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$SessionModelImplToJson(this);
+    return _$$SessionModelImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _SessionModel implements SessionModel {
-  const factory _SessionModel({
-    required final String sessionId,
-    required final DateTime startTime,
-    required final Map<String, dynamic> contentSnapshot,
-    required final List<String> layoutOptions,
-    required final Map<String, dynamic> pricing,
-  }) = _$SessionModelImpl;
+  const factory _SessionModel(
+      {required final String sessionId,
+      required final DateTime startTime,
+      required final Map<String, dynamic> contentSnapshot,
+      required final List<String> layoutOptions,
+      required final Map<String, dynamic> pricing}) = _$SessionModelImpl;
 
   factory _SessionModel.fromJson(Map<String, dynamic> json) =
       _$SessionModelImpl.fromJson;
@@ -284,11 +259,8 @@ abstract class _SessionModel implements SessionModel {
   List<String> get layoutOptions;
   @override
   Map<String, dynamic> get pricing;
-
-  /// Create a copy of SessionModel
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SessionModelImplCopyWith<_$SessionModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

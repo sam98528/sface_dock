@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sfacedock/app/sfacedock_app.dart';
 import 'package:sfacedock/core/device/device_controller_proxy_provider.dart';
 import 'package:sfacedock/core/admin/controllers/admin_controller.dart';
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
@@ -67,8 +68,10 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
       // 최소 1.5초는 로딩 애니메이션을 보여줍니다.
       final loadingFuture = Future.delayed(const Duration(milliseconds: 1500));
 
-      final proxy = ref.read(deviceControllerProxyProvider);
+      // 관리자 설정 최신화 확인 (초기 빈 껍데기 설정 대신 저장소 값 대기)
+      await ref.read(adminControllerProvider.notifier).reload();
       final adminState = ref.read(adminControllerProvider);
+      final proxy = ref.read(deviceControllerProxyProvider);
 
       // IPC Pipe 연결 체크 - ai-kiosk-client 방식의 Exponential Backoff 재시도 로직
       bool isConnected = await proxy.ensureConnected();
@@ -166,7 +169,7 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
         debugPrint('✅ 장치 초기화 및 파이프 연결 확인 완료');
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/start');
+        Navigator.pushReplacementNamed(context, photoGridRouteName);
       } else {
         final deviceListStr = disconnectedDevices.join(', ');
         _showErrorDialog(
@@ -248,7 +251,7 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.pushReplacementNamed(context, '/intro');
+                  Navigator.pushReplacementNamed(context, introRouteName);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[300],
