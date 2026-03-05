@@ -12,10 +12,13 @@ class PhotoGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Generate varying heights for the masonry grid effect
-    final double height = 200.0 + ((index % 3) * 50);
+    // Generate varying mathematical heights for a dynamic waterfall effect rather than rigid boxes
+    final heights = [280.0, 360.0, 420.0, 310.0, 240.0, 380.0];
+    // Map item id/index to a stable pseudorandom height index to ensure consistent sizing during scroll loop
+    final double height = heights[item.feedsIdx % heights.length];
 
     return RepaintBoundary(
+      key: ValueKey(item.feedsIdx),
       child: GestureDetector(
         onTap: () {
           showDialog(
@@ -25,11 +28,13 @@ class PhotoGridItem extends StatelessWidget {
           );
         },
         child: SizedBox(
-          height: height, // Keep the height for the outer container
+          height: height,
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(
+                16,
+              ), // Slightly rounder for aesthetic
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
@@ -42,25 +47,38 @@ class PhotoGridItem extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // Dummy Image representation
                 CachedNetworkImage(
                   imageUrl: '${ApiConstants.awsIp}${item.feedsThumbnailAttach}',
-                  fit: BoxFit.cover,
-                  memCacheWidth: 200, // Optimize memory consumption drastically
-                  fadeInDuration: Duration.zero, // Disable decode rebuilds
-                  fadeOutDuration: Duration.zero,
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey[800],
-                  ), // Removed expensive Shimmer animation
+                  memCacheWidth: 300,
+                  placeholder: (context, url) =>
+                      const SizedBox.expand(), // Transparent instead of ugly white box
                   errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[200],
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.broken_image, size: 48, color: Colors.grey),
-                      ],
+                    color: Colors.black.withValues(alpha: 0.1),
+                    child: const Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 48,
+                        color: Colors.white54,
+                      ),
                     ),
                   ),
+                  imageBuilder: (context, imageProvider) {
+                    return TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 700),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) {
+                        return Opacity(
+                          opacity: value,
+                          child: Transform.scale(
+                            scale: 0.95 + (0.05 * value), // 0.95 -> 1.0
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Image(image: imageProvider, fit: BoxFit.cover),
+                    );
+                  },
                 ),
 
                 // Bottom Info Overlay
@@ -68,13 +86,16 @@ class PhotoGridItem extends StatelessWidget {
                   alignment: Alignment.bottomLeft,
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                         colors: [
-                          Colors.black.withValues(alpha: 0.6),
+                          Colors.black.withValues(alpha: 0.8),
                           Colors.transparent,
                         ],
                       ),
@@ -84,10 +105,10 @@ class PhotoGridItem extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'FeedsIdx: ${item.feedsIdx}',
+                          'ID: ${item.feedsIdx}',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 14,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
@@ -95,10 +116,10 @@ class PhotoGridItem extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'View Count: ${item.feedsViewCount}',
+                          'Views: ${item.feedsViewCount}',
                           style: const TextStyle(
                             color: Colors.white70,
-                            fontSize: 12,
+                            fontSize: 14,
                           ),
                         ),
                       ],
@@ -110,6 +131,6 @@ class PhotoGridItem extends StatelessWidget {
           ),
         ),
       ),
-    ); // Added extra closing paren for RepaintBoundary/GestureDetector
+    );
   }
 }

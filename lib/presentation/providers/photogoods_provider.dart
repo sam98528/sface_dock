@@ -42,7 +42,8 @@ class PhotogoodsState {
 
 class PhotogoodsNotifier extends StateNotifier<PhotogoodsState> {
   final PhotogoodsRepository _repository;
-  static const int _limit = 20; // 10 → 20 (한 페이지당 이미지 수 증가)
+  static const int _limit =
+      12; // Adjusted to a smaller chunk for faster initial tile loads
 
   PhotogoodsNotifier(this._repository) : super(const PhotogoodsState());
 
