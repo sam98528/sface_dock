@@ -39,7 +39,7 @@ class PhotoGridItem extends StatelessWidget {
           height: height,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.black,
               borderRadius: BorderRadius.circular(
                 16,
               ), // Slightly rounder for aesthetic

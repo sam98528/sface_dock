@@ -7,6 +7,8 @@ import 'package:shimmer/shimmer.dart';
 import '../../core/services/image_prefetch_service.dart';
 import '../../core/theme/kiosk_colors.dart';
 import '../../data/models/kiosk/kiosk_photo.dart';
+import '../providers/cart_provider.dart';
+import '../providers/payment_provider.dart';
 import '../providers/search_provider.dart';
 import '../components/search_action_bar.dart';
 import '../components/cart_bottom_overlay.dart';
@@ -24,6 +26,10 @@ class _PhotoGridScreenState extends ConsumerState<PhotoGridScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 새 세션 시작: 이전 세션의 장바구니/쿠폰/검색 초기화
+      ref.read(cartProvider.notifier).clearCart();
+      ref.read(paymentProvider.notifier).reset();
+      ref.read(searchQueryProvider.notifier).state = '';
       ref.read(imagePrefetchProvider.notifier).resume();
     });
   }
@@ -121,14 +127,35 @@ class _PhotoGridTile extends StatelessWidget {
         heights[int.tryParse(photo.postId)?.remainder(heights.length).abs() ??
             index % heights.length];
 
+    final feedsIdx = int.tryParse(photo.postId);
+    final heroTag = 'photo_${photo.postId}';
+
     return GestureDetector(
       onTap: () {
-        final feedsIdx = int.tryParse(photo.postId);
         if (feedsIdx != null) {
-          showDialog(
-            context: context,
-            barrierColor: Colors.black.withValues(alpha: 0.6),
-            builder: (context) => PhotoDetailDialog(feedsIdx: feedsIdx),
+          Navigator.of(context).push(
+            PageRouteBuilder(
+              opaque: false,
+              barrierDismissible: true,
+              barrierColor: Colors.transparent,
+              transitionDuration: const Duration(milliseconds: 400),
+              reverseTransitionDuration: const Duration(milliseconds: 350),
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  PhotoDetailDialog(
+                    feedsIdx: feedsIdx,
+                    heroImageUrl: photo.attachedMediaDisplayUrl,
+                  ),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(
+                      opacity: CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOut,
+                      ),
+                      child: child,
+                    );
+                  },
+            ),
           );
         }
       },
@@ -150,23 +177,26 @@ class _PhotoGridTile extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              CachedNetworkImage(
-                imageUrl: photo.attachedMediaDisplayUrl,
-                memCacheWidth: 360,
-                fit: BoxFit.cover,
-                fadeInDuration: const Duration(milliseconds: 200),
-                placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: Colors.grey.shade300,
-                  highlightColor: Colors.grey.shade100,
-                  child: Container(color: Colors.grey.shade300),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey.shade200,
-                  child: const Center(
-                    child: Icon(
-                      Icons.broken_image,
-                      size: 48,
-                      color: Colors.white54,
+              Hero(
+                tag: heroTag,
+                child: CachedNetworkImage(
+                  imageUrl: photo.attachedMediaDisplayUrl,
+                  memCacheWidth: 360,
+                  fit: BoxFit.cover,
+                  fadeInDuration: const Duration(milliseconds: 100),
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.black.withAlpha(150),
+                    highlightColor: Colors.grey,
+                    child: Container(color: Colors.grey.shade300),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    color: Colors.grey.shade200,
+                    child: const Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 48,
+                        color: Colors.white54,
+                      ),
                     ),
                   ),
                 ),

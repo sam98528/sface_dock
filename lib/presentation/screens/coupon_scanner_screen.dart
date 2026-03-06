@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/admin/controllers/admin_controller.dart';
@@ -9,25 +8,23 @@ import '../../core/device/device_controller_proxy_provider.dart';
 import '../../core/device/services/camera/camera_service.dart';
 import '../../core/device/services/device_service_providers.dart';
 import '../../core/theme/kiosk_colors.dart';
+import '../../data/repositories/coupon_repository.dart';
 import '../../utils/encoding/qr_encryption.dart';
 import '../components/mjpeg_viewer.dart';
-import 'photo_detail_screen.dart';
 
-/// QR 스캐너 화면.
-///
-/// device-controller-service를 통해 카메라 라이브뷰 + QR 코드 감지.
-class QrScannerScreen extends ConsumerStatefulWidget {
-  const QrScannerScreen({super.key});
+class CouponScannerScreen extends ConsumerStatefulWidget {
+  const CouponScannerScreen({super.key});
 
   @override
-  ConsumerState<QrScannerScreen> createState() => _QrScannerScreenState();
+  ConsumerState<CouponScannerScreen> createState() =>
+      _CouponScannerScreenState();
 }
 
-class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
+class _CouponScannerScreenState extends ConsumerState<CouponScannerScreen> {
   bool _isInitializing = true;
   bool _hasError = false;
   String _errorMessage = '';
-  String _statusMessage = 'SFACE QR 코드를 카메라에 비추세요';
+  String _statusMessage = '쿠폰 QR 코드를 카메라에 비추세요';
   String? _mjpegUrl;
 
   StreamSubscription<String>? _qrSubscription;
@@ -40,6 +37,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
   final _codeController = TextEditingController();
   String? _codeError;
   bool _skipCamera = false;
+  bool _isVerifying = false;
 
   @override
   void initState() {
@@ -49,7 +47,6 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
   }
 
   Future<void> _initializeCamera() async {
-    // 서비스 연결 상태 + 디버그 스킵 옵션 확인
     final isConnected = ref.read(connectionStateProvider);
     final adminState = ref.read(adminControllerProvider);
 
@@ -57,7 +54,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
       setState(() {
         _isInitializing = false;
         _skipCamera = true;
-        _statusMessage = isConnected ? '디버그 모드: 장비 연결 스킵' : '서비스에 연결되어 있지 않습니다';
+        _statusMessage =
+            isConnected ? '디버그 모드: 장비 연결 스킵' : '서비스에 연결되어 있지 않습니다';
       });
       return;
     }
@@ -103,7 +101,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
 
       setState(() {
         _isInitializing = false;
-        _statusMessage = 'SFACE QR 코드를 카메라에 비추세요';
+        _statusMessage = '쿠폰 QR 코드를 카메라에 비추세요';
       });
     } catch (e) {
       setState(() {
@@ -116,55 +114,69 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
 
   void _handleQRCode(String qrText) {
     setState(() => _isProcessing = true);
+    debugPrint('[CouponScanner] QR raw: $qrText');
 
-    if (!QREncryption.isValidSFACEQR(qrText)) {
-      _displayQRFeedback(false, 'SFACE QR이 아닙니다');
+    if (!QREncryption.isCouponQR(qrText)) {
+      debugPrint('[CouponScanner] 쿠폰 QR 아님 (SFACE_CPN_ prefix 없음)');
+      _displayQRFeedback(false, '쿠폰 QR이 아닙니다');
       return;
     }
 
-    final feedIdx = QREncryption.decryptToFeedIdx(qrText);
-    if (feedIdx == null) {
+    final couponCode = QREncryption.decryptCouponCode(qrText);
+    debugPrint('[CouponScanner] decryptCouponCode: $couponCode');
+    if (couponCode == null) {
+      debugPrint('[CouponScanner] 쿠폰 코드 복호화 실패');
       _displayQRFeedback(false, 'QR 코드 해석 실패');
       return;
     }
 
-    _displayQRFeedback(true, 'QR 인식 성공');
-    _navigateToDetail(feedIdx);
+    debugPrint('[CouponScanner] couponCode: $couponCode');
+    _displayQRFeedback(true, 'QR 인식 성공! 쿠폰 확인 중...');
+    _verifyCoupon(couponCode);
   }
 
   void _handleCodeSubmit() {
     final code = _codeController.text.trim();
     if (code.isEmpty) {
-      setState(() => _codeError = '인증번호를 입력해 주세요');
-      return;
-    }
-
-    final feedIdx = int.tryParse(code);
-    if (feedIdx == null) {
-      setState(() => _codeError = '올바른 인증번호가 아닙니다');
+      setState(() => _codeError = '쿠폰 코드를 입력해 주세요');
       return;
     }
 
     setState(() => _codeError = null);
-    _navigateToDetail(feedIdx);
+    _verifyCoupon(code);
   }
 
-  void _navigateToDetail(int feedIdx) {
-    Timer(const Duration(milliseconds: 800), () async {
+  Future<void> _verifyCoupon(String code) async {
+    if (_isVerifying) return;
+    setState(() => _isVerifying = true);
+    debugPrint('[CouponScanner] verifyCoupon 호출: code=$code');
+
+    try {
+      final repository = ref.read(couponRepositoryProvider);
+      final result = await repository.verifyCoupon(code);
+      debugPrint('[CouponScanner] verify 결과: valid=${result.valid}, message=${result.message}, name=${result.couponName}, type=${result.couponDiscountType}');
+
       if (!mounted) return;
 
-      await _cameraService.enableQrDetection(false);
-      _qrSubscription?.cancel();
-
-      if (mounted) Navigator.of(context).pop();
-
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => PhotoDetailDialog(feedsIdx: feedIdx),
-        );
+      if (result.valid) {
+        _displayQRFeedback(true, '쿠폰 확인 완료!');
+        Timer(const Duration(milliseconds: 800), () {
+          if (mounted) {
+            _cleanup();
+            Navigator.of(context).pop(result);
+          }
+        });
+      } else {
+        _displayQRFeedback(false, result.message ?? '사용할 수 없는 쿠폰입니다.');
+        setState(() => _isVerifying = false);
       }
-    });
+    } catch (e, st) {
+      debugPrint('[CouponScanner] verifyCoupon 에러: $e\n$st');
+      if (mounted) {
+        _displayQRFeedback(false, '쿠폰 확인 중 오류가 발생했습니다.');
+        setState(() => _isVerifying = false);
+      }
+    }
   }
 
   void _displayQRFeedback(bool isSuccess, String message) {
@@ -174,25 +186,27 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
       _feedbackMessage = message;
     });
 
-    final delay = isSuccess
-        ? const Duration(seconds: 2)
-        : const Duration(milliseconds: 500);
+    if (!isSuccess) {
+      Timer(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _showQRFeedback = false;
+            _isProcessing = false;
+          });
+        }
+      });
+    }
+  }
 
-    Timer(delay, () {
-      if (mounted) {
-        setState(() {
-          _showQRFeedback = false;
-          _isProcessing = false;
-        });
-      }
-    });
+  void _cleanup() {
+    _qrSubscription?.cancel();
+    _cameraService.enableQrDetection(false);
+    _cameraService.stopPreview();
   }
 
   @override
   void dispose() {
-    _qrSubscription?.cancel();
-    _cameraService.enableQrDetection(false);
-    _cameraService.stopPreview();
+    _cleanup();
     _codeController.dispose();
     super.dispose();
   }
@@ -204,7 +218,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Gradient (photo_grid_screen과 동일)
+          // Background Gradient
           Container(
             width: double.infinity,
             height: double.infinity,
@@ -218,7 +232,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
             ),
           ),
 
-          // 메인 컨텐츠: 좌측 광고 이미지 | 중앙 카메라뷰 | 우측 코드 입력
+          // 메인 컨텐츠: 좌측 광고 | 중앙 카메라뷰 | 우측 코드 입력
           Padding(
             padding: const EdgeInsets.only(top: 100),
             child: Row(
@@ -236,7 +250,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                   ),
                 ),
 
-                // 중앙: 카메라 뷰 + 안내
+                // 중앙: 카메라 뷰
                 Expanded(
                   flex: 3,
                   child: Column(
@@ -245,7 +259,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        '위쪽 카메라 렌즈에 QR코드를 인식해 주세요',
+                        '위쪽 카메라 렌즈에 쿠폰 QR코드를 인식해 주세요',
                         style: textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -270,22 +284,16 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                   ),
                 ),
 
-                // 우측: 인증번호 직접 입력
+                // 우측: 쿠폰 코드 직접 입력
                 Expanded(
                   flex: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(48.0),
-                    child: Image.asset(
-                      'assets/images/sface_ad_image2.png',
-                      fit: BoxFit.fitWidth,
-                    ),
-                  ),
+                  child: _buildCodeInput(textTheme),
                 ),
               ],
             ),
           ),
 
-          // 상단 바 (SearchActionBar와 동일한 스타일)
+          // 상단 바
           Positioned(
             top: 0,
             left: 0,
@@ -353,93 +361,102 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
   }
 
   Widget _buildCodeInput(TextTheme textTheme) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'QR코드 인식이 어렵다면\n인증번호를 직접 입력해주세요',
-          style: textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+    return Padding(
+      padding: const EdgeInsets.all(48.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'QR코드 인식이 어렵다면\n쿠폰 코드를 직접 입력해주세요',
+            style: textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 32),
-        Container(
-          width: 300,
-          height: 58,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 2.0),
-            child: TextField(
-              controller: _codeController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              textAlign: TextAlign.center,
-              style: textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: KioskColors.textPrimary,
-                letterSpacing: 2,
-              ),
-              decoration: InputDecoration(
-                hintText: '인증번호 입력',
-                hintStyle: textTheme.titleMedium?.copyWith(
-                  color: KioskColors.textDisabled,
+          const SizedBox(height: 32),
+          Container(
+            width: 300,
+            height: 58,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 2.0),
+              child: TextField(
+                controller: _codeController,
+                textAlign: TextAlign.center,
+                textCapitalization: TextCapitalization.characters,
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: KioskColors.textPrimary,
+                  letterSpacing: 2,
+                ),
+                decoration: InputDecoration(
+                  hintText: '쿠폰 코드 입력',
+                  hintStyle: textTheme.titleMedium?.copyWith(
+                    color: KioskColors.textDisabled,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 20),
+                ),
+                onChanged: (_) {
+                  if (_codeError != null) setState(() => _codeError = null);
+                },
+                onSubmitted: (_) => _handleCodeSubmit(),
               ),
-              onChanged: (_) {
-                if (_codeError != null) setState(() => _codeError = null);
-              },
-              onSubmitted: (_) => _handleCodeSubmit(),
             ),
           ),
-        ),
-        if (_codeError != null) ...[
-          const SizedBox(height: 12),
-          Text(
-            _codeError!,
-            style: textTheme.bodyMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
+          if (_codeError != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              _codeError!,
+              style: textTheme.bodyMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          const SizedBox(height: 20),
+          SizedBox(
+            width: 300,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: _isVerifying ? null : _handleCodeSubmit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: KioskColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 4,
+              ),
+              child: _isVerifying
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(
+                      '확인',
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: KioskColors.primary,
+                      ),
+                    ),
             ),
           ),
         ],
-        const SizedBox(height: 20),
-        SizedBox(
-          width: 300,
-          height: 56,
-          child: ElevatedButton(
-            onPressed: _handleCodeSubmit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: KioskColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 4,
-            ),
-            child: Text(
-              '확인',
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: KioskColors.primary,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -470,7 +487,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                '우측에서 인증번호를 직접 입력해 주세요',
+                '우측에서 쿠폰 코드를 직접 입력해 주세요',
                 style: TextStyle(fontSize: 16, color: Colors.white70),
               ),
             ],

@@ -46,4 +46,39 @@ class QREncryption {
   static bool isValidSFACEQR(String data) {
     return data.startsWith(_prefix);
   }
+
+  static const String _couponPrefix = 'SFACE_CPN_';
+
+  /// QR 코드 데이터를 복호화하여 문자열로 반환
+  static String? decryptToString(String encryptedData) {
+    try {
+      if (!encryptedData.startsWith(_prefix)) return null;
+      final dataWithoutPrefix = encryptedData.substring(_prefix.length);
+      final base64Decoded = utf8.decode(base64Decode(dataWithoutPrefix));
+      return _caesarCipher(base64Decoded, -_caesarShift);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// 쿠폰 QR인지 확인 (SFACE_CPN_ 접두사)
+  static bool isCouponQR(String rawQrText) {
+    return rawQrText.startsWith(_couponPrefix);
+  }
+
+  /// 쿠폰 QR에서 쿠폰 코드 추출
+  /// 구조: SFACE_CPN_ + base64(caesar(base64(couponCode)))
+  /// 디코드: prefix 제거 → base64 → caesar(-13) → base64 → 쿠폰코드
+  static String? decryptCouponCode(String rawQrText) {
+    try {
+      if (!rawQrText.startsWith(_couponPrefix)) return null;
+      final outerBase64 = rawQrText.substring(_couponPrefix.length);
+      final outerDecoded = utf8.decode(base64Decode(outerBase64));
+      final caesarDecrypted = _caesarCipher(outerDecoded, -_caesarShift);
+      final couponCode = utf8.decode(base64Decode(caesarDecrypted));
+      return couponCode;
+    } catch (e) {
+      return null;
+    }
+  }
 }

@@ -215,28 +215,39 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 28),
-            const SizedBox(height: 12),
-            Text(
-              '오류가 발생했습니다',
-              style: textTheme.displaySmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: Colors.black,
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+
+        title: SizedBox(
+          width: 500,
+          child: Column(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 28),
+              const SizedBox(height: 12),
+              Text(
+                '오류가 발생했습니다',
+                style: textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              bodyMessage,
-              style: textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: Colors.black,
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                bodyMessage,
+                style: textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black87,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 24),
@@ -259,8 +270,8 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
                 ),
                 child: Text(
                   '다시 시도',
-                  style: textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w800,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),
@@ -285,8 +296,8 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
                 ),
                 child: Text(
                   '돌아가기',
-                  style: textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w800,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
                     color: Colors.black,
                   ),
                 ),
