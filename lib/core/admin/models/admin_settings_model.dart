@@ -18,6 +18,11 @@ class AdminSettings {
     this.paymentTerminalEnabled = true,
     this.cashDeviceComIndex = 0,
     this.cashDeviceEnabled = false,
+    // RGB 연동
+    this.rgbEnabled = false,
+    this.rgbProcessName = '',
+    this.socketServerEnabled = false,
+    this.socketServerPort = 8080,
     // 촬영
     this.mirrorEnabled = false,
     this.countdownEnabled = true,
@@ -93,6 +98,10 @@ class AdminSettings {
   final bool paymentTerminalEnabled;
   final int cashDeviceComIndex;
   final bool cashDeviceEnabled;
+  final bool rgbEnabled;
+  final String rgbProcessName;
+  final bool socketServerEnabled;
+  final int socketServerPort;
   final bool mirrorEnabled;
   final bool countdownEnabled;
   final int countdownSec;
@@ -151,6 +160,10 @@ class AdminSettings {
     bool? paymentTerminalEnabled,
     int? cashDeviceComIndex,
     bool? cashDeviceEnabled,
+    bool? rgbEnabled,
+    String? rgbProcessName,
+    bool? socketServerEnabled,
+    int? socketServerPort,
     bool? mirrorEnabled,
     bool? countdownEnabled,
     int? countdownSec,
@@ -190,6 +203,10 @@ class AdminSettings {
           paymentTerminalEnabled ?? this.paymentTerminalEnabled,
       cashDeviceComIndex: cashDeviceComIndex ?? this.cashDeviceComIndex,
       cashDeviceEnabled: cashDeviceEnabled ?? this.cashDeviceEnabled,
+      rgbEnabled: rgbEnabled ?? this.rgbEnabled,
+      rgbProcessName: rgbProcessName ?? this.rgbProcessName,
+      socketServerEnabled: socketServerEnabled ?? this.socketServerEnabled,
+      socketServerPort: socketServerPort ?? this.socketServerPort,
       mirrorEnabled: mirrorEnabled ?? this.mirrorEnabled,
       countdownEnabled: countdownEnabled ?? this.countdownEnabled,
       countdownSec: countdownSec ?? this.countdownSec,
@@ -239,6 +256,10 @@ class AdminSettings {
       'paymentTerminalEnabled': paymentTerminalEnabled,
       'cashDeviceComIndex': cashDeviceComIndex,
       'cashDeviceEnabled': cashDeviceEnabled,
+      'rgbEnabled': rgbEnabled,
+      'rgbProcessName': rgbProcessName,
+      'socketServerEnabled': socketServerEnabled,
+      'socketServerPort': socketServerPort,
       'mirrorEnabled': mirrorEnabled,
       'countdownEnabled': countdownEnabled,
       'countdownSec': countdownSec,
@@ -299,6 +320,10 @@ class AdminSettings {
       paymentTerminalEnabled: json['paymentTerminalEnabled'] as bool? ?? true,
       cashDeviceComIndex: (json['cashDeviceComIndex'] as num?)?.toInt() ?? 0,
       cashDeviceEnabled: json['cashDeviceEnabled'] as bool? ?? false,
+      rgbEnabled: json['rgbEnabled'] as bool? ?? false,
+      rgbProcessName: json['rgbProcessName'] as String? ?? '',
+      socketServerEnabled: json['socketServerEnabled'] as bool? ?? false,
+      socketServerPort: (json['socketServerPort'] as num?)?.toInt() ?? 8080,
       mirrorEnabled: json['mirrorEnabled'] as bool? ?? false,
       countdownEnabled: json['countdownEnabled'] as bool? ?? true,
       countdownSec: (json['countdownSec'] as num?)?.toInt() ?? 10,

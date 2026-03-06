@@ -404,6 +404,28 @@ class DeviceControllerProxy {
     });
   }
 
+  /// 소켓 서버 시작
+  Future<Map<String, dynamic>?> startSocketServer(int port) async {
+    return await sendCommand('socket_server_start', {'port': port.toString()});
+  }
+
+  /// 소켓 서버 중지
+  Future<Map<String, dynamic>?> stopSocketServer() async {
+    return await sendCommand('socket_server_stop', {});
+  }
+
+  /// 프로세스를 최전방으로 (demoteProcess의 topmost 해제 후 target을 앞으로)
+  Future<Map<String, dynamic>?> bringProcessToFront({
+    required String targetProcess,
+    String? demoteProcess,
+  }) async {
+    final params = {'targetProcess': targetProcess};
+    if (demoteProcess != null && demoteProcess.isNotEmpty) {
+      params['demoteProcess'] = demoteProcess;
+    }
+    return await sendCommand('window_bring_to_front', params);
+  }
+
   /// 이벤트 스트림 (Controller에서 사용)
   Stream<Map<String, dynamic>> get eventStream => _ipcClient.eventStream;
 

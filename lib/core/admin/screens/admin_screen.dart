@@ -783,6 +783,18 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         onCashPaymentPresetChanged: (v) =>
             setState(() => _cashPaymentPresetIndex = v),
         onCashPaymentRequest: _onCashPaymentRequest,
+        rgbEnabled: draft.rgbEnabled,
+        onRgbEnabledChanged: (v) =>
+            notifier.updateDraft((d) => d.copyWith(rgbEnabled: v)),
+        rgbProcessName: draft.rgbProcessName,
+        onRgbProcessNameChanged: (v) =>
+            notifier.updateDraft((d) => d.copyWith(rgbProcessName: v)),
+        socketServerEnabled: draft.socketServerEnabled,
+        onSocketServerEnabledChanged: (v) =>
+            notifier.updateDraft((d) => d.copyWith(socketServerEnabled: v)),
+        socketServerPort: draft.socketServerPort,
+        onSocketServerPortChanged: (v) =>
+            notifier.updateDraft((d) => d.copyWith(socketServerPort: v)),
       ),
     );
   }

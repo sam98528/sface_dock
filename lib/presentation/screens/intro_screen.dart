@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sfacedock/app/sfacedock_app.dart';
-
+import 'package:sfacedock/core/admin/controllers/admin_controller.dart';
+import 'package:sfacedock/core/device/device_controller_proxy_provider.dart';
 import 'package:sfacedock/core/services/image_prefetch_service.dart';
 import 'package:sfacedock/core/theme/kiosk_colors.dart';
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
@@ -17,6 +20,7 @@ class IntroScreen extends ConsumerStatefulWidget {
 class _IntroScreenState extends ConsumerState<IntroScreen>
     with WidgetsBindingObserver {
   int _tapCount = 0;
+  StreamSubscription<Map<String, dynamic>>? _eventSub;
 
   @override
   void initState() {
@@ -26,13 +30,51 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
     // Start background pre-fetching of kiosk photos
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(imagePrefetchProvider.notifier).start();
+      _listenExternalNavigate();
     });
   }
 
   @override
   void dispose() {
+    _eventSub?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  /// external_navigate 이벤트 수신 (RGB 프로그램 → Flutter 복귀)
+  void _listenExternalNavigate() {
+    final proxy = ref.read(deviceControllerProxyProvider);
+    _eventSub = proxy.eventStream
+        .where((e) => e['eventType'] == 'external_navigate')
+        .listen((e) {
+      final target = (e['data'] as Map<String, dynamic>?)?['target'];
+      if (target == 'intro' && mounted) {
+        proxy.stopSocketServer();
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          introRouteName,
+          (_) => false,
+        );
+      }
+    });
+  }
+
+  /// RGB 프로그램을 최전방으로 전환
+  Future<void> _startRgbSession() async {
+    final admin = ref.read(adminControllerProvider);
+    if (!admin.rgbEnabled || admin.rgbProcessName.isEmpty) return;
+
+    final proxy = ref.read(deviceControllerProxyProvider);
+
+    // 소켓 서버 시작 (활성화된 경우)
+    if (admin.socketServerEnabled) {
+      await proxy.startSocketServer(admin.socketServerPort);
+    }
+
+    // RGB 프로세스를 최전방으로
+    await proxy.bringProcessToFront(
+      targetProcess: admin.rgbProcessName,
+      demoteProcess: 'sfacedock.exe',
+    );
   }
 
   /// SFACE DOCK 로딩 화면으로 이동
@@ -58,6 +100,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
   Widget build(BuildContext context) {
     // Watch prefetch state to show sync status indicator
     final prefetchState = ref.watch(imagePrefetchProvider);
+    final admin = ref.watch(adminControllerProvider);
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: Stack(
@@ -94,15 +137,13 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
                               mainAxisAlignment: MainAxisAlignment.center,
                               spacing: 40,
                               children: [
+                                if (admin.rgbEnabled)
                                 Expanded(
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     curve: Curves.easeInOut,
                                     child: GestureDetector(
-                                      onTap: () {
-                                        // AudioService.instance.playButtonSound();
-                                        // _startRgbSession();
-                                      },
+                                      onTap: _startRgbSession,
                                       child: Container(
                                         padding: const EdgeInsets.all(40),
                                         decoration: BoxDecoration(

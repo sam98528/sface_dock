@@ -222,6 +222,15 @@ class AdminHardwareSection extends StatelessWidget {
     this.cashPaymentPresetIndex = 0,
     this.onCashPaymentPresetChanged,
     this.onCashPaymentRequest,
+    // RGB 연동
+    this.rgbEnabled = false,
+    this.onRgbEnabledChanged,
+    this.rgbProcessName = '',
+    this.onRgbProcessNameChanged,
+    this.socketServerEnabled = false,
+    this.onSocketServerEnabledChanged,
+    this.socketServerPort = 8080,
+    this.onSocketServerPortChanged,
   });
 
   final String cameraModel;
@@ -265,6 +274,15 @@ class AdminHardwareSection extends StatelessWidget {
   final int cashPaymentPresetIndex;
   final ValueChanged<int>? onCashPaymentPresetChanged;
   final void Function(int amount)? onCashPaymentRequest;
+
+  final bool rgbEnabled;
+  final ValueChanged<bool>? onRgbEnabledChanged;
+  final String rgbProcessName;
+  final ValueChanged<String>? onRgbProcessNameChanged;
+  final bool socketServerEnabled;
+  final ValueChanged<bool>? onSocketServerEnabledChanged;
+  final int socketServerPort;
+  final ValueChanged<int>? onSocketServerPortChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -600,6 +618,54 @@ class AdminHardwareSection extends StatelessWidget {
           ),
         );
 
+        final rgbCard = AdminSectionCard(
+          icon: Icons.palette,
+          title: 'RGB 연동',
+          trailing: rgbEnabled
+              ? _buildStatusTrailing(context, 'READY')
+              : Text(
+                  '미사용',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
+                ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AdminSwitchField(
+                label: 'RGB 연동 활성화',
+                value: rgbEnabled,
+                onChanged: (v) => onRgbEnabledChanged?.call(v),
+              ),
+              if (rgbEnabled) ...[
+                const SizedBox(height: 12),
+                AdminTextField(
+                  label: 'RGB 프로세스명',
+                  value: rgbProcessName,
+                  onChanged: (v) => onRgbProcessNameChanged?.call(v),
+                  hint: '예: RGB_Photo_Studio.exe',
+                ),
+                const SizedBox(height: 16),
+                AdminSwitchField(
+                  label: '소켓 서버 활성화',
+                  value: socketServerEnabled,
+                  onChanged: (v) => onSocketServerEnabledChanged?.call(v),
+                ),
+                if (socketServerEnabled) ...[
+                  const SizedBox(height: 12),
+                  AdminStepperField(
+                    label: '소켓 서버 포트',
+                    value: socketServerPort,
+                    onChanged: (v) => onSocketServerPortChanged?.call(v),
+                    min: 1024,
+                    max: 65535,
+                  ),
+                ],
+              ],
+            ],
+          ),
+        );
+
         if (isWide) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -636,6 +702,8 @@ class AdminHardwareSection extends StatelessWidget {
                         cameraCard,
                         const SizedBox(height: 24),
                         paymentCard,
+                        const SizedBox(height: 24),
+                        rgbCard,
                       ],
                     ),
                   ),
@@ -678,6 +746,8 @@ class AdminHardwareSection extends StatelessWidget {
               printerCard,
               const SizedBox(height: 16),
               paymentCard,
+              const SizedBox(height: 16),
+              rgbCard,
             ],
           );
         }
