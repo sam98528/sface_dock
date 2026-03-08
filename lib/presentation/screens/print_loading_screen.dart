@@ -8,7 +8,6 @@ import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:sfacedock/app/sfacedock_app.dart';
 import 'package:sfacedock/core/admin/controllers/admin_controller.dart';
-import 'package:sfacedock/core/constants/api_constants.dart';
 import 'package:sfacedock/core/device/services/device_service_providers.dart';
 import 'package:sfacedock/core/theme/kiosk_colors.dart';
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
@@ -115,9 +114,8 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
 
     try {
       for (final item in items) {
-        // Download image to local cache
-        final attachPath = item.photoData.feedsImgAttach.first.attachFilePath;
-        final imageUrl = '${ApiConstants.awsIp}$attachPath';
+        // Download original quality image for printing
+        final imageUrl = item.photoData.originalImageUrl;
         final cachedFile = await cacheManager.getSingleFile(imageUrl);
 
         // Composite logo watermark and save to temp

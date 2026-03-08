@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sfacedock/app/sfacedock_app.dart';
 import 'package:sfacedock/core/device/device_controller_proxy_provider.dart';
 import 'package:sfacedock/core/admin/controllers/admin_controller.dart';
+import 'package:sfacedock/core/services/image_prefetch_service.dart';
 import 'package:sfacedock/core/theme/kiosk_colors.dart';
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
+import 'package:sfacedock/core/services/audio_service.dart';
 import 'package:shimmer/shimmer.dart';
 
 class IntroLoadingScreen extends ConsumerStatefulWidget {
@@ -19,6 +22,7 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
   bool _isConnecting = true;
   bool _hasInitialized = false;
   bool _animationReady = false;
+  bool _waitingForPrefetch = false;
 
   @override
   void initState() {
@@ -87,7 +91,7 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
         debugPrint('🔧 [DEBUG] 장비 연결 확인 스킵 - 바로 다음 화면으로 이동');
         await loadingFuture;
         if (!mounted) return;
-        Navigator.pushReplacementNamed(context, photoGridRouteName);
+        await _waitForPrefetchAndNavigate();
         return;
       }
 
@@ -187,7 +191,7 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
         debugPrint('✅ 장치 초기화 및 파이프 연결 확인 완료');
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
-        Navigator.pushReplacementNamed(context, photoGridRouteName);
+        await _waitForPrefetchAndNavigate();
       } else {
         final deviceListStr = disconnectedDevices.join(', ');
         _showErrorDialog(
@@ -205,6 +209,22 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
         });
       }
     }
+  }
+
+  /// Wait for prefetch to finish caching all images, then navigate.
+  Future<void> _waitForPrefetchAndNavigate() async {
+    setState(() => _waitingForPrefetch = true);
+
+    // Poll until prefetch is done (check every 200ms)
+    while (mounted) {
+      final prefetchState = ref.read(imagePrefetchProvider);
+      if (prefetchState.isInitialLoadDone) break;
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+
+    if (!mounted) return;
+    setState(() => _waitingForPrefetch = false);
+    Navigator.pushReplacementNamed(context, photoGridRouteName);
   }
 
   void _showErrorDialog(String bodyMessage) {
@@ -256,6 +276,7 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
               height: 48,
               child: ElevatedButton(
                 onPressed: () async {
+                  context.playTapSound();
                   Navigator.of(context).pop();
                   // 다시 시도
                   await _retryConnection();
@@ -283,6 +304,7 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
               height: 48,
               child: ElevatedButton(
                 onPressed: () {
+                  context.playTapSound();
                   Navigator.of(context).pop();
                   Navigator.pushReplacementNamed(context, introRouteName);
                 },
@@ -332,6 +354,8 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final prefetchState = ref.watch(imagePrefetchProvider);
+
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(64),
@@ -358,7 +382,6 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
                         child: Image.asset(
                           'assets/images/loading_logo.gif',
                           fit: BoxFit.cover,
-                          // If file unavailable, it will throw. Ensure asset exists.
                           errorBuilder: (context, error, stackTrace) =>
                               const CircularProgressIndicator(),
                         ),
@@ -371,13 +394,46 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
                         period: const Duration(milliseconds: 3000),
                         direction: ShimmerDirection.ltr,
                         child: Text(
-                          '잠시만 기다려주세요!',
+                          _waitingForPrefetch
+                              ? '사진을 준비하고 있어요!'
+                              : '잠시만 기다려주세요!',
                           style: textTheme.displaySmall?.copyWith(
                             fontWeight: FontWeight.w800,
                             color: Colors.black,
                           ),
                         ),
                       ),
+
+                      // Prefetch progress bar
+                      if (_waitingForPrefetch) ...[
+                        const SizedBox(height: 40),
+                        SizedBox(
+                          width: 500,
+                          child: Column(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: LinearProgressIndicator(
+                                  value: prefetchState.cacheProgress,
+                                  minHeight: 12,
+                                  backgroundColor: Colors.white.withValues(alpha: 0.4),
+                                  valueColor: const AlwaysStoppedAnimation<Color>(
+                                    KioskColors.primary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                '${prefetchState.cachedCount} / ${prefetchState.totalToCache}장',
+                                style: textTheme.bodyLarge?.copyWith(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

@@ -7,6 +7,20 @@ import '../../core/api/api_result.dart';
 import '../../data/models/kiosk/kiosk_photo.dart';
 import '../../data/repositories/kiosk_photo_repository.dart';
 
+/// Custom cache manager with large capacity for kiosk photos.
+/// Default: 200 files / 7 days stale. This: 15,000 files / 30 days stale.
+class KioskPhotoCacheManager {
+  static const key = 'kioskPhotoCache';
+
+  static final CacheManager instance = CacheManager(
+    Config(
+      key,
+      stalePeriod: const Duration(days: 30),
+      maxNrOfCacheObjects: 15000,
+    ),
+  );
+}
+
 /// Configuration for the pre-fetch service.
 class PrefetchConfig {
   final Duration syncInterval;
@@ -23,24 +37,40 @@ class KioskPhotoPrefetchState {
   final bool isSyncing;
   final int? latestTimestamp;
 
+  /// Total number of photos to cache (for progress display).
+  final int totalToCache;
+
+  /// Number of photos cached so far (for progress display).
+  final int cachedCount;
+
   const KioskPhotoPrefetchState({
     this.photos = const [],
     this.isInitialLoadDone = false,
     this.isSyncing = false,
     this.latestTimestamp,
+    this.totalToCache = 0,
+    this.cachedCount = 0,
   });
+
+  /// Progress ratio (0.0 ~ 1.0). Returns 1.0 when done or nothing to cache.
+  double get cacheProgress =>
+      totalToCache > 0 ? (cachedCount / totalToCache).clamp(0.0, 1.0) : 0.0;
 
   KioskPhotoPrefetchState copyWith({
     List<KioskPhoto>? photos,
     bool? isInitialLoadDone,
     bool? isSyncing,
     int? latestTimestamp,
+    int? totalToCache,
+    int? cachedCount,
   }) {
     return KioskPhotoPrefetchState(
       photos: photos ?? this.photos,
       isInitialLoadDone: isInitialLoadDone ?? this.isInitialLoadDone,
       isSyncing: isSyncing ?? this.isSyncing,
       latestTimestamp: latestTimestamp ?? this.latestTimestamp,
+      totalToCache: totalToCache ?? this.totalToCache,
+      cachedCount: cachedCount ?? this.cachedCount,
     );
   }
 }
@@ -48,7 +78,7 @@ class KioskPhotoPrefetchState {
 class ImagePrefetchNotifier extends StateNotifier<KioskPhotoPrefetchState> {
   final KioskPhotoRepository _repository;
   final PrefetchConfig _config;
-  final DefaultCacheManager _cacheManager = DefaultCacheManager();
+  final CacheManager _cacheManager = KioskPhotoCacheManager.instance;
 
   Timer? _syncTimer;
   bool _isPaused = false;
@@ -81,6 +111,22 @@ class ImagePrefetchNotifier extends StateNotifier<KioskPhotoPrefetchState> {
     _isPaused = false;
     debugPrint('[Prefetch] Resumed');
     _runSync();
+  }
+
+  /// Force a delta sync (for refresh button). Skips pause check.
+  Future<void> forceSync() async {
+    if (state.isSyncing) return;
+    debugPrint('[Prefetch] Force sync triggered');
+    state = state.copyWith(isSyncing: true);
+    try {
+      await _deltaSync();
+    } catch (e) {
+      debugPrint('[Prefetch] Force sync error: $e');
+    } finally {
+      if (mounted) {
+        state = state.copyWith(isSyncing: false);
+      }
+    }
   }
 
   void stop() {
@@ -140,11 +186,13 @@ class ImagePrefetchNotifier extends StateNotifier<KioskPhotoPrefetchState> {
       state = state.copyWith(
         photos: List.unmodifiable(allPhotos),
         latestTimestamp: newestTimestamp,
+        totalToCache: allPhotos.length,
+        cachedCount: 0,
       );
     }
 
     // Pre-download all images to disk cache (concurrent)
-    await _precacheToDisk(allPhotos);
+    await _precacheToDisk(allPhotos, reportProgress: true);
     final cacheMs = stopwatch.elapsedMilliseconds;
 
     if (mounted) {
@@ -194,8 +242,12 @@ class ImagePrefetchNotifier extends StateNotifier<KioskPhotoPrefetchState> {
 
   /// Pre-download images to disk cache concurrently.
   /// CachedNetworkImage will read from this disk cache later.
-  Future<void> _precacheToDisk(List<KioskPhoto> photos) async {
+  Future<void> _precacheToDisk(
+    List<KioskPhoto> photos, {
+    bool reportProgress = false,
+  }) async {
     const concurrency = 10;
+    int cached = 0;
 
     for (var i = 0; i < photos.length; i += concurrency) {
       if (_isPaused || _isStopped) break;
@@ -210,6 +262,11 @@ class ImagePrefetchNotifier extends StateNotifier<KioskPhotoPrefetchState> {
           } catch (_) {}
         }),
       );
+
+      if (reportProgress && mounted) {
+        cached += batch.length;
+        state = state.copyWith(cachedCount: cached);
+      }
     }
   }
 
@@ -237,4 +294,9 @@ final prefetchedPhotosProvider = Provider<List<KioskPhoto>>((ref) {
 /// Convenience provider: whether initial load is done.
 final prefetchInitialLoadDoneProvider = Provider<bool>((ref) {
   return ref.watch(imagePrefetchProvider).isInitialLoadDone;
+});
+
+/// Convenience provider: cache progress (0.0 ~ 1.0).
+final prefetchCacheProgressProvider = Provider<double>((ref) {
+  return ref.watch(imagePrefetchProvider).cacheProgress;
 });

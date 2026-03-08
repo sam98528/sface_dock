@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/admin/controllers/admin_controller.dart';
@@ -9,7 +8,11 @@ import '../../core/device/device_controller_proxy_provider.dart';
 import '../../core/device/services/camera/camera_service.dart';
 import '../../core/device/services/device_service_providers.dart';
 import '../../core/theme/kiosk_colors.dart';
+import '../../core/services/image_prefetch_service.dart';
 import '../../utils/encoding/qr_encryption.dart';
+import '../components/kiosk_keyboard.dart';
+import '../components/kiosk_keyboard_overlay.dart';
+import '../../core/services/audio_service.dart';
 import '../components/mjpeg_viewer.dart';
 import 'photo_detail_screen.dart';
 
@@ -45,6 +48,9 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
   void initState() {
     super.initState();
     _cameraService = ref.read(cameraServiceProvider);
+    _codeController.addListener(() {
+      if (_codeError != null) setState(() => _codeError = null);
+    });
     _initializeCamera();
   }
 
@@ -159,10 +165,17 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
       if (mounted) Navigator.of(context).pop();
 
       if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => PhotoDetailDialog(feedsIdx: feedIdx),
+        final photos = ref.read(prefetchedPhotosProvider);
+        final photo = photos.cast().firstWhere(
+          (p) => p.postId == feedIdx.toString(),
+          orElse: () => null,
         );
+        if (photo != null) {
+          showDialog(
+            context: context,
+            builder: (context) => PhotoDetailDialog(photo: photo),
+          );
+        }
       }
     });
   }
@@ -190,6 +203,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
 
   @override
   void dispose() {
+    KioskKeyboardOverlay.dismiss();
     _qrSubscription?.cancel();
     _cameraService.enableQrDetection(false);
     _cameraService.stopPreview();
@@ -320,7 +334,11 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                       ],
                     ),
                     child: GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: () {
+                        context.playTapSound();
+                        KioskKeyboardOverlay.dismiss();
+                        Navigator.of(context).pop();
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -381,28 +399,46 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
           ),
           child: Padding(
             padding: const EdgeInsets.only(top: 2.0),
-            child: TextField(
-              controller: _codeController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              textAlign: TextAlign.center,
-              style: textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: KioskColors.textPrimary,
-                letterSpacing: 2,
-              ),
-              decoration: InputDecoration(
-                hintText: '인증번호 입력',
-                hintStyle: textTheme.titleMedium?.copyWith(
-                  color: KioskColors.textDisabled,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-              ),
-              onChanged: (_) {
-                if (_codeError != null) setState(() => _codeError = null);
+            child: GestureDetector(
+              onTap: () {
+                if (!KioskKeyboardOverlay.isVisible) {
+                  KioskKeyboardOverlay.show(
+                    context,
+                    controller: _codeController,
+                    initialMode: KeyboardMode.number,
+                    onSubmit: _handleCodeSubmit,
+                  );
+                }
               },
-              onSubmitted: (_) => _handleCodeSubmit(),
+              child: TextField(
+                controller: _codeController,
+                readOnly: true,
+                showCursor: true,
+                textAlign: TextAlign.center,
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: KioskColors.textPrimary,
+                  letterSpacing: 2,
+                ),
+                decoration: InputDecoration(
+                  hintText: '인증번호 입력',
+                  hintStyle: textTheme.titleMedium?.copyWith(
+                    color: KioskColors.textDisabled,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                ),
+                onTap: () {
+                  if (!KioskKeyboardOverlay.isVisible) {
+                    KioskKeyboardOverlay.show(
+                      context,
+                      controller: _codeController,
+                      initialMode: KeyboardMode.number,
+                      onSubmit: _handleCodeSubmit,
+                    );
+                  }
+                },
+              ),
             ),
           ),
         ),

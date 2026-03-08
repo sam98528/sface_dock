@@ -903,6 +903,9 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           );
           notifier.updateDraft((d) => d.copyWith(timeoutsAndGuides: newMap));
         },
+        photoPrice: draft.photoPrice,
+        onPhotoPriceChanged: (v) =>
+            notifier.updateDraft((d) => d.copyWith(photoPrice: v)),
         backupPath: draft.backupPath,
         onBackupPathChanged: (v) =>
             notifier.updateDraft((d) => d.copyWith(backupPath: v)),

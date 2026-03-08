@@ -23,7 +23,7 @@ mixin _$CartItem {
   int get feedsIdx => throw _privateConstructorUsedError;
   int get quantity => throw _privateConstructorUsedError;
   int get price => throw _privateConstructorUsedError;
-  PhotoDetail get photoData => throw _privateConstructorUsedError;
+  KioskPhoto get photoData => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -36,9 +36,7 @@ abstract class $CartItemCopyWith<$Res> {
   factory $CartItemCopyWith(CartItem value, $Res Function(CartItem) then) =
       _$CartItemCopyWithImpl<$Res, CartItem>;
   @useResult
-  $Res call({int feedsIdx, int quantity, int price, PhotoDetail photoData});
-
-  $PhotoDetailCopyWith<$Res> get photoData;
+  $Res call({int feedsIdx, int quantity, int price, KioskPhoto photoData});
 }
 
 /// @nodoc
@@ -75,16 +73,8 @@ class _$CartItemCopyWithImpl<$Res, $Val extends CartItem>
       photoData: null == photoData
           ? _value.photoData
           : photoData // ignore: cast_nullable_to_non_nullable
-              as PhotoDetail,
+              as KioskPhoto,
     ) as $Val);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $PhotoDetailCopyWith<$Res> get photoData {
-    return $PhotoDetailCopyWith<$Res>(_value.photoData, (value) {
-      return _then(_value.copyWith(photoData: value) as $Val);
-    });
   }
 }
 
@@ -96,10 +86,7 @@ abstract class _$$CartItemImplCopyWith<$Res>
       __$$CartItemImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int feedsIdx, int quantity, int price, PhotoDetail photoData});
-
-  @override
-  $PhotoDetailCopyWith<$Res> get photoData;
+  $Res call({int feedsIdx, int quantity, int price, KioskPhoto photoData});
 }
 
 /// @nodoc
@@ -134,7 +121,7 @@ class __$$CartItemImplCopyWithImpl<$Res>
       photoData: null == photoData
           ? _value.photoData
           : photoData // ignore: cast_nullable_to_non_nullable
-              as PhotoDetail,
+              as KioskPhoto,
     ));
   }
 }
@@ -158,7 +145,7 @@ class _$CartItemImpl implements _CartItem {
   @override
   final int price;
   @override
-  final PhotoDetail photoData;
+  final KioskPhoto photoData;
 
   @override
   String toString() {
@@ -203,7 +190,7 @@ abstract class _CartItem implements CartItem {
       {required final int feedsIdx,
       required final int quantity,
       required final int price,
-      required final PhotoDetail photoData}) = _$CartItemImpl;
+      required final KioskPhoto photoData}) = _$CartItemImpl;
 
   factory _CartItem.fromJson(Map<String, dynamic> json) =
       _$CartItemImpl.fromJson;
@@ -215,7 +202,7 @@ abstract class _CartItem implements CartItem {
   @override
   int get price;
   @override
-  PhotoDetail get photoData;
+  KioskPhoto get photoData;
   @override
   @JsonKey(ignore: true)
   _$$CartItemImplCopyWith<_$CartItemImpl> get copyWith =>

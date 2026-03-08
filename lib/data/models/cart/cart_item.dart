@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../photogoods/photo_detail.dart';
+import '../kiosk/kiosk_photo.dart';
 
 part 'cart_item.freezed.dart';
 part 'cart_item.g.dart';
@@ -10,7 +10,7 @@ class CartItem with _$CartItem {
     required int feedsIdx,
     required int quantity,
     required int price,
-    required PhotoDetail photoData,
+    required KioskPhoto photoData,
   }) = _CartItem;
 
   factory CartItem.fromJson(Map<String, dynamic> json) =>

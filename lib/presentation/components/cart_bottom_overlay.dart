@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../core/services/image_prefetch_service.dart';
 import '../providers/cart_provider.dart';
 import '../../app/sfacedock_app.dart';
 import '../../core/theme/kiosk_colors.dart';
@@ -93,9 +94,8 @@ class _CartBottomOverlayState extends ConsumerState<CartBottomOverlay>
                           ),
                           image: DecorationImage(
                             image: CachedNetworkImageProvider(
-                              item.photoData.feedsImgAttach.isNotEmpty
-                                  ? 'https://d37j40e2wj9q14.cloudfront.net/${item.photoData.feedsImgAttach.first.attachFilePath}'
-                                  : '',
+                              item.photoData.attachedMediaDisplayUrl,
+                              cacheManager: KioskPhotoCacheManager.instance,
                             ),
                             fit: BoxFit.cover,
                           ),

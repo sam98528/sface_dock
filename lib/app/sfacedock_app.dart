@@ -9,7 +9,9 @@ import 'package:sfacedock/core/theme/kiosk_typography.dart';
 import 'package:sfacedock/presentation/screens/photo_grid_screen.dart';
 
 import '../core/admin/controllers/admin_controller.dart';
+import '../core/admin/models/admin_settings_model.dart';
 import '../core/admin/screens/admin_screen.dart';
+import '../core/services/audio_service.dart';
 import '../core/services/image_prefetch_service.dart';
 import '../core/theme/app_theme.dart';
 import '../utils/app_lifecycle.dart';
@@ -51,9 +53,26 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize audio service and start BGM
+    final audio = ref.read(kioskAudioServiceProvider);
+    final bgmVolume = ref.read(adminControllerProvider).bgmVolume;
+    audio.setBgmVolume(bgmVolume);
+    audio.startBgm();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Watch theme version to rebuild when admin settings change
     ref.watch(adminThemeVersionProvider);
+
+    // Sync BGM volume with admin settings
+    ref.listen(adminControllerProvider, (AdminSettings? prev, AdminSettings next) {
+      if (prev?.bgmVolume != next.bgmVolume) {
+        ref.read(kioskAudioServiceProvider).setBgmVolume(next.bgmVolume);
+      }
+    });
 
     final navigatorObserver = ref.watch(navigatorObserverProvider);
 

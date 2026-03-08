@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/cart/cart_item.dart';
-import '../../data/models/photogoods/photo_detail.dart';
+import '../../data/models/kiosk/kiosk_photo.dart';
 
 /// 적용된 쿠폰 하나를 나타내는 모델
 class AppliedCoupon {
@@ -75,9 +75,10 @@ class CartState {
 class CartNotifier extends StateNotifier<CartState> {
   CartNotifier() : super(const CartState());
 
-  void addItem(PhotoDetail photoData, int quantity) {
+  void addItem(KioskPhoto photoData, int quantity, int price) {
+    final feedsIdx = int.tryParse(photoData.postId) ?? 0;
     final existingItemIndex = state.items.indexWhere(
-      (item) => item.feedsIdx == photoData.feedsIdx,
+      (item) => item.feedsIdx == feedsIdx,
     );
 
     if (existingItemIndex != -1) {
@@ -93,9 +94,9 @@ class CartNotifier extends StateNotifier<CartState> {
       state = state.copyWith(items: updatedItems);
     } else {
       final newItem = CartItem(
-        feedsIdx: photoData.feedsIdx,
+        feedsIdx: feedsIdx,
         quantity: quantity,
-        price: photoData.feedsPrice,
+        price: price,
         photoData: photoData,
       );
 

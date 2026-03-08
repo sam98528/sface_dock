@@ -273,6 +273,9 @@ class AdminFeatureSection extends StatelessWidget {
     required this.localeIndex,
     required this.localeOptions,
     required this.onLocaleChanged,
+    // 가격
+    required this.photoPrice,
+    required this.onPhotoPriceChanged,
     // 테마
     required this.themeBackground,
     required this.themeKeyColor,
@@ -314,6 +317,9 @@ class AdminFeatureSection extends StatelessWidget {
   final Map<String, ({int timeout, String guide})> timeoutsAndGuides;
   final void Function(String key, int? timeout, String? guide)
   onTimeoutAndGuideChanged;
+
+  final int photoPrice;
+  final ValueChanged<int> onPhotoPriceChanged;
 
   final String backupPath;
   final ValueChanged<String> onBackupPathChanged;
@@ -519,6 +525,15 @@ class AdminFeatureSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          AdminStepperField(
+            label: '사진 1장 가격 (원)',
+            value: photoPrice,
+            onChanged: onPhotoPriceChanged,
+            min: 0,
+            max: 10000,
+            step: 100,
+          ),
+          const SizedBox(height: 12),
           AdminTextField(
             label: '고객 사진 로컬 백업',
             value: backupPath,

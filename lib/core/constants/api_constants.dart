@@ -18,7 +18,7 @@ class ApiConstants {
       '/v1/photogoods/$feedsIdx';
 
   // Kiosk Endpoints
-  static const String kioskPhotosEndpoint = '/v1/kiosk/photos';
+  static const String kioskPhotosEndpoint = '/v1/kiosk/photosNew';
 
   // Coupon Endpoints
   static const String couponVerifyEndpoint = '/v1/coupon/client/verify';

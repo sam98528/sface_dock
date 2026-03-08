@@ -23,7 +23,10 @@
       "Bash(flutter analyze lib/presentation/providers/payment_provider.dart lib/presentation/screens/payment_screen.dart lib/app/sfacedock_app.dart lib/presentation/screens/cart_screen.dart lib/presentation/screens/photo_grid_screen.dart)",
       "Bash(xargs grep -l \"renderAndSaveProduct\\\\|renderProductImageBytes\")",
       "Bash(xargs grep -A 5 \"cached_network_image\\\\|flutter_cache_manager\")",
-      "Bash(flutter analyze lib/presentation/screens/intro_screen.dart lib/core/admin/models/admin_settings_model.dart lib/core/admin/widgets/admin_hardware_section.dart lib/core/device/device_controller_proxy.dart)"
+      "Bash(flutter analyze lib/presentation/screens/intro_screen.dart lib/core/admin/models/admin_settings_model.dart lib/core/admin/widgets/admin_hardware_section.dart lib/core/device/device_controller_proxy.dart)",
+      "Bash(dart run build_runner build --delete-conflicting-outputs)",
+      "Bash(flutter analyze)",
+      "Bash(wc -l /c/Users/sam98/Documents/kiosk/sface_dock/lib/presentation/screens/*.dart)"
     ],
     "deny": [],
     "ask": []

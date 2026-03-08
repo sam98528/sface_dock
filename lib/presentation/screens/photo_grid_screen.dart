@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../../core/services/image_prefetch_service.dart';
 import '../../core/theme/kiosk_colors.dart';
@@ -12,7 +10,7 @@ import '../providers/payment_provider.dart';
 import '../providers/search_provider.dart';
 import '../components/search_action_bar.dart';
 import '../components/cart_bottom_overlay.dart';
-import 'photo_detail_screen.dart';
+import '../components/photo_grid_tile.dart';
 
 class PhotoGridScreen extends ConsumerStatefulWidget {
   const PhotoGridScreen({super.key});
@@ -104,138 +102,11 @@ class _PhotoGridScreenState extends ConsumerState<PhotoGridScreen> {
       childrenDelegate: SliverChildBuilderDelegate(
         (context, index) {
           final photo = photos[index];
-          return _PhotoGridTile(photo: photo, index: index);
+          return PhotoGridTile(photo: photo, index: index);
         },
         childCount: photos.length,
         addAutomaticKeepAlives: true,
         addRepaintBoundaries: true,
-      ),
-    );
-  }
-}
-
-class _PhotoGridTile extends StatelessWidget {
-  final KioskPhoto photo;
-  final int index;
-
-  const _PhotoGridTile({required this.photo, required this.index});
-
-  @override
-  Widget build(BuildContext context) {
-    final heights = [380.0, 460.0, 540.0, 420.0, 360.0, 500.0];
-    final height =
-        heights[int.tryParse(photo.postId)?.remainder(heights.length).abs() ??
-            index % heights.length];
-
-    final feedsIdx = int.tryParse(photo.postId);
-    final heroTag = 'photo_${photo.postId}';
-
-    return GestureDetector(
-      onTap: () {
-        if (feedsIdx != null) {
-          Navigator.of(context).push(
-            PageRouteBuilder(
-              opaque: false,
-              barrierDismissible: true,
-              barrierColor: Colors.transparent,
-              transitionDuration: const Duration(milliseconds: 400),
-              reverseTransitionDuration: const Duration(milliseconds: 350),
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  PhotoDetailDialog(
-                    feedsIdx: feedsIdx,
-                    heroImageUrl: photo.attachedMediaDisplayUrl,
-                  ),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                    return FadeTransition(
-                      opacity: CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOut,
-                      ),
-                      child: child,
-                    );
-                  },
-            ),
-          );
-        }
-      },
-      child: SizedBox(
-        height: height,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Hero(
-                tag: heroTag,
-                child: CachedNetworkImage(
-                  imageUrl: photo.attachedMediaDisplayUrl,
-                  memCacheWidth: 360,
-                  fit: BoxFit.cover,
-                  fadeInDuration: const Duration(milliseconds: 100),
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: Colors.black.withAlpha(150),
-                    highlightColor: Colors.grey,
-                    child: Container(color: Colors.grey.shade300),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey.shade200,
-                    child: const Center(
-                      child: Icon(
-                        Icons.broken_image,
-                        size: 48,
-                        color: Colors.white54,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Bottom Info Overlay
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.8),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                  child: Text(
-                    photo.ownerUsername,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

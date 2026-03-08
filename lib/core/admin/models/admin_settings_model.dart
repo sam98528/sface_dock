@@ -60,6 +60,7 @@ class AdminSettings {
     this.themeButtonBgValue = 0xFF2196F3,
     this.themeButtonTextValue = 0xFFFFFFFF,
     this.bgmVolume = 0.5,
+    this.photoPrice = 500,
   }) : _debugDisablePhaseTimers = debugDisablePhaseTimers,
        _debugSkipBackendApi = debugSkipBackendApi,
        _debugPausePhotoCapture = debugPausePhotoCapture,
@@ -143,6 +144,9 @@ class AdminSettings {
   final int themeButtonTextValue;
   final double bgmVolume;
 
+  /// 사진 1장 가격 (원). Admin에서 설정.
+  final int photoPrice;
+
   Color get themeBackground => Color(themeBackgroundValue);
   Color get themeKeyColor => Color(themeKeyColorValue);
   Color get themeTextColor => Color(themeTextColorValue);
@@ -188,6 +192,7 @@ class AdminSettings {
     int? themeButtonBgValue,
     int? themeButtonTextValue,
     double? bgmVolume,
+    int? photoPrice,
   }) {
     return AdminSettings(
       cameraModel: cameraModel ?? this.cameraModel,
@@ -234,6 +239,7 @@ class AdminSettings {
       themeButtonBgValue: themeButtonBgValue ?? this.themeButtonBgValue,
       themeButtonTextValue: themeButtonTextValue ?? this.themeButtonTextValue,
       bgmVolume: bgmVolume ?? this.bgmVolume,
+      photoPrice: photoPrice ?? this.photoPrice,
     );
   }
 
@@ -284,6 +290,7 @@ class AdminSettings {
       'themeButtonBgValue': themeButtonBgValue,
       'themeButtonTextValue': themeButtonTextValue,
       'bgmVolume': bgmVolume,
+      'photoPrice': photoPrice,
     };
   }
 
@@ -362,6 +369,7 @@ class AdminSettings {
       themeButtonTextValue:
           (json['themeButtonTextValue'] as num?)?.toInt() ?? 0xFFFFFFFF,
       bgmVolume: (json['bgmVolume'] as num?)?.toDouble() ?? 0.5,
+      photoPrice: (json['photoPrice'] as num?)?.toInt() ?? 500,
     );
   }
 }

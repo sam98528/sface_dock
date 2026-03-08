@@ -11,8 +11,7 @@ _$CartItemImpl _$$CartItemImplFromJson(Map<String, dynamic> json) =>
       feedsIdx: (json['feedsIdx'] as num).toInt(),
       quantity: (json['quantity'] as num).toInt(),
       price: (json['price'] as num).toInt(),
-      photoData:
-          PhotoDetail.fromJson(json['photoData'] as Map<String, dynamic>),
+      photoData: KioskPhoto.fromJson(json['photoData'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$CartItemImplToJson(_$CartItemImpl instance) =>

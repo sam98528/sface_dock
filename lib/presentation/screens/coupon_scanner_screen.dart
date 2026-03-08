@@ -10,6 +10,9 @@ import '../../core/device/services/device_service_providers.dart';
 import '../../core/theme/kiosk_colors.dart';
 import '../../data/repositories/coupon_repository.dart';
 import '../../utils/encoding/qr_encryption.dart';
+import '../components/kiosk_keyboard.dart';
+import '../components/kiosk_keyboard_overlay.dart';
+import '../../core/services/audio_service.dart';
 import '../components/mjpeg_viewer.dart';
 
 class CouponScannerScreen extends ConsumerStatefulWidget {
@@ -43,6 +46,9 @@ class _CouponScannerScreenState extends ConsumerState<CouponScannerScreen> {
   void initState() {
     super.initState();
     _cameraService = ref.read(cameraServiceProvider);
+    _codeController.addListener(() {
+      if (_codeError != null) setState(() => _codeError = null);
+    });
     _initializeCamera();
   }
 
@@ -206,6 +212,7 @@ class _CouponScannerScreenState extends ConsumerState<CouponScannerScreen> {
 
   @override
   void dispose() {
+    KioskKeyboardOverlay.dismiss();
     _cleanup();
     _codeController.dispose();
     super.dispose();
@@ -328,7 +335,11 @@ class _CouponScannerScreenState extends ConsumerState<CouponScannerScreen> {
                       ],
                     ),
                     child: GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: () {
+                        context.playTapSound();
+                        KioskKeyboardOverlay.dismiss();
+                        Navigator.of(context).pop();
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -391,28 +402,51 @@ class _CouponScannerScreenState extends ConsumerState<CouponScannerScreen> {
             ),
             child: Padding(
               padding: const EdgeInsets.only(top: 2.0),
-              child: TextField(
-                controller: _codeController,
-                textAlign: TextAlign.center,
-                textCapitalization: TextCapitalization.characters,
-                style: textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: KioskColors.textPrimary,
-                  letterSpacing: 2,
-                ),
-                decoration: InputDecoration(
-                  hintText: '쿠폰 코드 입력',
-                  hintStyle: textTheme.titleMedium?.copyWith(
-                    color: KioskColors.textDisabled,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 20),
-                ),
-                onChanged: (_) {
-                  if (_codeError != null) setState(() => _codeError = null);
+              child: GestureDetector(
+                onTap: () {
+                  if (!KioskKeyboardOverlay.isVisible) {
+                    KioskKeyboardOverlay.show(
+                      context,
+                      controller: _codeController,
+                      initialMode: KeyboardMode.english,
+                      maxLength: 8,
+                      forceUppercase: true,
+                      onSubmit: _handleCodeSubmit,
+                    );
+                  }
                 },
-                onSubmitted: (_) => _handleCodeSubmit(),
+                child: TextField(
+                  controller: _codeController,
+                  readOnly: true,
+                  showCursor: true,
+                  textAlign: TextAlign.center,
+                  style: textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: KioskColors.textPrimary,
+                    letterSpacing: 2,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: '쿠폰 코드 입력',
+                    hintStyle: textTheme.titleMedium?.copyWith(
+                      color: KioskColors.textDisabled,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 20),
+                  ),
+                  onTap: () {
+                    if (!KioskKeyboardOverlay.isVisible) {
+                      KioskKeyboardOverlay.show(
+                        context,
+                        controller: _codeController,
+                        initialMode: KeyboardMode.english,
+                        maxLength: 8,
+                        forceUppercase: true,
+                        onSubmit: _handleCodeSubmit,
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ),
@@ -431,7 +465,12 @@ class _CouponScannerScreenState extends ConsumerState<CouponScannerScreen> {
             width: 300,
             height: 56,
             child: ElevatedButton(
-              onPressed: _isVerifying ? null : _handleCodeSubmit,
+              onPressed: _isVerifying
+                  ? null
+                  : () {
+                      context.playTapSound();
+                      _handleCodeSubmit();
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: KioskColors.primary,
