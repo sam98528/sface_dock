@@ -498,23 +498,22 @@ class AdminFeatureSection extends StatelessWidget {
           // NOTE: PhaseTimeoutKeys.debugLabelForAdminKey requires phase_timeout_keys.dart
           // If not available, comment out the filter logic below
           ...timeoutsAndGuides.entries
-              // .where(
-              //   (e) => PhaseTimeoutKeys.debugLabelForAdminKey(e.key) != '미연결',
-              // )
-              .map((e) {
-                final key = e.key;
-                final v = e.value;
-                return _TimeoutRow(
-                  key: ValueKey(key),
-                  screenName: key,
-                  timeoutSec: v.timeout,
-                  onTimeoutChanged: (n) =>
-                      onTimeoutAndGuideChanged(key, n, null),
-                  // debugConnectionLabel: PhaseTimeoutKeys.debugLabelForAdminKey(
-                  //   key,
-                  // ),
-                );
-              }),
+          // .where(
+          //   (e) => PhaseTimeoutKeys.debugLabelForAdminKey(e.key) != '미연결',
+          // )
+          .map((e) {
+            final key = e.key;
+            final v = e.value;
+            return _TimeoutRow(
+              key: ValueKey(key),
+              screenName: key,
+              timeoutSec: v.timeout,
+              onTimeoutChanged: (n) => onTimeoutAndGuideChanged(key, n, null),
+              // debugConnectionLabel: PhaseTimeoutKeys.debugLabelForAdminKey(
+              //   key,
+              // ),
+            );
+          }),
         ],
       ),
     );
@@ -629,8 +628,8 @@ class AdminFeatureSection extends StatelessWidget {
                     child: Column(
                       children: [
                         filterCard,
-                        // const SizedBox(height: 24),
-                        // etcCard,
+                        const SizedBox(height: 24),
+                        etcCard,
                         const SizedBox(height: 24),
                         themeCard,
                       ],

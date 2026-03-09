@@ -28,7 +28,7 @@ bool IsServiceRunning(const wchar_t* processName) {
 
 // Automatically start background service
 void StartDeviceControllerService() {
-    if (IsServiceRunning(L"FutureFrame Service.exe")) return;
+    if (IsServiceRunning(L"kiorobo-controller.exe")) return;
 
     wchar_t exe_path[MAX_PATH];
     GetModuleFileNameW(nullptr, exe_path, MAX_PATH);
@@ -36,8 +36,8 @@ void StartDeviceControllerService() {
     size_t last_slash = path.find_last_of(L"\\/");
     if (last_slash != std::wstring::npos) {
         std::wstring dir = path.substr(0, last_slash);
-        // Production path: ..\DeviceControllerService\FutureFrame Service.exe
-        std::wstring service_path = dir + L"\\..\\DeviceControllerService\\FutureFrame Service.exe";
+        // Production path: ..\KioroboController\kiorobo-controller.exe
+        std::wstring service_path = dir + L"\\..\\KioroboController\\kiorobo-controller.exe";
         
         if (GetFileAttributesW(service_path.c_str()) != INVALID_FILE_ATTRIBUTES) {
             STARTUPINFOW si = { sizeof(STARTUPINFOW) };
@@ -48,7 +48,7 @@ void StartDeviceControllerService() {
             }
         } else {
             // Development path (from sfacedock)
-            std::wstring dev_service_path = dir + L"\\..\\..\\..\\..\\..\\device-controller-service-kiosk\\out\\build\\x86-Release-Static\\bin\\FutureFrame Service.exe";
+            std::wstring dev_service_path = dir + L"\\..\\..\\..\\..\\..\\device-controller-service-kiosk\\out\\build\\x86-Release-Static\\bin\\kiorobo-controller.exe";
             if (GetFileAttributesW(dev_service_path.c_str()) != INVALID_FILE_ATTRIBUTES) {
                 STARTUPINFOW si = { sizeof(STARTUPINFOW) };
                 PROCESS_INFORMATION pi;

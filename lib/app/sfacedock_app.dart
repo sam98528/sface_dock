@@ -23,6 +23,7 @@ import '../presentation/screens/cart_screen.dart';
 import '../presentation/screens/payment_screen.dart';
 import '../presentation/screens/print_loading_screen.dart';
 import '../presentation/screens/qr_scanner_screen.dart';
+import '../presentation/screens/completion_screen.dart';
 
 /// Route names
 const String adminRouteName = '/admin';
@@ -36,6 +37,7 @@ const String paymentRouteName = '/payment';
 const String endRouteName = '/end';
 const String qrScannerRouteName = '/qr-scanner';
 const String printLoadingRouteName = '/print-loading';
+const String completionRouteName = '/completion';
 
 /// Main SFaceDock kiosk application widget.
 /// - Wraps content in KioskViewport (1920x1080 fixed)
@@ -55,9 +57,18 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
   @override
   void initState() {
     super.initState();
+    // Initialize theme from admin settings
+    final adminSettings = ref.read(adminControllerProvider);
+    AppTheme.setThemeFromAdmin(
+      background: adminSettings.themeBackground,
+      key: adminSettings.themeKeyColor,
+      text: adminSettings.themeTextColor,
+      buttonBg: adminSettings.themeButtonBg,
+      buttonText: adminSettings.themeButtonText,
+    );
     // Initialize audio service and start BGM
     final audio = ref.read(kioskAudioServiceProvider);
-    final bgmVolume = ref.read(adminControllerProvider).bgmVolume;
+    final bgmVolume = adminSettings.bgmVolume;
     audio.setBgmVolume(bgmVolume);
     audio.startBgm();
   }
@@ -116,6 +127,7 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
           paymentRouteName: (context) => const PaymentScreen(),
           qrScannerRouteName: (context) => const QrScannerScreen(),
           printLoadingRouteName: (context) => const PrintLoadingScreen(),
+          completionRouteName: (context) => const CompletionScreen(),
         },
       ),
     );

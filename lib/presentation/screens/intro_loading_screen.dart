@@ -142,16 +142,39 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
       bool isAllDevicesReady = true;
       final List<String> disconnectedDevices = [];
 
-      final deviceSummary = await proxy.getDeviceSummary();
-      final summary = deviceSummary.summary;
+      // admin_screen과 동일하게 detect_hardware 명령으로 실제 장비 상태 조회
+      Map<String, dynamic>? summary;
+      try {
+        final response = await proxy.sendCommand('detect_hardware', {
+          'probe': 'false',
+        });
+        if (response != null && response['result'] is Map) {
+          summary = Map<String, dynamic>.from(response['result'] as Map);
+        }
+      } catch (e) {
+        debugPrint('❌ detect_hardware 호출 실패: $e');
+      }
+
+      // 디버그: 전체 summary 키 출력
+      if (summary != null) {
+        debugPrint('📋 Device summary keys: ${summary.keys.toList()}');
+        summary.forEach((key, value) {
+          if (key.contains('state')) {
+            debugPrint('  $key = $value');
+          }
+        });
+      }
 
       String? findDeviceState(String deviceType) {
         if (summary == null) return null;
-        for (final key in summary.keys) {
-          if (key.contains(deviceType) && key.endsWith('.stateString')) {
-            return summary[key]?.toString().toUpperCase();
-          }
+        // 정확히 "deviceType.stateString" 키를 찾음 (예: "payment.stateString")
+        final stateKey = '$deviceType.stateString';
+        final value = summary[stateKey]?.toString();
+        if (value != null) {
+          debugPrint('🔍 Device state for $deviceType: $value (key: $stateKey)');
+          return value.toUpperCase();
         }
+        debugPrint('⚠️ Device state key not found: $stateKey');
         return null;
       }
 
@@ -178,12 +201,51 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
       // 3. 결제 단말기 체크 (어드민 설정 조건부)
       if (adminState.paymentTerminalEnabled) {
         final paymentState = findDeviceState('payment');
-        if (paymentState == 'DISCONNECTED' ||
-            paymentState == 'ERROR' ||
-            paymentState == null) {
+        debugPrint('💳 Payment terminal state: $paymentState');
+
+        // 정상 상태: READY, IDLE, BUSY (어드민에서 "정상 작동 중"으로 표시되는 상태)
+        // 비정상 상태: DISCONNECTED, ERROR
+        // null: 아직 초기화 안 됨 (재시도 필요)
+        if (paymentState == 'DISCONNECTED' || paymentState == 'ERROR') {
           isAllDevicesReady = false;
           disconnectedDevices.add('결제 단말기');
-          debugPrint('Warning: Payment terminal not ready: $paymentState');
+          debugPrint('❌ Payment terminal ERROR: $paymentState');
+        } else if (paymentState == null) {
+          // null인 경우 초기화 중일 수 있으므로 2초 대기 후 재시도
+          debugPrint('⏳ Payment terminal state is null, retrying after 2 seconds...');
+          await Future.delayed(const Duration(seconds: 2));
+
+          // 재시도 시에도 detect_hardware를 다시 호출하여 최신 상태 확인
+          try {
+            final retryResponse = await proxy.sendCommand('detect_hardware', {
+              'probe': 'false',
+            });
+            if (retryResponse != null && retryResponse['result'] is Map) {
+              summary = Map<String, dynamic>.from(retryResponse['result'] as Map);
+            }
+          } catch (e) {
+            debugPrint('❌ detect_hardware 재시도 실패: $e');
+          }
+
+          final retryPaymentState = findDeviceState('payment');
+          debugPrint('💳 Payment terminal state after retry: $retryPaymentState');
+
+          if (retryPaymentState == 'DISCONNECTED' || retryPaymentState == 'ERROR') {
+            isAllDevicesReady = false;
+            disconnectedDevices.add('결제 단말기');
+            debugPrint('❌ Payment terminal still ERROR after retry: $retryPaymentState');
+          } else if (retryPaymentState == null) {
+            // 재시도 후에도 null이면 장비 미연결로 간주
+            isAllDevicesReady = false;
+            disconnectedDevices.add('결제 단말기');
+            debugPrint('❌ Payment terminal still null after retry (not initialized)');
+          } else {
+            // READY, IDLE, BUSY 등은 정상
+            debugPrint('✅ Payment terminal OK after retry: $retryPaymentState');
+          }
+        } else {
+          // READY, IDLE, BUSY 등은 정상
+          debugPrint('✅ Payment terminal OK: $paymentState');
         }
       }
 

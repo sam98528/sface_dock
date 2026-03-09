@@ -257,7 +257,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           ..showSnackBar(
             const SnackBar(
               content: Text(
-                '서비스에 연결되어 있지 않습니다. 먼저 Device Controller Service를 실행해 주세요.',
+                '서비스에 연결되어 있지 않습니다. 먼저 Kiorobo Controller를 실행해 주세요.',
               ),
             ),
           );
@@ -393,7 +393,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           ..showSnackBar(
             const SnackBar(
               content: Text(
-                '서비스에 연결되어 있지 않습니다. 먼저 Device Controller Service를 실행해 주세요.',
+                '서비스에 연결되어 있지 않습니다. 먼저 Kiorobo Controller Service를 실행해 주세요.',
               ),
             ),
           );

@@ -3,6 +3,7 @@ class CouponVerifyResult {
   final String? message;
   final String? couponName;
   final String? couponDiscountType; // 'free' | 'won'
+  final int? couponDiscountPrice; // nullable, won 타입일 때만 사용
   final String? couponAvailableStore;
   final String? couponCode;
 
@@ -11,6 +12,7 @@ class CouponVerifyResult {
     this.message,
     this.couponName,
     this.couponDiscountType,
+    this.couponDiscountPrice,
     this.couponAvailableStore,
     this.couponCode,
   });
@@ -27,6 +29,7 @@ class CouponVerifyResult {
       message: json['message'] as String?,
       couponName: data?['coupon_name'] as String?,
       couponDiscountType: data?['coupon_discount_type'] as String?,
+      couponDiscountPrice: data?['coupon_discount_price'] as int?,
       couponAvailableStore: data?['coupon_available_store'] as String?,
       couponCode: code,
     );

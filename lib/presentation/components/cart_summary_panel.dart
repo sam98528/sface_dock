@@ -250,9 +250,21 @@ class CartSummaryPanel extends ConsumerWidget {
             GestureDetector(
               onTap: cartItems.isEmpty
                   ? null
-                  : () {
+                  : () async {
                       context.playTapSound();
-                      Navigator.of(context).pushNamed(paymentRouteName);
+                      // 쿠폰 사용 확인 다이얼로그
+                      if (coupons.isNotEmpty) {
+                        final confirmed = await _showCouponUsageConfirmDialog(context);
+                        if (!confirmed) return;
+                      }
+                      if (context.mounted) {
+                        // 0원이면 결제 화면 건너뛰고 바로 프린트 화면으로
+                        if (finalPrice == 0) {
+                          Navigator.of(context).pushNamed(printLoadingRouteName);
+                        } else {
+                          Navigator.of(context).pushNamed(paymentRouteName);
+                        }
+                      }
                     },
               child: Container(
                 height: 60,
@@ -275,7 +287,7 @@ class CartSummaryPanel extends ConsumerWidget {
                 ),
                 child: Center(
                   child: Text(
-                    '결제하기',
+                    finalPrice == 0 ? '프린트하기' : '결제하기',
                     style: tt.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -325,6 +337,7 @@ class CartSummaryPanel extends ConsumerWidget {
     final code = result.couponCode!;
     final name = result.couponName ?? '쿠폰';
     final discountType = result.couponDiscountType ?? 'free';
+    final discountPrice = result.couponDiscountPrice;
 
     if (cart.isCouponApplied(code)) {
       _showCouponInfoDialog(
@@ -359,13 +372,13 @@ class CartSummaryPanel extends ConsumerWidget {
             '초과분은 환불되지 않습니다.\n그래도 사용하시겠습니까?',
         confirmText: '사용하기',
         onConfirm: () {
-          notifier.applyCoupon(code, name, discountType);
+          notifier.applyCoupon(code, name, discountType, discountPrice: discountPrice);
         },
       );
       return;
     }
 
-    notifier.applyCoupon(code, name, discountType);
+    notifier.applyCoupon(code, name, discountType, discountPrice: discountPrice);
   }
 
   Future<void> _showCouponInfoDialog({
@@ -504,5 +517,114 @@ class CartSummaryPanel extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> _showCouponUsageConfirmDialog(BuildContext context) async {
+    final tt = Theme.of(context).textTheme;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          width: 480,
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: KioskColors.warning.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  color: KioskColors.warning,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                '쿠폰 사용 확인',
+                style: tt.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '쿠폰을 사용한 후에는 취소가 불가능합니다.\n계속 진행하시겠습니까?',
+                style: tt.bodyMedium?.copyWith(
+                  color: Colors.black.withValues(alpha: 0.6),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        ctx.playTapSound();
+                        Navigator.pop(ctx, false);
+                      },
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: KioskColors.grey200,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '취소',
+                            style: tt.labelLarge?.copyWith(
+                              color: Colors.black.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        ctx.playTapSound();
+                        Navigator.pop(ctx, true);
+                      },
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: KioskColors.primaryGradient,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '확인',
+                            style: tt.labelLarge?.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    return result ?? false;
   }
 }

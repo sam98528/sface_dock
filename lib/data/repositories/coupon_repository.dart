@@ -28,6 +28,17 @@ class CouponRepository {
     String code, {
     String? store,
   }) async {
+    // TESTCOUP 특수 케이스: 테스트용 무료 쿠폰
+    if (code == 'TESTCOUP') {
+      return const CouponVerifyResult(
+        valid: true,
+        message: '테스트 쿠폰이 확인되었습니다.',
+        couponName: '테스트 무료 쿠폰',
+        couponDiscountType: 'free',
+        couponCode: 'TESTCOUP',
+      );
+    }
+
     final queryParams = <String, dynamic>{'code': code};
     if (store != null) queryParams['store'] = store;
 
@@ -52,6 +63,12 @@ class CouponRepository {
   }
 
   Future<bool> useCoupon(String couponCode, String usedStore) async {
+    // TESTCOUP는 서버에 사용 요청을 보내지 않음
+    if (couponCode == 'TESTCOUP') {
+      debugPrint('[CouponRepo] TESTCOUP - 서버 전송 스킵');
+      return true;
+    }
+
     final result = await _apiClient.post<dynamic>(
       ApiConstants.couponUseEndpoint,
       data: {

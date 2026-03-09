@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import 'package:sfacedock/core/services/image_prefetch_service.dart';
 import 'package:sfacedock/core/theme/kiosk_colors.dart';
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:window_manager/window_manager.dart';
 
 class IntroScreen extends ConsumerStatefulWidget {
   const IntroScreen({super.key});
@@ -46,14 +48,25 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
     final proxy = ref.read(deviceControllerProxyProvider);
     _eventSub = proxy.eventStream
         .where((e) => e['eventType'] == 'external_navigate')
-        .listen((e) {
+        .listen((e) async {
       final target = (e['data'] as Map<String, dynamic>?)?['target'];
       if (target == 'intro' && mounted) {
-        proxy.stopSocketServer();
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          introRouteName,
-          (_) => false,
-        );
+        // 소켓 서버 중지
+        await proxy.stopSocketServer();
+
+        // Windows에서 alwaysOnTop 다시 활성화
+        if (Platform.isWindows) {
+          await windowManager.setAlwaysOnTop(true);
+          await windowManager.focus();
+        }
+
+        // Intro 화면으로 복귀
+        if (mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            introRouteName,
+            (_) => false,
+          );
+        }
       }
     });
   }
@@ -65,16 +78,22 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
 
     final proxy = ref.read(deviceControllerProxyProvider);
 
-    // 소켓 서버 시작 (활성화된 경우)
-    if (admin.socketServerEnabled) {
-      await proxy.startSocketServer(admin.socketServerPort);
-    }
+    // Windows에서만 동작
+    if (Platform.isWindows) {
+      // 1. SFaceDock의 alwaysOnTop 해제 (RGB가 앞으로 올 수 있도록)
+      await windowManager.setAlwaysOnTop(false);
 
-    // RGB 프로세스를 최전방으로
-    await proxy.bringProcessToFront(
-      targetProcess: admin.rgbProcessName,
-      demoteProcess: 'sfacedock.exe',
-    );
+      // 2. 소켓 서버 시작 (활성화된 경우)
+      if (admin.socketServerEnabled) {
+        await proxy.startSocketServer(admin.socketServerPort);
+      }
+
+      // 3. RGB 프로세스를 최전방으로
+      await proxy.bringProcessToFront(
+        targetProcess: admin.rgbProcessName,
+        demoteProcess: 'sfacedock.exe',
+      );
+    }
   }
 
   /// SFACE DOCK 로딩 화면으로 이동

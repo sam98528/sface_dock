@@ -7,12 +7,14 @@ class AppliedCoupon {
   final String code;
   final String name;
   final String discountType; // 'free' | 'won'
-  final int discountAmount;
+  final int? discountPrice; // 'won' 타입일 때 할인 금액 (nullable)
+  final int discountAmount; // 실제 계산된 할인 금액
 
   const AppliedCoupon({
     required this.code,
     required this.name,
     required this.discountType,
+    this.discountPrice,
     this.discountAmount = 0,
   });
 
@@ -21,6 +23,7 @@ class AppliedCoupon {
       code: code,
       name: name,
       discountType: discountType,
+      discountPrice: discountPrice,
       discountAmount: discountAmount ?? this.discountAmount,
     );
   }
@@ -146,7 +149,7 @@ class CartNotifier extends StateNotifier<CartState> {
 
   /// 쿠폰 추가 (중복 방지: 같은 코드는 추가 불가)
   /// 반환: true = 성공, false = 이미 등록된 쿠폰
-  bool applyCoupon(String code, String name, String discountType) {
+  bool applyCoupon(String code, String name, String discountType, {int? discountPrice}) {
     if (state.isCouponApplied(code)) {
       return false; // 중복
     }
@@ -155,6 +158,7 @@ class CartNotifier extends StateNotifier<CartState> {
       code: code,
       name: name,
       discountType: discountType,
+      discountPrice: discountPrice,
     );
 
     state = state.copyWith(
@@ -194,8 +198,13 @@ class CartNotifier extends StateNotifier<CartState> {
     for (final coupon in state.appliedCoupons) {
       int discount = 0;
       if (coupon.discountType == 'free') {
-        // free 타입: 사진 1장 가격만큼 할인
-        discount = state.items.first.price;
+        // free 타입: 장바구니 전체 무료 (totalPrice 전액 할인)
+        discount = state.totalPrice;
+      } else if (coupon.discountType == 'won' && coupon.discountPrice != null) {
+        // won 타입: discountPrice 만큼 할인 (단, totalPrice를 초과할 수 없음)
+        discount = coupon.discountPrice! > state.totalPrice
+            ? state.totalPrice
+            : coupon.discountPrice!;
       }
       updated.add(coupon.copyWith(discountAmount: discount));
     }

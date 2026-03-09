@@ -60,18 +60,24 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
     final adminState = ref.read(adminControllerProvider);
 
     if (!isConnected || adminState.debugSkipDeviceConnection) {
-      setState(() {
-        _isInitializing = false;
-        _skipCamera = true;
-        _statusMessage = isConnected ? '디버그 모드: 장비 연결 스킵' : '서비스에 연결되어 있지 않습니다';
-      });
+      if (mounted) {
+        setState(() {
+          _isInitializing = false;
+          _skipCamera = true;
+          _statusMessage = isConnected
+              ? '디버그 모드: 장비 연결 스킵'
+              : '서비스에 연결되어 있지 않습니다';
+        });
+      }
       return;
     }
 
     try {
-      setState(() => _statusMessage = '카메라 라이브뷰 시작 중...');
+      if (mounted) setState(() => _statusMessage = '카메라 라이브뷰 시작 중...');
 
       final previewResult = await _cameraService.startPreview();
+      if (!mounted) return;
+
       if (previewResult == null) {
         setState(() {
           _hasError = true;
@@ -88,10 +94,13 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
       }
 
       await _cameraService.resetQrDetection();
+      if (!mounted) return;
 
       setState(() => _statusMessage = 'QR 감지 활성화 중...');
 
       final qrResult = await _cameraService.enableQrDetection(true);
+      if (!mounted) return;
+
       if (qrResult == null) {
         setState(() {
           _hasError = true;
@@ -112,11 +121,13 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
         _statusMessage = 'SFACE QR 코드를 카메라에 비추세요';
       });
     } catch (e) {
-      setState(() {
-        _hasError = true;
-        _errorMessage = '카메라 초기화 중 오류가 발생했습니다:\n$e';
-        _isInitializing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = '카메라 초기화 중 오류가 발생했습니다:\n$e';
+          _isInitializing = false;
+        });
+      }
     }
   }
 
@@ -159,7 +170,9 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
     Timer(const Duration(milliseconds: 800), () async {
       if (!mounted) return;
 
+      // 화면을 나가기 전에 명시적으로 카메라와 QR 감지를 중지합니다.
       await _cameraService.enableQrDetection(false);
+      await _cameraService.stopPreview();
       _qrSubscription?.cancel();
 
       if (mounted) Navigator.of(context).pop();
@@ -334,10 +347,15 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                       ],
                     ),
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         context.playTapSound();
                         KioskKeyboardOverlay.dismiss();
-                        Navigator.of(context).pop();
+
+                        // 뒤로 가기 전에 명시적으로 카메라 정지를 기다립니다.
+                        await _cameraService.enableQrDetection(false);
+                        await _cameraService.stopPreview();
+
+                        if (mounted) Navigator.of(context).pop();
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

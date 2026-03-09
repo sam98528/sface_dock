@@ -1,9 +1,9 @@
 // lib/core/device/ipc/ipc_client.dart
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'named_pipe_client.dart';
 import 'package:uuid/uuid.dart';
+import '../../../utils/file_logger.dart';
 
 class TimeoutException implements Exception {
   final String message;
@@ -19,6 +19,10 @@ class TimeoutException implements Exception {
 /// IPC 클라이언트 - Device Controller Service와 통신 (Named Pipe 기반)
 class IpcClient {
   static const String protocolVersion = '1.0';
+
+  /// Project identifier - sent to service on connection
+  /// This allows a single service to support multiple kiosk projects
+  static const String projectCode = 'sfacedock';
 
   NamedPipeClient? _pipeClient;
   StreamSubscription<Map<String, dynamic>>? _eventSubscription;
@@ -51,21 +55,21 @@ class IpcClient {
 
   Future<bool> _doConnect() async {
     try {
-      debugPrint('Starting IPC connection via Named Pipe...');
-      debugPrint('Pipe name: \\\\.\\pipe\\DeviceControllerService');
-      debugPrint('Make sure Device Controller Service is running!');
+      logInfo('[IPC] Starting IPC connection via Named Pipe...');
+      logInfo('[IPC] Pipe name: \\\\.\\pipe\\KioroboController');
+      logInfo('[IPC] Make sure Kiorobo Controller is running!');
 
       _pipeClient = NamedPipeClient();
 
       // Connect to pipe
       final connected = await _pipeClient!.connect();
       if (!connected) {
-        debugPrint('Failed to connect to Named Pipe');
-        debugPrint('Possible causes:');
-        debugPrint('  1. Device Controller Service is not running');
-        debugPrint('  2. Service failed to start IPC server');
-        debugPrint(
-          '  3. FFI functions not properly exported (rebuild Flutter app)',
+        logError('[IPC] Failed to connect to Named Pipe');
+        logError('[IPC] Possible causes:');
+        logError('[IPC]   1. Kiorobo Controller is not running');
+        logError('[IPC]   2. Service failed to start IPC server');
+        logError(
+          '[IPC]   3. FFI functions not properly exported (rebuild Flutter app)',
         );
         return false;
       }
@@ -79,21 +83,46 @@ class IpcClient {
           _handleMessage(message);
         },
         onError: (error) {
-          debugPrint('Error in event stream: $error');
+          logError('[IPC] Error in event stream: $error');
           _handleDisconnection();
         },
         onDone: () {
-          debugPrint('Event stream closed');
+          logWarn('[IPC] Event stream closed');
           _handleDisconnection();
         },
         cancelOnError: false,
       );
 
-      debugPrint('IPC connection established successfully');
+      logInfo('[IPC] IPC connection established successfully');
+
+      // Send project code to configure service for this project
+      try {
+        logInfo('[IPC] Sending project code: $projectCode');
+        final response = await sendCommand(
+          type: 'set_project_code',
+          payload: {'projectCode': projectCode},
+          timeout: const Duration(seconds: 5),
+        );
+
+        final status = response['status'] as String?;
+        if (status?.toLowerCase() == 'ok') {
+          final dataFolder = response['result']?['dataFolder'] as String?;
+          logInfo(
+            '[IPC] Project code set successfully. Data folder: $dataFolder',
+          );
+        } else {
+          logWarn('[IPC] Failed to set project code: $response');
+          // Don't fail connection on this error - continue with default
+        }
+      } catch (e) {
+        logWarn('[IPC] Error setting project code: $e');
+        // Don't fail connection - service will use default project
+      }
+
       return true;
     } catch (e, stackTrace) {
-      debugPrint('Failed to connect: $e');
-      debugPrint('Stack trace: $stackTrace');
+      logError('[IPC] Failed to connect: $e');
+      logError('[IPC] Stack trace: $stackTrace');
       _connected = false;
       return false;
     }
@@ -106,27 +135,29 @@ class IpcClient {
     if (kind == 'response') {
       final commandId = message['commandId'] as String?;
       if (commandId != null && _pendingCommands.containsKey(commandId)) {
+        final cmdType = message['type'] as String?;
+        logInfo(
+          '[IPC] Response received for command: $cmdType (ID: $commandId)',
+        );
         _pendingCommands[commandId]!.complete(message);
         _pendingCommands.remove(commandId);
       }
     } else if (kind == 'event') {
       final eventType = message['eventType'] as String?;
-      debugPrint(
-        '[IPC] Event received: eventType=$eventType, deviceType=${message['deviceType']}',
+      final deviceType = message['deviceType'] as String?;
+      logInfo(
+        '[IPC] Event received: eventType=$eventType, deviceType=$deviceType',
       );
+
       if (_eventController == null) {
-        debugPrint(
-          '[IPC] WARNING: _eventController is null, event not forwarded',
-        );
+        logWarn('[IPC] WARNING: _eventController is null, event not forwarded');
       } else if (_eventController!.isClosed) {
-        debugPrint(
+        logWarn(
           '[IPC] WARNING: _eventController is closed, event not forwarded',
         );
       } else {
         _eventController!.add(message);
-        debugPrint(
-          '[IPC] Event forwarded to ${_eventController!.stream.toString()} listeners',
-        );
+        logInfo('[IPC] Event forwarded to stream listeners');
       }
     }
   }
@@ -155,7 +186,7 @@ class IpcClient {
 
     Future.delayed(const Duration(seconds: 1), () {
       if (!_connected) {
-        debugPrint('Attempting to reconnect...');
+        logWarn('[IPC] Attempting to reconnect...');
         connect();
       }
     });
@@ -182,7 +213,7 @@ class IpcClient {
     }
     _pendingCommands.clear();
 
-    debugPrint('IPC disconnected');
+    logInfo('[IPC] IPC disconnected');
   }
 
   bool get isConnected => _connected && _pipeClient?.isConnected == true;
@@ -208,7 +239,9 @@ class IpcClient {
     };
 
     try {
-      debugPrint('Sending command: $type (ID: $commandId)');
+      logInfo(
+        '[IPC] Sending command: $type (ID: $commandId, payload: $payload)',
+      );
 
       // Create completer for response
       final completer = Completer<Map<String, dynamic>>();
@@ -220,6 +253,7 @@ class IpcClient {
 
       if (!sent) {
         _pendingCommands.remove(commandId);
+        logError('[IPC] Failed to send command: $type');
         throw Exception('Failed to send command');
       }
 
@@ -228,15 +262,23 @@ class IpcClient {
         timeout,
         onTimeout: () {
           _pendingCommands.remove(commandId);
+          logError('[IPC] Command timeout: $type (${timeout.inSeconds}s)');
           throw TimeoutException('Command timeout: $type', timeout);
         },
       );
 
-      debugPrint('Command response received: $response');
+      final status = response['status'] as String?;
+      if (status?.toLowerCase() == 'ok') {
+        logInfo('[IPC] Command SUCCESS: $type');
+      } else {
+        logWarn(
+          '[IPC] Command response: $type -> $status (error: ${response['error']})',
+        );
+      }
       return response;
     } catch (e, stackTrace) {
-      debugPrint('Error sending command: $e');
-      debugPrint('Stack trace: $stackTrace');
+      logError('[IPC] Error sending command $type: $e');
+      logError('[IPC] Stack trace: $stackTrace');
       _pendingCommands.remove(commandId);
       rethrow;
     }

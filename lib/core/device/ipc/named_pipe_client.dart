@@ -3,11 +3,11 @@ import 'dart:ffi';
 import 'dart:async';
 import 'dart:convert';
 import 'package:ffi/ffi.dart';
-import 'package:flutter/foundation.dart';
+import '../../../utils/file_logger.dart';
 
 /// Named Pipe Client using FFI
 class NamedPipeClient {
-  static const String _defaultPipeName = r'\\.\pipe\DeviceControllerService';
+  static const String _defaultPipeName = r'\\.\pipe\KioroboController';
 
   DynamicLibrary? _dylib;
   Pointer<Void>? _clientHandle;
@@ -61,65 +61,67 @@ class NamedPipeClient {
               Uint32 Function(Pointer<Void>),
               int Function(Pointer<Void>)
             >('getLastError');
-        debugPrint('FFI functions loaded successfully');
+        logInfo('[Pipe] FFI functions loaded successfully');
       } catch (e) {
-        debugPrint('Error loading FFI functions: $e');
-        debugPrint('Make sure the app was rebuilt after adding FFI functions');
+        logError('[Pipe] Error loading FFI functions: $e');
+        logError(
+          '[Pipe] Make sure the app was rebuilt after adding FFI functions',
+        );
         return false;
       }
 
       // Create client
       final pipeNamePtr = _pipeName.toNativeUtf8();
-      debugPrint('Attempting to connect to pipe: $_pipeName');
+      logInfo('[Pipe] Attempting to connect to pipe: $_pipeName');
 
       _clientHandle = createPipeClient(pipeNamePtr);
       malloc.free(pipeNamePtr);
 
       if (_clientHandle == nullptr) {
-        debugPrint('Failed to create pipe client handle');
+        logError('[Pipe] Failed to create pipe client handle');
         return false;
       }
 
       // Connect
-      debugPrint('Calling connectPipe...');
+      logInfo('[Pipe] Calling connectPipe...');
       final result = connectPipe(_clientHandle!);
 
       if (result == 0) {
         final errorCode = getLastError(_clientHandle!);
-        debugPrint('Failed to connect to named pipe. Error code: $errorCode');
-        debugPrint('Common error codes:');
-        debugPrint(
-          '  2 (ERROR_FILE_NOT_FOUND): Pipe does not exist - service not running',
+        logError(
+          '[Pipe] Failed to connect to named pipe. Error code: $errorCode',
         );
-        debugPrint(
-          '  231 (ERROR_PIPE_BUSY): Pipe is busy - another client connected',
+        logError('[Pipe] Common error codes:');
+        logError(
+          '[Pipe]   2 (ERROR_FILE_NOT_FOUND): Pipe does not exist - service not running',
         );
-        debugPrint('  109 (ERROR_BROKEN_PIPE): Pipe was closed');
-        debugPrint('');
-        debugPrint('Please check:');
-        debugPrint('  1. Device Controller Service is running');
-        debugPrint(
-          '  2. Service console shows "IPC Server started successfully"',
+        logError(
+          '[Pipe]   231 (ERROR_PIPE_BUSY): Pipe is busy - another client connected',
         );
-        debugPrint(
-          '  3. Service console shows "Named pipe created, waiting for client connection..."',
+        logError('[Pipe]   109 (ERROR_BROKEN_PIPE): Pipe was closed');
+        logError('[Pipe] Please check:');
+        logError('[Pipe]   1. Kiorobo Controller is running');
+        logError(
+          '[Pipe]   2. Service console shows "IPC Server started successfully"',
+        );
+        logError(
+          '[Pipe]   3. Service console shows "Named pipe created, waiting for client connection..."',
         );
         _closeHandle();
         return false;
       }
 
-      debugPrint('Successfully connected to named pipe');
+      logInfo('[Pipe] Successfully connected to named pipe');
 
       _connected = true;
-      debugPrint('Successfully connected to named pipe');
 
       // Start receiving messages
       _startReceiving();
 
       return true;
     } catch (e, stackTrace) {
-      debugPrint('Error connecting to named pipe: $e');
-      debugPrint('Stack trace: $stackTrace');
+      logError('[Pipe] Error connecting to named pipe: $e');
+      logError('[Pipe] Stack trace: $stackTrace');
       _closeHandle();
       return false;
     }
@@ -151,7 +153,7 @@ class NamedPipeClient {
 
       return true;
     } catch (e) {
-      debugPrint('Error sending message: $e');
+      logError('[Pipe] Error sending message: $e');
       return false;
     }
   }
@@ -199,7 +201,7 @@ class NamedPipeClient {
             final bytes = buffer.asTypedList(messageLength.value);
             decoded = utf8.decode(bytes, allowMalformed: true);
           } on FormatException catch (e) {
-            debugPrint('[NamedPipe] UTF-8 decode error (message skipped): $e');
+            logWarn('[Pipe] UTF-8 decode error (message skipped): $e');
           }
           if (decoded != null) {
             try {
@@ -208,14 +210,18 @@ class NamedPipeClient {
               final json = jsonDecode(sanitized) as Map<String, dynamic>;
               final kind = json['kind'] as String?;
               if (kind == 'event') {
-                debugPrint('[NamedPipe] received event: ${json['eventType']}');
+                logInfo('[Pipe] Received event: ${json['eventType']}');
+              } else if (kind == 'response') {
+                logInfo(
+                  '[Pipe] Received response for command: ${json['type']}',
+                );
               }
               if (_eventController != null && !_eventController!.isClosed) {
                 _eventController!.add(json);
               }
             } catch (e) {
-              debugPrint(
-                '[NamedPipe] parse error: $e (length=${messageLength.value}, head=${decoded.length > 80 ? decoded.substring(0, 80) : decoded}...)',
+              logError(
+                '[Pipe] JSON parse error: $e (length=${messageLength.value}, head=${decoded.length > 80 ? decoded.substring(0, 80) : decoded}...)',
               );
             }
           }
@@ -234,9 +240,10 @@ class NamedPipeClient {
         if (isConnectedFunc(_clientHandle!) == 0) {
           _connected = false;
           timer.cancel();
+          logWarn('[Pipe] Connection lost (isConnected returned 0)');
         }
       } catch (e) {
-        debugPrint('Error receiving message: $e');
+        logError('[Pipe] Error receiving message: $e');
         _connected = false;
         timer.cancel();
       }
@@ -266,8 +273,9 @@ class NamedPipeClient {
             >('closePipe');
 
         closePipeFunc(_clientHandle!);
+        logInfo('[Pipe] Named pipe closed');
       } catch (e) {
-        debugPrint('Error closing pipe: $e');
+        logError('[Pipe] Error closing pipe: $e');
       }
 
       _clientHandle = nullptr;

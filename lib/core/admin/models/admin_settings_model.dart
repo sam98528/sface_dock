@@ -60,7 +60,7 @@ class AdminSettings {
     this.themeButtonBgValue = 0xFF2196F3,
     this.themeButtonTextValue = 0xFFFFFFFF,
     this.bgmVolume = 0.5,
-    this.photoPrice = 500,
+    this.photoPrice = 5000,
   }) : _debugDisablePhaseTimers = debugDisablePhaseTimers,
        _debugSkipBackendApi = debugSkipBackendApi,
        _debugPausePhotoCapture = debugPausePhotoCapture,
@@ -369,7 +369,7 @@ class AdminSettings {
       themeButtonTextValue:
           (json['themeButtonTextValue'] as num?)?.toInt() ?? 0xFFFFFFFF,
       bgmVolume: (json['bgmVolume'] as num?)?.toDouble() ?? 0.5,
-      photoPrice: (json['photoPrice'] as num?)?.toInt() ?? 500,
+      photoPrice: (json['photoPrice'] as num?)?.toInt() ?? 5000,
     );
   }
 }

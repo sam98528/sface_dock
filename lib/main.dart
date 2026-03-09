@@ -37,7 +37,6 @@ Future<void> main() async {
       backgroundColor: Colors.transparent,
       titleBarStyle: TitleBarStyle.normal,
       title: 'SFace Kiosk',
-
       // skipTaskbar: true,
       // fullScreen: true,
       // alwaysOnTop: true,

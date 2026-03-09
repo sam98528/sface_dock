@@ -19,14 +19,18 @@ class FileLogger {
     if (_initialized) return;
     try {
       final docs = await getApplicationDocumentsDirectory();
-      final logDir = Directory('${docs.path}${Platform.pathSeparator}aiKiosk${Platform.pathSeparator}logs');
+      final logDir = Directory(
+        '${docs.path}${Platform.pathSeparator}sfaceDock${Platform.pathSeparator}logs',
+      );
       if (!logDir.existsSync()) {
         logDir.createSync(recursive: true);
       }
       final now = DateTime.now();
       final dateStr =
           '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-      _logFile = File('${logDir.path}${Platform.pathSeparator}app_$dateStr.log');
+      _logFile = File(
+        '${logDir.path}${Platform.pathSeparator}app_$dateStr.log',
+      );
       _initialized = true;
       info('FileLogger initialized: ${_logFile!.path}');
     } catch (e) {

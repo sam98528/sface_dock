@@ -21,13 +21,13 @@ final deviceControllerProxyProvider = Provider<DeviceControllerProxy>((ref) {
         connectionNotifier.state = connected;
       }
       if (connected) {
-        print('Device Controller Service connected successfully');
+        print('Kiorobo Controller Service connected successfully');
       } else {
-        print('Device Controller Service connection failed');
+        print('Kiorobo Controller Service connection failed');
         print('Please ensure the service is running and try again');
       }
     }).catchError((error) {
-      print('Device Controller Service connection error: $error');
+      print('Kiorobo Controller Service connection error: $error');
       if (ref.exists(connectionStateProvider)) {
         connectionNotifier.state = false;
       }

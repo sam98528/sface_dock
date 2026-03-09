@@ -100,10 +100,7 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
 
     if (totalPrints == 0) {
       if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          introRouteName,
-          (_) => false,
-        );
+        Navigator.of(context).pushReplacementNamed(completionRouteName);
       }
       return;
     }
@@ -153,12 +150,9 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
         } catch (_) {}
       }
 
-      // All done - navigate to intro (session end)
+      // All done - navigate to completion screen
       if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          introRouteName,
-          (_) => false,
-        );
+        Navigator.of(context).pushReplacementNamed(completionRouteName);
       }
     } catch (e) {
       debugPrint('Print process error: $e');
