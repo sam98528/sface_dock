@@ -10,21 +10,21 @@ import 'package:uuid/uuid.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import '../../../app/kiosk_navigator_observer.dart';
-import '../../session/controllers/device_auth_controller.dart';
-import '../../session/services/session_photo_storage_service.dart';
-import '../controllers/admin_controller.dart';
-import '../controllers/locale_controller.dart';
-import '../models/admin_settings_model.dart';
-import '../../session/controllers/session_controller.dart';
-import '../../../utils/app_lifecycle.dart';
-import '../../device/device_controller_proxy_provider.dart';
-import '../../theme/app_theme.dart';
-import '../theme/admin_theme.dart';
-import '../widgets/admin_feature_section.dart';
-import '../../constants/decorate_filters.dart';
-import '../widgets/admin_hardware_section.dart';
-import '../widgets/admin_system_section.dart';
+import '../../app/kiosk_navigator_observer.dart';
+import '../../core/session/controllers/device_auth_controller.dart';
+import '../../core/session/services/session_photo_storage_service.dart';
+import '../../core/admin/controllers/admin_controller.dart';
+import '../../core/admin/controllers/locale_controller.dart';
+import '../../core/admin/models/admin_settings_model.dart';
+import '../../core/session/controllers/session_controller.dart';
+import '../../utils/app_lifecycle.dart';
+import '../../core/device/device_controller_proxy_provider.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/admin/theme/admin_theme.dart';
+import '../../core/admin/widgets/admin_feature_section.dart';
+import '../../core/constants/decorate_filters.dart';
+import '../../core/admin/widgets/admin_hardware_section.dart';
+import '../../core/admin/widgets/admin_system_section.dart';
 
 /// Minimal 1x1 pixel JPEG (base64) for test print.
 const String _kTestPrintImageBase64 =
@@ -58,6 +58,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   String? _paymentStatus;
   String? _cashStatus;
   bool _isAutoDetecting = false;
+  Map<String, String>? _dnpPrinterInfo;
   int _cashTestAmount = 0;
   StreamSubscription<int>? _cashTestSubscription;
   int _cashPaymentRequested = 0;
@@ -243,6 +244,15 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
       'cash.enabled': state.cashDeviceEnabled ? '1' : '0',
     };
     await proxy.setConfig(payload);
+  }
+
+  Future<void> _refreshDnpPrinterStatus() async {
+    final proxy = ref.read(deviceControllerProxyProvider);
+    if (!proxy.isConnected) return;
+    final info = await proxy.getPrinterStatus();
+    if (mounted) {
+      setState(() => _dnpPrinterInfo = info);
+    }
   }
 
   Future<void> _onTestPrint() async {
@@ -795,6 +805,8 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         socketServerPort: draft.socketServerPort,
         onSocketServerPortChanged: (v) =>
             notifier.updateDraft((d) => d.copyWith(socketServerPort: v)),
+        dnpPrinterInfo: _dnpPrinterInfo,
+        onRefreshDnpStatus: _refreshDnpPrinterStatus,
       ),
     );
   }

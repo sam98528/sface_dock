@@ -10,7 +10,7 @@ import 'package:sfacedock/presentation/screens/photo_grid_screen.dart';
 
 import '../core/admin/controllers/admin_controller.dart';
 import '../core/admin/models/admin_settings_model.dart';
-import '../core/admin/screens/admin_screen.dart';
+import '../presentation/screens/admin_screen.dart';
 import '../core/device/device_controller_proxy_provider.dart';
 import '../core/services/audio_service.dart';
 import '../core/services/image_prefetch_service.dart';

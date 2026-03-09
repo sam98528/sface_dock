@@ -394,6 +394,29 @@ class DeviceControllerProxy {
     throw Exception('printerPrint: provide filePath or dataBase64');
   }
 
+  /// DNP DS-RX1 프린터 상태 조회 (CyStat64.dll 기반)
+  /// 반환: {connected, status, statusText, mediaType, mediaRemaining, ...}
+  Future<Map<String, String>?> getPrinterStatus() async {
+    if (!_isWindows || !_ipcClient.isConnected) return null;
+    try {
+      final response = await _ipcClient.sendCommand(
+        type: 'printer_status',
+        payload: {},
+      );
+      final status = response['status'] as String?;
+      if (status?.toLowerCase() == 'ok') {
+        final responseMap = response['responseMap'];
+        if (responseMap is Map) {
+          return responseMap.cast<String, String>();
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error getPrinterStatus: $e');
+      return null;
+    }
+  }
+
   /// 서비스 config 저장 (admin 하드웨어 설정). payload 키: printer.name, payment.com_port 등.
   Future<bool> setConfig(Map<String, String> payload) async {
     if (!_isWindows || !_ipcClient.isConnected) return false;
