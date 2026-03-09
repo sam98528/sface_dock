@@ -46,29 +46,38 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
   /// external_navigate 이벤트 수신 (RGB 프로그램 → Flutter 복귀)
   void _listenExternalNavigate() {
     final proxy = ref.read(deviceControllerProxyProvider);
-    _eventSub = proxy.eventStream
-        .where((e) => e['eventType'] == 'external_navigate')
-        .listen((e) async {
-      final target = (e['data'] as Map<String, dynamic>?)?['target'];
-      if (target == 'intro' && mounted) {
-        // 소켓 서버 중지
-        await proxy.stopSocketServer();
+    // IPC가 연결되어 있을 때만 이벤트 수신
+    if (proxy.isConnected) {
+      _eventSub = proxy.eventStream
+          .where((e) => e['eventType'] == 'external_navigate')
+          .listen((e) async {
+        final target = (e['data'] as Map<String, dynamic>?)?['target'];
+        if (target == 'intro' && mounted) {
+          // 소켓 서버 중지
+          await proxy.stopSocketServer();
 
-        // Windows에서 alwaysOnTop 다시 활성화
-        if (Platform.isWindows) {
-          await windowManager.setAlwaysOnTop(true);
-          await windowManager.focus();
-        }
+          // IPC 연결 해제 (RGB 세션 종료)
+          await proxy.disconnect();
+          debugPrint('[IntroScreen] IPC disconnected - RGB session ended');
+          ref.read(connectionStateProvider.notifier).state = false;
 
-        // Intro 화면으로 복귀
-        if (mounted) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            introRouteName,
-            (_) => false,
-          );
+          // Windows에서 Flutter 창 다시 표시 및 alwaysOnTop 활성화
+          if (Platform.isWindows) {
+            await windowManager.show();
+            await windowManager.setAlwaysOnTop(true);
+            await windowManager.focus();
+          }
+
+          // Intro 화면으로 복귀
+          if (mounted) {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              introRouteName,
+              (_) => false,
+            );
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   /// RGB 프로그램을 최전방으로 전환
@@ -80,27 +89,64 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
 
     // Windows에서만 동작
     if (Platform.isWindows) {
-      // 1. SFaceDock의 alwaysOnTop 해제 (RGB가 앞으로 올 수 있도록)
+      // 1. IPC 연결 (RGB 모드에서는 소켓 서버를 통한 통신을 위해 필요)
+      // 장비 초기화는 하지 않음 - SFace에서만 필요
+      debugPrint('[IntroScreen] Connecting to IPC for RGB session (socket server only)...');
+      final connected = await proxy.ensureConnected();
+      if (!connected) {
+        debugPrint('[IntroScreen] IPC connection failed for RGB mode');
+        return;
+      }
+      ref.read(connectionStateProvider.notifier).state = true;
+
+      // 2. external_navigate 이벤트 리스너 설정
+      _listenExternalNavigate();
+
+      // 3. SFaceDock의 alwaysOnTop 해제 (RGB가 앞으로 올 수 있도록)
       await windowManager.setAlwaysOnTop(false);
 
-      // 2. 소켓 서버 시작 (활성화된 경우)
+      // 4. 소켓 서버 시작 (활성화된 경우)
       if (admin.socketServerEnabled) {
         await proxy.startSocketServer(admin.socketServerPort);
       }
 
-      // 3. RGB 프로세스를 최전방으로
+      // 5. RGB 프로세스를 최전방으로
       await proxy.bringProcessToFront(
         targetProcess: admin.rgbProcessName,
         demoteProcess: 'sfacedock.exe',
       );
+
+      // 6. Flutter 창을 완전히 숨김 (터치 이벤트가 RGB로 전달되도록)
+      await windowManager.hide();
     }
   }
 
   /// SFACE DOCK 로딩 화면으로 이동
-  void _navigateToLoading() {
+  Future<void> _navigateToLoading() async {
     // Pause pre-fetching while user is actively using the kiosk
     ref.read(imagePrefetchProvider.notifier).pause();
-    Navigator.pushReplacementNamed(context, introLoadingRouteName);
+
+    // Connect to IPC when starting SFace session
+    final proxy = ref.read(deviceControllerProxyProvider);
+    debugPrint('[IntroScreen] Connecting to IPC for SFace session...');
+    final connected = await proxy.ensureConnected();
+
+    if (!mounted) return;
+
+    if (connected) {
+      debugPrint('[IntroScreen] IPC connected successfully');
+      // Update connection state
+      ref.read(connectionStateProvider.notifier).state = true;
+    } else {
+      debugPrint('[IntroScreen] IPC connection failed');
+      ref.read(connectionStateProvider.notifier).state = false;
+    }
+
+    // Navigate regardless of connection status
+    // The loading screen will handle connection failures
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, introLoadingRouteName);
+    }
   }
 
   /// 숨겨진 설정 버튼 탭 핸들러 (5번 탭하면 설정 화면으로)
@@ -203,9 +249,9 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
                                     duration: const Duration(milliseconds: 200),
                                     curve: Curves.easeInOut,
                                     child: GestureDetector(
-                                      onTap: () {
+                                      onTap: () async {
                                         // AudioService.instance.playButtonSound();
-                                        _navigateToLoading();
+                                        await _navigateToLoading();
                                       },
                                       child: Container(
                                         clipBehavior: Clip.hardEdge,

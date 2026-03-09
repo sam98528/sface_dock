@@ -39,7 +39,7 @@ Future<void> main() async {
       title: 'SFace Kiosk',
       // skipTaskbar: true,
       fullScreen: true,
-      alwaysOnTop: true,
+      alwaysOnTop: true,  // 초기 시작 시에는 alwaysOnTop 활성화
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {

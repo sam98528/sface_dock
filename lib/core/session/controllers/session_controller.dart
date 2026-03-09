@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 
 import '../state/session_state.dart';
 import 'device_auth_controller.dart';
+import '../../device/device_controller_proxy_provider.dart';
 
 /// SessionController manages session lifecycle.
 ///
@@ -36,6 +37,17 @@ class SessionController extends StateNotifier<SessionState> {
       return;
     }
 
+    // Ensure IPC connection is established for the session
+    final deviceProxy = ref.read(deviceControllerProxyProvider);
+    final connected = await deviceProxy.ensureConnected();
+    if (!connected) {
+      print('[SessionController] Failed to connect to device controller service');
+      state = const SessionState.deviceError(
+        errorCodes: ['DEVICE_CONNECTION_FAILED'],
+      );
+      return;
+    }
+
     // Generate session ID
     _currentSessionId = const Uuid().v4();
 
@@ -44,8 +56,13 @@ class SessionController extends StateNotifier<SessionState> {
   }
 
   /// End current session
-  void endSession() {
+  Future<void> endSession() async {
     state = const SessionState.ended(reason: SessionEndReason.normal);
+
+    // Disconnect IPC to release device ports for other programs
+    final deviceProxy = ref.read(deviceControllerProxyProvider);
+    await deviceProxy.disconnect();
+    print('[SessionController] IPC disconnected - device ports released');
   }
 
   /// Reset to idle state (ready for new session)

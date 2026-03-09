@@ -365,10 +365,21 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   context.playTapSound();
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacementNamed(context, introRouteName);
+
+                  // Disconnect IPC when going back to intro
+                  final proxy = ref.read(deviceControllerProxyProvider);
+                  await proxy.disconnect();
+                  debugPrint('[IntroLoadingScreen] IPC disconnected - returning to intro');
+
+                  // Update connection state
+                  ref.read(connectionStateProvider.notifier).state = false;
+
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    Navigator.pushReplacementNamed(context, introRouteName);
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[300],

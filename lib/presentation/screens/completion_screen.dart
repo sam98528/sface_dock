@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sfacedock/app/sfacedock_app.dart';
+import 'package:sfacedock/core/device/device_controller_proxy_provider.dart';
 import 'package:sfacedock/core/theme/kiosk_colors.dart';
 import 'package:sfacedock/presentation/providers/cart_provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -39,9 +40,17 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen> {
     });
   }
 
-  void _endSession() {
+  Future<void> _endSession() async {
     // 장바구니 초기화 (세션 종료)
     ref.read(cartProvider.notifier).clearCart();
+
+    // Disconnect IPC to release device ports
+    final proxy = ref.read(deviceControllerProxyProvider);
+    await proxy.disconnect();
+    debugPrint('[CompletionScreen] IPC disconnected - device ports released');
+
+    // Update connection state
+    ref.read(connectionStateProvider.notifier).state = false;
 
     // 첫 화면으로 돌아가기
     if (mounted) {

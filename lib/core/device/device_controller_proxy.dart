@@ -74,6 +74,25 @@ class DeviceControllerProxy {
     }
   }
 
+  /// Disconnects from the Device Controller Service via IPC.
+  Future<void> disconnect() async {
+    if (!_isWindows) {
+      debugPrint('Preview mode: skipping service disconnection');
+      return;
+    }
+
+    try {
+      debugPrint('DeviceControllerProxy: Disconnecting from service...');
+      _eventSubscription?.cancel();
+      _eventSubscription = null;
+      await _ipcClient.disconnect();
+      debugPrint('DeviceControllerProxy: Disconnected successfully');
+    } catch (e, stackTrace) {
+      debugPrint('Error disconnecting from device service: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
+  }
+
   /// 이벤트 수신 시작
   void _startEventListening() {
     _eventSubscription?.cancel();
@@ -429,9 +448,4 @@ class DeviceControllerProxy {
   /// 이벤트 스트림 (Controller에서 사용)
   Stream<Map<String, dynamic>> get eventStream => _ipcClient.eventStream;
 
-  /// Disconnects from the service.
-  void disconnect() {
-    _eventSubscription?.cancel();
-    _ipcClient.disconnect();
-  }
 }

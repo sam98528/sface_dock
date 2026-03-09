@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/search_provider.dart';
+import '../providers/cart_provider.dart';
 import '../../app/sfacedock_app.dart';
+import '../../core/device/device_controller_proxy_provider.dart';
 import '../../core/services/image_prefetch_service.dart';
 import '../../core/services/audio_service.dart';
 import '../../core/theme/kiosk_colors.dart';
@@ -126,10 +128,28 @@ class _SearchActionBarState extends ConsumerState<SearchActionBar> {
               ],
             ),
             child: GestureDetector(
-              onTap: () {
+              onTap: () async {
                 context.playTapSound();
                 KioskKeyboardOverlay.dismiss();
-                Navigator.of(context).pushNamed(homeRouteName);
+
+                // Clear cart and end session
+                ref.read(cartProvider.notifier).clearCart();
+
+                // Disconnect IPC to release device ports
+                final proxy = ref.read(deviceControllerProxyProvider);
+                await proxy.disconnect();
+                debugPrint('[SearchActionBar] IPC disconnected - returning to intro');
+
+                // Update connection state
+                ref.read(connectionStateProvider.notifier).state = false;
+
+                // Navigate to intro screen
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    introRouteName,
+                    (_) => false,
+                  );
+                }
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

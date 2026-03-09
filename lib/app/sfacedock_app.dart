@@ -11,6 +11,7 @@ import 'package:sfacedock/presentation/screens/photo_grid_screen.dart';
 import '../core/admin/controllers/admin_controller.dart';
 import '../core/admin/models/admin_settings_model.dart';
 import '../core/admin/screens/admin_screen.dart';
+import '../core/device/device_controller_proxy_provider.dart';
 import '../core/services/audio_service.dart';
 import '../core/services/image_prefetch_service.dart';
 import '../core/theme/app_theme.dart';
@@ -150,6 +151,15 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
     // F2: Return to home screen
     if (event.logicalKey == LogicalKeyboardKey.f2) {
       if (currentRoute != homeRouteName && currentRoute != introRouteName) {
+        // Disconnect IPC when returning to intro screen
+        final proxy = ref.read(deviceControllerProxyProvider);
+        if (proxy.isConnected) {
+          proxy.disconnect().then((_) {
+            debugPrint('[F2] IPC disconnected - returning to intro');
+            ref.read(connectionStateProvider.notifier).state = false;
+          });
+        }
+
         // Resume background pre-fetching when returning to idle screen
         ref.read(imagePrefetchProvider.notifier).resume();
         _navigatorKey.currentState?.pushNamedAndRemoveUntil(
