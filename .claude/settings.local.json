@@ -1,16 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(powershell -Command \"Test-Path ''C:\\Users\\kioro\\Desktop\\kiosk\\Front\\device-controller-service-kiosk\\installer\\staging\\DeviceControllerService\\KioroboController.exe''\")",
-      "Bash(powershell -Command \"Test-Path ''C:\\Users\\kioro\\Desktop\\kiosk\\sfacedock''\")",
-      "Bash(powershell -Command \"Test-Path ''C:\\Users\\kioro\\Desktop\\kiosk\\sfacedock\\windows\\runner\\resources\\app_icon.ico''\")",
-      "Bash(powershell -Command \"Set-PSDebug -Trace 1; .\\installer\\build-and-pack.ps1 -ProjectName sfacedock 2>&1 | Select-Object -Last 50\")",
-      "Bash(powershell -Command \"cd ''C:\\Users\\kioro\\Desktop\\kiosk\\Front\\device-controller-service-kiosk''; Set-PSDebug -Trace 1; .\\installer\\build-and-pack.ps1 -ProjectName sfacedock 2>&1 | Select-Object -Last 50\")",
-      "Bash(powershell -Command \"cd ''C:\\Users\\kioro\\Desktop\\kiosk\\Front\\device-controller-service-kiosk''; .\\installer\\build-and-pack.ps1 -ProjectName sfacedock\")",
-      "Bash(powershell -Command \"cd ''C:\\Users\\kioro\\Desktop\\kiosk\\Front\\device-controller-service-kiosk''; .\\installer\\build-and-pack.ps1 -ProjectName sfacedock 2>&1 | Select-Object -Last 30\")",
-      "Bash(powershell -Command \"& { param([string]$ProjectName) Write-Host ''Test: '' $ProjectName } -ProjectName ''sfacedock''\")",
-      "Bash(powershell -NoProfile -Command \"cd ''C:\\Users\\kioro\\Desktop\\kiosk\\Front\\device-controller-service-kiosk''; .\\installer\\build-and-pack.ps1 -ProjectName sfacedock 2>&1 | Select-Object -First 20\")",
-      "Bash(powershell -Command \"C:\\Users\\kioro\\Desktop\\kiosk\\Front\\device-controller-service-kiosk\\installer\\test.ps1\")"
+      "Bash(powershell -Command \"Test-Path ''C:\\Users\\kioro\\Desktop\\kiosk\\future-frame\\windows\\runner\\resources\\app_icon.ico''\")"
     ],
     "deny": [],
     "ask": []

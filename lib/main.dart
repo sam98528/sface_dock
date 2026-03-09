@@ -38,8 +38,8 @@ Future<void> main() async {
       titleBarStyle: TitleBarStyle.normal,
       title: 'SFace Kiosk',
       // skipTaskbar: true,
-      // fullScreen: true,
-      // alwaysOnTop: true,
+      fullScreen: true,
+      alwaysOnTop: true,
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {
