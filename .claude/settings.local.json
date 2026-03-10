@@ -1,24 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(powershell -Command \"Test-Path ''C:\\Users\\kioro\\Desktop\\kiosk\\future-frame\\windows\\runner\\resources\\app_icon.ico''\")",
-      "Bash(dir \"c:\\Users\\kioro\\Desktop\\kiosk\")",
-      "Bash(dir \"c:\\Users\\kioro\\Desktop\\kiosk\\future-frame\\windows\\runner\\resources\" /b)",
-      "Bash(cmd /c \"dir c:\\Users\\kioro\\Desktop\\kiosk\\future-frame\\windows\\runner\\resources /b\")",
-      "WebSearch",
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:www.manualslib.com)",
-      "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(objdump -p \"/c/Users/sam98/Desktop/kiosk/RX1 Status App/CyStat64.dll\")",
-      "Bash(python3 -c \":*)",
-      "Bash(grep -iE \"^[A-Z][a-zA-Z_]+$\")",
-      "Bash(objdump -x \"/c/Users/sam98/Desktop/kiosk/RX1 Status App/CyStat64.dll\")",
-      "Bash(pip install pefile)",
-      "Bash(python3 -c \"import pefile; pe=pefile.PE\\(r''C:\\\\Users\\\\sam98\\\\Desktop\\\\kiosk\\\\RX1 Status App\\\\CyStat64.dll''\\); [print\\(e.name.decode\\(\\)\\) for e in pe.DIRECTORY_ENTRY_EXPORT.symbols]\")",
-      "Bash(powershell.exe -Command \"pip install pefile; python -c \"\"import pefile; pe=pefile.PE\\(r''C:\\\\Users\\\\sam98\\\\Desktop\\\\kiosk\\\\RX1 Status App\\\\CyStat64.dll''\\); [print\\(e.name.decode\\(\\)\\) for e in pe.DIRECTORY_ENTRY_EXPORT.symbols]\"\"\")",
-      "Bash(powershell.exe -Command \"[System.Reflection.Assembly]::LoadFile\\(''C:\\\\Users\\\\sam98\\\\Desktop\\\\kiosk\\\\RX1 Status App\\\\CyStat64.dll''\\)\")",
-      "Bash(powershell.exe -Command \":*)",
-      "Bash(flutter analyze lib/core/admin/widgets/admin_hardware_section.dart lib/presentation/screens/admin_screen.dart lib/core/device/device_controller_proxy.dart)"
+      "Bash(\"c:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.29.30133/bin/HostX64/x64/dumpbin.exe\" /exports \"c:/Users/kioro/Desktop/Rx1 Status app/CyStat64.dll\")",
+      "Bash(powershell -Command \"& ''C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\dumpbin.exe'' /exports ''C:\\Users\\kioro\\Desktop\\Rx1 Status app\\CyStat64.dll''\")",
+      "Bash(powershell -File installer/build-and-pack.ps1)",
+      "Bash(powershell -File installer/build-and-pack.ps1 -ProjectName device-controller-service-kiosk)",
+      "Bash(powershell -File installer/build-and-pack.ps1 -ProjectName sfacedock)"
     ],
     "deny": [],
     "ask": []

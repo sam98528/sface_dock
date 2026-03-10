@@ -70,10 +70,10 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
     }
   }
 
-  /// 1. 파이프 연결. 2. 장치 상태 검증 3. 다음 페이지.
+  /// 1. 장치 상태 검증 2. 다음 페이지로 이동 (IPC 연결은 main.dart에서 이미 완료)
   Future<void> _initializeAndNavigate() async {
     try {
-      debugPrint('🔄 IPC 및 장치 초기화 시작');
+      debugPrint('🔄 장치 초기화 시작');
       setState(() {
         _isConnecting = true;
       });
@@ -95,30 +95,38 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
         return;
       }
 
-      // IPC Pipe 연결 체크 - ai-kiosk-client 방식의 Exponential Backoff 재시도 로직
-      bool isConnected = await proxy.ensureConnected();
+      // IPC 연결 확인 (main.dart에서 이미 연결되어 있어야 함)
+      bool isConnected = proxy.isConnected;
 
       if (!isConnected) {
-        // 서비스 프로세스가 막 시작된 경우 Named Pipe 생성까지 시간이 걸림.
-        // 최대 ~15초(500+750+1000+1500+2000+2500+3000+3500ms) 대기하며 재시도.
-        const retryDelays = [
-          Duration(milliseconds: 500),
-          Duration(milliseconds: 750),
-          Duration(milliseconds: 1000),
-          Duration(milliseconds: 1500),
-          Duration(milliseconds: 2000),
-          Duration(milliseconds: 2500),
-          Duration(milliseconds: 3000),
-          Duration(milliseconds: 3500),
-        ];
+        debugPrint('⚠️ IPC not connected, attempting to connect for device initialization...');
+        // SFACE 세션을 위해 연결 시도 (장비 초기화가 필요하므로)
+        isConnected = await proxy.ensureConnected();
 
-        for (var i = 0; i < retryDelays.length && !isConnected; i++) {
-          debugPrint(
-            '파이프 연결 재시도 중... 대기: ${retryDelays[i].inMilliseconds}ms (${i + 1}/${retryDelays.length})',
-          );
-          await Future<void>.delayed(retryDelays[i]);
-          isConnected = await proxy.ensureConnected();
+        if (!isConnected) {
+          // 서비스 프로세스가 막 시작된 경우 Named Pipe 생성까지 시간이 걸림.
+          // 최대 ~15초(500+750+1000+1500+2000+2500+3000+3500ms) 대기하며 재시도.
+          const retryDelays = [
+            Duration(milliseconds: 500),
+            Duration(milliseconds: 750),
+            Duration(milliseconds: 1000),
+            Duration(milliseconds: 1500),
+            Duration(milliseconds: 2000),
+            Duration(milliseconds: 2500),
+            Duration(milliseconds: 3000),
+            Duration(milliseconds: 3500),
+          ];
+
+          for (var i = 0; i < retryDelays.length && !isConnected; i++) {
+            debugPrint(
+              '파이프 연결 재시도 중... 대기: ${retryDelays[i].inMilliseconds}ms (${i + 1}/${retryDelays.length})',
+            );
+            await Future<void>.delayed(retryDelays[i]);
+            isConnected = await proxy.ensureConnected();
+          }
         }
+      } else {
+        debugPrint('✅ IPC already connected - proceeding with device initialization');
       }
 
       // 연결 성공 시 Riverpod 상태 동기화

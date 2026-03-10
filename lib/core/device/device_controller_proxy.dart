@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 
 import '../../core/device/state/device_summary_state.dart';
+import '../../utils/file_logger.dart';
 import 'ipc/ipc_client.dart';
 
 /// Device Controller Service IPC client.
@@ -90,6 +91,45 @@ class DeviceControllerProxy {
     } catch (e, stackTrace) {
       debugPrint('Error disconnecting from device service: $e');
       debugPrint('Stack trace: $stackTrace');
+    }
+  }
+
+  /// RGB 프로그램 등 외부 앱 실행을 위해 포트 등을 임시 해제합니다.
+  /// (Named Pipe 연결은 유지되므로 이벤트 수신 가능)
+  Future<bool> suspendHardware() async {
+    if (!_isWindows) return true;
+    try {
+      debugPrint('DeviceControllerProxy: Suspending hardware for external app...');
+      final response = await sendCommand('hardware_suspend', {});
+      final success = response != null && response['status'] == 'ok';
+      if (success) {
+        debugPrint('DeviceControllerProxy: Hardware suspended successfully');
+      } else {
+        debugPrint('DeviceControllerProxy: Failed to suspend hardware: ${response?['error']?['message']}');
+      }
+      return success;
+    } catch (e) {
+      debugPrint('DeviceControllerProxy: Exception suspending hardware: $e');
+      return false;
+    }
+  }
+
+  /// 외부 앱 종료 후 포트 등 장비를 다시 초기화/선점합니다.
+  Future<bool> resumeHardware() async {
+    if (!_isWindows) return true;
+    try {
+      debugPrint('DeviceControllerProxy: Resuming hardware...');
+      final response = await sendCommand('hardware_resume', {});
+      final success = response != null && response['status'] == 'ok';
+      if (success) {
+        debugPrint('DeviceControllerProxy: Hardware resumed successfully');
+      } else {
+        debugPrint('DeviceControllerProxy: Failed to resume hardware: ${response?['error']?['message']}');
+      }
+      return success;
+    } catch (e) {
+      debugPrint('DeviceControllerProxy: Exception resuming hardware: $e');
+      return false;
     }
   }
 
@@ -397,21 +437,49 @@ class DeviceControllerProxy {
   /// DNP DS-RX1 프린터 상태 조회 (CyStat64.dll 기반)
   /// 반환: {connected, status, statusText, mediaType, mediaRemaining, ...}
   Future<Map<String, String>?> getPrinterStatus() async {
-    if (!_isWindows || !_ipcClient.isConnected) return null;
+    logInfo('[DeviceProxy] getPrinterStatus 시작');
+
+    if (!_isWindows || !_ipcClient.isConnected) {
+      logWarn('[DeviceProxy] getPrinterStatus: Windows 아니거나 연결안됨 (isWindows=$_isWindows, isConnected=${_ipcClient.isConnected})');
+      return null;
+    }
+
     try {
+      logInfo('[DeviceProxy] printer_status 명령 전송...');
       final response = await _ipcClient.sendCommand(
         type: 'printer_status',
         payload: {},
       );
+
+      // response 전체 구조 로깅
+      logInfo('[DeviceProxy] printer_status 응답 원본: $response');
+      logInfo('[DeviceProxy] response type: ${response.runtimeType}');
+      logInfo('[DeviceProxy] response keys: ${response.keys.toList()}');
+
       final status = response['status'] as String?;
+      logInfo('[DeviceProxy] status 필드: $status');
+
       if (status?.toLowerCase() == 'ok') {
         final responseMap = response['responseMap'];
+        logInfo('[DeviceProxy] responseMap: $responseMap');
+        logInfo('[DeviceProxy] responseMap type: ${responseMap.runtimeType}');
+
         if (responseMap is Map) {
-          return responseMap.cast<String, String>();
+          final result = responseMap.cast<String, String>();
+          logInfo('[DeviceProxy] 프린터 상태 조회 성공, 결과: $result');
+          return result;
+        } else {
+          logWarn('[DeviceProxy] responseMap이 Map이 아님: ${responseMap?.runtimeType}');
         }
+      } else {
+        logWarn('[DeviceProxy] status가 ok가 아님: $status');
       }
+
+      logInfo('[DeviceProxy] 최종적으로 null 반환');
       return null;
-    } catch (e) {
+    } catch (e, stack) {
+      logError('[DeviceProxy] getPrinterStatus 오류: $e');
+      logError('[DeviceProxy] 스택: $stack');
       debugPrint('Error getPrinterStatus: $e');
       return null;
     }

@@ -267,6 +267,29 @@ class IpcClient {
         },
       );
 
+      // printer_status 명령에 대해 자세한 로그 추가
+      if (type == 'printer_status') {
+        logInfo('[IPC] printer_status 응답 전체: $response');
+        logInfo('[IPC] printer_status 응답 keys: ${response.keys.toList()}');
+        logInfo('[IPC] printer_status status 필드: ${response['status']}');
+
+        final responseMap = response['responseMap'];
+        if (responseMap != null) {
+          logInfo('[IPC] printer_status responseMap 타입: ${responseMap.runtimeType}');
+          logInfo('[IPC] printer_status responseMap 내용: $responseMap');
+          if (responseMap is Map) {
+            logInfo('[IPC] printer_status responseMap keys: ${responseMap.keys.toList()}');
+          }
+        } else {
+          logWarn('[IPC] printer_status responseMap이 null입니다!');
+        }
+
+        final error = response['error'];
+        if (error != null) {
+          logError('[IPC] printer_status error: $error');
+        }
+      }
+
       final status = response['status'] as String?;
       if (status?.toLowerCase() == 'ok') {
         logInfo('[IPC] Command SUCCESS: $type');

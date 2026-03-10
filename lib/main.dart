@@ -7,6 +7,8 @@ import 'package:window_manager/window_manager.dart';
 
 import 'app/sfacedock_app.dart';
 import 'utils/file_logger.dart';
+import 'core/device/device_controller_proxy.dart';
+import 'core/device/device_controller_proxy_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +27,22 @@ Future<void> main() async {
   // Initialize file logger
   await FileLogger.instance.initialize();
 
+  // Initialize IPC connection early (for RGB navigation support)
+  // This ensures pipe is ready when RGB wants to return to Flutter
+  final deviceProxy = DeviceControllerProxy();
+  debugPrint(
+    '[Main] Attempting early IPC connection for RGB navigation support...',
+  );
+  final connected = await deviceProxy.connect();
+  if (connected) {
+    debugPrint('[Main] IPC connected successfully - RGB navigation ready');
+  } else {
+    debugPrint('[Main] IPC connection failed - RGB navigation may not work');
+    debugPrint(
+      '[Main] This is OK if kiorobo-controller service is not running',
+    );
+  }
+
   // Initialize window manager (Windows only)
   if (Platform.isWindows) {
     await windowManager.ensureInitialized();
@@ -38,8 +56,8 @@ Future<void> main() async {
       titleBarStyle: TitleBarStyle.normal,
       title: 'SFace Kiosk',
       // skipTaskbar: true,
-      // fullScreen: true,
-      // alwaysOnTop: true,  // 초기 시작 시에는 alwaysOnTop 활성화
+      fullScreen: true,
+      alwaysOnTop: true, // 초기 시작 시에는 alwaysOnTop 활성화
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {
@@ -48,5 +66,13 @@ Future<void> main() async {
     });
   }
 
-  runApp(const ProviderScope(child: SFaceDockApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        // Override the deviceControllerProxyProvider with the pre-connected instance
+        deviceControllerProxyProvider.overrideWithValue(deviceProxy),
+      ],
+      child: const SFaceDockApp(),
+    ),
+  );
 }

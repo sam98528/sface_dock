@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -25,6 +26,7 @@ import '../../core/admin/widgets/admin_feature_section.dart';
 import '../../core/constants/decorate_filters.dart';
 import '../../core/admin/widgets/admin_hardware_section.dart';
 import '../../core/admin/widgets/admin_system_section.dart';
+import '../../utils/file_logger.dart' as file_logger;
 
 /// Minimal 1x1 pixel JPEG (base64) for test print.
 const String _kTestPrintImageBase64 =
@@ -247,11 +249,31 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   }
 
   Future<void> _refreshDnpPrinterStatus() async {
+    // 메모리 로거와 파일 로거 모두에 기록
+    file_logger.logInfo('DNP 프린터 상태 조회 시작 [AdminScreen]');
+
     final proxy = ref.read(deviceControllerProxyProvider);
-    if (!proxy.isConnected) return;
-    final info = await proxy.getPrinterStatus();
-    if (mounted) {
-      setState(() => _dnpPrinterInfo = info);
+    if (!proxy.isConnected) {
+      file_logger.logWarn('프린터 상태 조회 실패: 서비스 연결 안됨 [AdminScreen]');
+      return;
+    }
+
+    try {
+      file_logger.logInfo('printer_status 명령 전송 중... [AdminScreen]');
+
+      final info = await proxy.getPrinterStatus();
+
+      if (info != null) {
+        file_logger.logInfo('프린터 상태 조회 성공: ${info.toString()} [AdminScreen]');
+      } else {
+        file_logger.logWarn('프린터 상태 조회 결과: null [AdminScreen]');
+      }
+
+      if (mounted) {
+        setState(() => _dnpPrinterInfo = info);
+      }
+    } catch (e) {
+      file_logger.logError('프린터 상태 조회 중 오류: $e [AdminScreen]');
     }
   }
 
@@ -743,70 +765,78 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   Widget _buildHardwareTab(AdminSettings draft, AdminDraftNotifier notifier) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(32),
-      child: AdminHardwareSection(
-        cameraModel: draft.cameraModel,
-        cameraComIndex: 0,
-        onCameraModelChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(cameraModel: v)),
-        onCameraComChanged: (_) {},
-        comPorts: _comPorts,
-        cameraStatus: _cameraStatus,
-        printerModel: draft.printerModel,
-        availablePrinters: _availablePrinters,
-        onPrinterModelChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(printerModel: v)),
-        printerPaperSize: draft.printerPaperSize,
-        onPrinterPaperSizeChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(printerPaperSize: v)),
-        printerPaperRemaining: draft.printerPaperRemaining,
-        onPrinterPaperRemainingChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(printerPaperRemaining: v)),
-        onPrinterPaperReset: () =>
-            notifier.updateDraft((d) => d.copyWith(printerPaperRemaining: 980)),
-        printerMarginH: draft.printerMarginH,
-        printerMarginV: draft.printerMarginV,
-        onPrinterMarginHChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(printerMarginH: v)),
-        onPrinterMarginVChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(printerMarginV: v)),
-        onTestPrint: _onTestPrint,
-        onPrintSessionProduct: _onPrintSessionProduct,
-        printerStatus: _printerStatus,
-        paymentTerminalEnabled: draft.paymentTerminalEnabled,
-        onPaymentTerminalEnabledChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(paymentTerminalEnabled: v)),
-        cashDeviceEnabled: draft.cashDeviceEnabled,
-        onCashDeviceEnabledChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(cashDeviceEnabled: v)),
-        paymentStatus: _paymentStatus,
-        cashStatus: _cashStatus,
-        onAutoDetect: _onAutoDetect,
-        isAutoDetecting: _isAutoDetecting,
-        isDebugMode: kDebugMode,
-        cashTestAmount: _cashTestAmount,
-        onCashTestStart: _onCashTestStart,
-        onCashTestStop: _onCashTestStop,
-        cashPaymentRequested: _cashPaymentRequested,
-        cashPaymentCurrent: _cashPaymentCurrent,
-        cashPaymentTargetReached: _cashPaymentTargetReached,
-        cashPaymentPresetIndex: _cashPaymentPresetIndex,
-        onCashPaymentPresetChanged: (v) =>
-            setState(() => _cashPaymentPresetIndex = v),
-        onCashPaymentRequest: _onCashPaymentRequest,
-        rgbEnabled: draft.rgbEnabled,
-        onRgbEnabledChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(rgbEnabled: v)),
-        rgbProcessName: draft.rgbProcessName,
-        onRgbProcessNameChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(rgbProcessName: v)),
-        socketServerEnabled: draft.socketServerEnabled,
-        onSocketServerEnabledChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(socketServerEnabled: v)),
-        socketServerPort: draft.socketServerPort,
-        onSocketServerPortChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(socketServerPort: v)),
-        dnpPrinterInfo: _dnpPrinterInfo,
-        onRefreshDnpStatus: _refreshDnpPrinterStatus,
+      child: Column(
+        children: [
+          // 로그 뷰어 버튼을 상단에 추가
+          AdminHardwareSection(
+            cameraModel: draft.cameraModel,
+            cameraComIndex: 0,
+            onCameraModelChanged: (v) =>
+                notifier.updateDraft((d) => d.copyWith(cameraModel: v)),
+            onCameraComChanged: (_) {},
+            comPorts: _comPorts,
+            cameraStatus: _cameraStatus,
+            printerModel: draft.printerModel,
+            availablePrinters: _availablePrinters,
+            onPrinterModelChanged: (v) =>
+                notifier.updateDraft((d) => d.copyWith(printerModel: v)),
+            printerPaperSize: draft.printerPaperSize,
+            onPrinterPaperSizeChanged: (v) =>
+                notifier.updateDraft((d) => d.copyWith(printerPaperSize: v)),
+            printerPaperRemaining: draft.printerPaperRemaining,
+            onPrinterPaperRemainingChanged: (v) => notifier.updateDraft(
+              (d) => d.copyWith(printerPaperRemaining: v),
+            ),
+            onPrinterPaperReset: () => notifier.updateDraft(
+              (d) => d.copyWith(printerPaperRemaining: 980),
+            ),
+            printerMarginH: draft.printerMarginH,
+            printerMarginV: draft.printerMarginV,
+            onPrinterMarginHChanged: (v) =>
+                notifier.updateDraft((d) => d.copyWith(printerMarginH: v)),
+            onPrinterMarginVChanged: (v) =>
+                notifier.updateDraft((d) => d.copyWith(printerMarginV: v)),
+            onTestPrint: _onTestPrint,
+            onPrintSessionProduct: _onPrintSessionProduct,
+            printerStatus: _printerStatus,
+            paymentTerminalEnabled: draft.paymentTerminalEnabled,
+            onPaymentTerminalEnabledChanged: (v) => notifier.updateDraft(
+              (d) => d.copyWith(paymentTerminalEnabled: v),
+            ),
+            cashDeviceEnabled: draft.cashDeviceEnabled,
+            onCashDeviceEnabledChanged: (v) =>
+                notifier.updateDraft((d) => d.copyWith(cashDeviceEnabled: v)),
+            paymentStatus: _paymentStatus,
+            cashStatus: _cashStatus,
+            onAutoDetect: _onAutoDetect,
+            isAutoDetecting: _isAutoDetecting,
+            isDebugMode: kDebugMode,
+            cashTestAmount: _cashTestAmount,
+            onCashTestStart: _onCashTestStart,
+            onCashTestStop: _onCashTestStop,
+            cashPaymentRequested: _cashPaymentRequested,
+            cashPaymentCurrent: _cashPaymentCurrent,
+            cashPaymentTargetReached: _cashPaymentTargetReached,
+            cashPaymentPresetIndex: _cashPaymentPresetIndex,
+            onCashPaymentPresetChanged: (v) =>
+                setState(() => _cashPaymentPresetIndex = v),
+            onCashPaymentRequest: _onCashPaymentRequest,
+            rgbEnabled: draft.rgbEnabled,
+            onRgbEnabledChanged: (v) =>
+                notifier.updateDraft((d) => d.copyWith(rgbEnabled: v)),
+            rgbProcessName: draft.rgbProcessName,
+            onRgbProcessNameChanged: (v) =>
+                notifier.updateDraft((d) => d.copyWith(rgbProcessName: v)),
+            socketServerEnabled: draft.socketServerEnabled,
+            onSocketServerEnabledChanged: (v) =>
+                notifier.updateDraft((d) => d.copyWith(socketServerEnabled: v)),
+            socketServerPort: draft.socketServerPort,
+            onSocketServerPortChanged: (v) =>
+                notifier.updateDraft((d) => d.copyWith(socketServerPort: v)),
+            dnpPrinterInfo: _dnpPrinterInfo,
+            onRefreshDnpStatus: _refreshDnpPrinterStatus,
+          ),
+        ],
       ),
     );
   }
@@ -956,7 +986,9 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('앱 업데이트'),
-        content: const Text('업데이트 기능은 현재 개발 중입니다.\n\n백엔드 API를 설정한 후 AppUpdateService를 구현하세요.'),
+        content: const Text(
+          '업데이트 기능은 현재 개발 중입니다.\n\n백엔드 API를 설정한 후 AppUpdateService를 구현하세요.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -1001,8 +1033,9 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         onDebugPausePhotoCaptureChanged: (v) =>
             notifier.updateDraft((d) => d.copyWith(debugPausePhotoCapture: v)),
         debugSkipDeviceConnection: draft.debugSkipDeviceConnection,
-        onDebugSkipDeviceConnectionChanged: (v) =>
-            notifier.updateDraft((d) => d.copyWith(debugSkipDeviceConnection: v)),
+        onDebugSkipDeviceConnectionChanged: (v) => notifier.updateDraft(
+          (d) => d.copyWith(debugSkipDeviceConnection: v),
+        ),
         bgmVolume: draft.bgmVolume,
         onBgmVolumeChanged: (v) =>
             notifier.updateDraft((d) => d.copyWith(bgmVolume: v)),

@@ -53,13 +53,17 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
           .listen((e) async {
         final target = (e['data'] as Map<String, dynamic>?)?['target'];
         if (target == 'intro' && mounted) {
-          // 소켓 서버 중지
-          await proxy.stopSocketServer();
+          // 소켓 서버 중지 (명령이 서비스에 구현되지 않았으므로 에러 무시)
+          try {
+            await proxy.stopSocketServer();
+          } catch (e) {
+            debugPrint('[IntroScreen] stopSocketServer failed (ignored): $e');
+          }
 
-          // IPC 연결 해제 (RGB 세션 종료)
-          await proxy.disconnect();
-          debugPrint('[IntroScreen] IPC disconnected - RGB session ended');
-          ref.read(connectionStateProvider.notifier).state = false;
+          // 하드웨어 포트 재초기화 (RGB 세션 종료)
+          debugPrint('[IntroScreen] Resuming hardware after RGB session...');
+          await proxy.resumeHardware();
+          debugPrint('[IntroScreen] Hardware resumed - RGB session ended');
 
           // Windows에서 Flutter 창 다시 표시 및 alwaysOnTop 활성화
           if (Platform.isWindows) {
@@ -89,15 +93,22 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
 
     // Windows에서만 동작
     if (Platform.isWindows) {
-      // 1. IPC 연결 (RGB 모드에서는 소켓 서버를 통한 통신을 위해 필요)
-      // 장비 초기화는 하지 않음 - SFace에서만 필요
-      debugPrint('[IntroScreen] Connecting to IPC for RGB session (socket server only)...');
-      final connected = await proxy.ensureConnected();
-      if (!connected) {
-        debugPrint('[IntroScreen] IPC connection failed for RGB mode');
-        return;
+      // 1. IPC 연결 확인 (main.dart에서 이미 연결되어 있어야 함)
+      debugPrint('[IntroScreen] Checking IPC connection for RGB session...');
+      if (!proxy.isConnected) {
+        debugPrint('[IntroScreen] IPC not connected, attempting to connect...');
+        final connected = await proxy.ensureConnected();
+        if (!connected) {
+          debugPrint('[IntroScreen] IPC connection failed for RGB mode');
+          debugPrint('[IntroScreen] RGB navigation will not work properly');
+          // 연결 실패해도 RGB 프로그램 자체는 실행되도록 계속 진행
+        }
+      } else {
+        debugPrint('[IntroScreen] IPC already connected - RGB navigation ready');
       }
-      ref.read(connectionStateProvider.notifier).state = true;
+
+      // 연결 상태 업데이트
+      ref.read(connectionStateProvider.notifier).state = proxy.isConnected;
 
       // 2. external_navigate 이벤트 리스너 설정
       _listenExternalNavigate();
@@ -110,14 +121,18 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
         await proxy.startSocketServer(admin.socketServerPort);
       }
 
-      // 5. RGB 프로세스를 최전방으로
+      // 5. 하드웨어 포트 해제 (RGB가 카메라/결제단말 사용할 수 있도록)
+      debugPrint('[IntroScreen] Suspending hardware for RGB session...');
+      await proxy.suspendHardware();
+
+      // 6. RGB 프로세스를 최전방으로
       await proxy.bringProcessToFront(
         targetProcess: admin.rgbProcessName,
         demoteProcess: 'sfacedock.exe',
       );
 
-      // 6. Flutter 창을 완전히 숨김 (터치 이벤트가 RGB로 전달되도록)
-      await windowManager.hide();
+      // 7. Flutter 창을 최소화 (taskbar에는 보이도록)
+      await windowManager.minimize();
     }
   }
 
@@ -126,24 +141,21 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
     // Pause pre-fetching while user is actively using the kiosk
     ref.read(imagePrefetchProvider.notifier).pause();
 
-    // Connect to IPC when starting SFace session
+    // Check IPC connection status (should already be connected from main.dart)
     final proxy = ref.read(deviceControllerProxyProvider);
-    debugPrint('[IntroScreen] Connecting to IPC for SFace session...');
-    final connected = await proxy.ensureConnected();
+    debugPrint('[IntroScreen] Checking IPC connection for SFace session...');
 
-    if (!mounted) return;
+    // Update connection state based on current status
+    ref.read(connectionStateProvider.notifier).state = proxy.isConnected;
 
-    if (connected) {
-      debugPrint('[IntroScreen] IPC connected successfully');
-      // Update connection state
-      ref.read(connectionStateProvider.notifier).state = true;
+    if (proxy.isConnected) {
+      debugPrint('[IntroScreen] IPC already connected - proceeding to loading screen');
     } else {
-      debugPrint('[IntroScreen] IPC connection failed');
-      ref.read(connectionStateProvider.notifier).state = false;
+      debugPrint('[IntroScreen] IPC not connected - loading screen will handle device initialization');
     }
 
-    // Navigate regardless of connection status
-    // The loading screen will handle connection failures
+    // Navigate to loading screen
+    // The loading screen will handle device initialization
     if (mounted) {
       Navigator.pushReplacementNamed(context, introLoadingRouteName);
     }

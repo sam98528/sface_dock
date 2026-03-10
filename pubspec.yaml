@@ -14,33 +14,33 @@ dependencies:
     sdk: flutter
 
   # State management
-  flutter_riverpod: ^2.4.9
+  flutter_riverpod: ^2.6.1
 
   # Routing
-  auto_route: ^7.8.4
+  auto_route: ^11.1.0
 
   # HTTP client
   dio: ^5.4.0
   http: ^1.2.0
-  flutter_dotenv: ^5.1.0
+  flutter_dotenv: ^6.0.0
 
   # FFI for native IPC communication
   ffi: ^2.1.0
-  flutter_libserialport: ^0.5.0
+  flutter_libserialport: ^0.6.0
 
   # JSON handling
   json_annotation: ^4.8.1
-  freezed_annotation: ^2.4.1
+  freezed_annotation: ^3.1.0
 
   # Utilities
   equatable: ^2.0.5
   uuid: ^4.3.3
   logger: ^2.0.2+1
-  package_info_plus: ^8.0.0
+  package_info_plus: ^9.0.0
   intl: ^0.20.2
 
   # UI components
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.2
   path_provider: ^2.1.2
   path: ^1.9.0
   shimmer: ^3.0.0
@@ -54,7 +54,7 @@ dependencies:
 
   # QR code
   qr_flutter: ^4.1.0
-  mobile_scanner: ^5.0.0
+  mobile_scanner: ^7.2.0
 
   # Printing
   printing: ^5.13.4
@@ -64,26 +64,26 @@ dependencies:
   audioplayers: ^6.0.0
 
   # Storage
-  flutter_secure_storage: ^9.0.0
+  flutter_secure_storage: ^10.0.0
   shared_preferences: ^2.2.2
 
   # Window management
   window_manager: ^0.5.1
 
   # Character encoding (CP949/EUC-KR support)
-  charset: ^1.2.0
+  charset: ^2.0.1
   flutter_cache_manager: ^3.4.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
   # Code generation
   build_runner: ^2.4.7
   json_serializable: ^6.7.1
-  freezed: ^2.4.6
-  auto_route_generator: ^7.3.2
+  freezed: ^3.2.5
+  auto_route_generator: ^10.5.0
 
 flutter:
   uses-material-design: true
