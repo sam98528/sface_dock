@@ -6,7 +6,7 @@ part 'device_auth_state.freezed.dart';
 
 /// 기기 인증 상태 (백엔드 device_password = Bearer 토큰)
 @freezed
-class DeviceAuthState with _$DeviceAuthState {
+sealed class DeviceAuthState with _$DeviceAuthState {
   /// 초기
   const factory DeviceAuthState.initial() = DeviceAuthInitial;
 

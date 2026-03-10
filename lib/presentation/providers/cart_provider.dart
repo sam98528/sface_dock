@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/cart/cart_item.dart';
 import '../../data/models/kiosk/kiosk_photo.dart';
@@ -78,7 +80,13 @@ class CartState {
 class CartNotifier extends StateNotifier<CartState> {
   CartNotifier() : super(const CartState());
 
-  void addItem(KioskPhoto photoData, int quantity, int price) {
+  void addItem(
+    KioskPhoto photoData,
+    int quantity,
+    int price, {
+    Uint8List? frameBytes,
+    String? frameDisplayName,
+  }) {
     final feedsIdx = int.tryParse(photoData.postId) ?? 0;
     final existingItemIndex = state.items.indexWhere(
       (item) => item.feedsIdx == feedsIdx,
@@ -101,6 +109,8 @@ class CartNotifier extends StateNotifier<CartState> {
         quantity: quantity,
         price: price,
         photoData: photoData,
+        selectedFrameBytes: frameBytes,
+        selectedFrameDisplayName: frameDisplayName,
       );
 
       state = state.copyWith(items: [...state.items, newItem]);

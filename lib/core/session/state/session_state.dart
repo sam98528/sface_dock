@@ -16,7 +16,7 @@ enum SessionEndReason {
 /// Represents the current session lifecycle state.
 /// Immutable data structure following playbook rules.
 @freezed
-class SessionState with _$SessionState {
+sealed class SessionState with _$SessionState {
   const factory SessionState.idle() = _Idle;
   const factory SessionState.active() = _Active;
   const factory SessionState.ended({

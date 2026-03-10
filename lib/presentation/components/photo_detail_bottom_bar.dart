@@ -9,6 +9,7 @@ import '../../core/theme/kiosk_colors.dart';
 import '../../core/admin/controllers/admin_controller.dart';
 import '../../data/models/kiosk/kiosk_photo.dart';
 import '../providers/cart_provider.dart';
+import 'frame_selection_dialog.dart';
 
 class PhotoDetailBottomBar extends ConsumerStatefulWidget {
   final KioskPhoto photo;
@@ -231,16 +232,32 @@ class _PhotoDetailBottomBarState extends ConsumerState<PhotoDetailBottomBar> {
     );
   }
 
-  void _addToCart() {
+  Future<void> _addToCart() async {
     if (_isAnimating) return;
     context.playTapSound();
+
+    // Show frame selection dialog
+    final result = await showDialog<FrameSelectionResult>(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => FrameSelectionDialog(photo: widget.photo),
+    );
+
+    // null means user cancelled the dialog
+    if (result == null || !mounted) return;
 
     setState(() {
       _isAnimating = true;
     });
 
     final price = ref.read(adminControllerProvider).photoPrice;
-    ref.read(cartProvider.notifier).addItem(widget.photo, _quantity, price);
+    ref.read(cartProvider.notifier).addItem(
+          widget.photo,
+          _quantity,
+          price,
+          frameBytes: result.frame.imageBytes,
+          frameDisplayName: result.frame.displayName,
+        );
 
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {

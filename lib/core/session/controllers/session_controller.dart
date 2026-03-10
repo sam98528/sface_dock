@@ -3,6 +3,7 @@
 // Session lifecycle controller - manages user session state
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sfacedock/core/session/state/device_auth_state.dart';
 import 'package:uuid/uuid.dart';
 
 import '../state/session_state.dart';
@@ -41,7 +42,9 @@ class SessionController extends StateNotifier<SessionState> {
     final deviceProxy = ref.read(deviceControllerProxyProvider);
     final connected = await deviceProxy.ensureConnected();
     if (!connected) {
-      print('[SessionController] Failed to connect to device controller service');
+      print(
+        '[SessionController] Failed to connect to device controller service',
+      );
       state = const SessionState.deviceError(
         errorCodes: ['DEVICE_CONNECTION_FAILED'],
       );
@@ -84,5 +87,5 @@ class SessionController extends StateNotifier<SessionState> {
 /// Provider for SessionController
 final sessionControllerProvider =
     StateNotifierProvider<SessionController, SessionState>(
-  (ref) => SessionController(ref),
-);
+      (ref) => SessionController(ref),
+    );

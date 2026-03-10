@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,815 +9,416 @@ part of 'device_auth_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
 /// @nodoc
 mixin _$DeviceAuthState {
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function() notLoggedIn,
-    required TResult Function() loggingIn,
-    required TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)
-        loggedIn,
-    required TResult Function(String message) error,
-  }) =>
-      throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? initial,
-    TResult? Function()? notLoggedIn,
-    TResult? Function()? loggingIn,
-    TResult? Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult? Function(String message)? error,
-  }) =>
-      throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function()? notLoggedIn,
-    TResult Function()? loggingIn,
-    TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult Function(String message)? error,
-    required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(DeviceAuthInitial value) initial,
-    required TResult Function(DeviceAuthNotLoggedIn value) notLoggedIn,
-    required TResult Function(DeviceAuthLoggingIn value) loggingIn,
-    required TResult Function(DeviceAuthLoggedIn value) loggedIn,
-    required TResult Function(DeviceAuthError value) error,
-  }) =>
-      throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(DeviceAuthInitial value)? initial,
-    TResult? Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult? Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult? Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult? Function(DeviceAuthError value)? error,
-  }) =>
-      throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(DeviceAuthInitial value)? initial,
-    TResult Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult Function(DeviceAuthError value)? error,
-    required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceAuthState);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'DeviceAuthState()';
+}
+
+
 }
 
 /// @nodoc
-abstract class $DeviceAuthStateCopyWith<$Res> {
-  factory $DeviceAuthStateCopyWith(
-          DeviceAuthState value, $Res Function(DeviceAuthState) then) =
-      _$DeviceAuthStateCopyWithImpl<$Res, DeviceAuthState>;
+class $DeviceAuthStateCopyWith<$Res>  {
+$DeviceAuthStateCopyWith(DeviceAuthState _, $Res Function(DeviceAuthState) __);
 }
 
-/// @nodoc
-class _$DeviceAuthStateCopyWithImpl<$Res, $Val extends DeviceAuthState>
-    implements $DeviceAuthStateCopyWith<$Res> {
-  _$DeviceAuthStateCopyWithImpl(this._value, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+/// Adds pattern-matching-related methods to [DeviceAuthState].
+extension DeviceAuthStatePatterns on DeviceAuthState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DeviceAuthInitial value)?  initial,TResult Function( DeviceAuthNotLoggedIn value)?  notLoggedIn,TResult Function( DeviceAuthLoggingIn value)?  loggingIn,TResult Function( DeviceAuthLoggedIn value)?  loggedIn,TResult Function( DeviceAuthError value)?  error,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case DeviceAuthInitial() when initial != null:
+return initial(_that);case DeviceAuthNotLoggedIn() when notLoggedIn != null:
+return notLoggedIn(_that);case DeviceAuthLoggingIn() when loggingIn != null:
+return loggingIn(_that);case DeviceAuthLoggedIn() when loggedIn != null:
+return loggedIn(_that);case DeviceAuthError() when error != null:
+return error(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DeviceAuthInitial value)  initial,required TResult Function( DeviceAuthNotLoggedIn value)  notLoggedIn,required TResult Function( DeviceAuthLoggingIn value)  loggingIn,required TResult Function( DeviceAuthLoggedIn value)  loggedIn,required TResult Function( DeviceAuthError value)  error,}){
+final _that = this;
+switch (_that) {
+case DeviceAuthInitial():
+return initial(_that);case DeviceAuthNotLoggedIn():
+return notLoggedIn(_that);case DeviceAuthLoggingIn():
+return loggingIn(_that);case DeviceAuthLoggedIn():
+return loggedIn(_that);case DeviceAuthError():
+return error(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DeviceAuthInitial value)?  initial,TResult? Function( DeviceAuthNotLoggedIn value)?  notLoggedIn,TResult? Function( DeviceAuthLoggingIn value)?  loggingIn,TResult? Function( DeviceAuthLoggedIn value)?  loggedIn,TResult? Function( DeviceAuthError value)?  error,}){
+final _that = this;
+switch (_that) {
+case DeviceAuthInitial() when initial != null:
+return initial(_that);case DeviceAuthNotLoggedIn() when notLoggedIn != null:
+return notLoggedIn(_that);case DeviceAuthLoggingIn() when loggingIn != null:
+return loggingIn(_that);case DeviceAuthLoggedIn() when loggedIn != null:
+return loggedIn(_that);case DeviceAuthError() when error != null:
+return error(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  notLoggedIn,TResult Function()?  loggingIn,TResult Function( String devicePassword,  String? deviceId,  String? deviceName)?  loggedIn,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case DeviceAuthInitial() when initial != null:
+return initial();case DeviceAuthNotLoggedIn() when notLoggedIn != null:
+return notLoggedIn();case DeviceAuthLoggingIn() when loggingIn != null:
+return loggingIn();case DeviceAuthLoggedIn() when loggedIn != null:
+return loggedIn(_that.devicePassword,_that.deviceId,_that.deviceName);case DeviceAuthError() when error != null:
+return error(_that.message);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  notLoggedIn,required TResult Function()  loggingIn,required TResult Function( String devicePassword,  String? deviceId,  String? deviceName)  loggedIn,required TResult Function( String message)  error,}) {final _that = this;
+switch (_that) {
+case DeviceAuthInitial():
+return initial();case DeviceAuthNotLoggedIn():
+return notLoggedIn();case DeviceAuthLoggingIn():
+return loggingIn();case DeviceAuthLoggedIn():
+return loggedIn(_that.devicePassword,_that.deviceId,_that.deviceName);case DeviceAuthError():
+return error(_that.message);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  notLoggedIn,TResult? Function()?  loggingIn,TResult? Function( String devicePassword,  String? deviceId,  String? deviceName)?  loggedIn,TResult? Function( String message)?  error,}) {final _that = this;
+switch (_that) {
+case DeviceAuthInitial() when initial != null:
+return initial();case DeviceAuthNotLoggedIn() when notLoggedIn != null:
+return notLoggedIn();case DeviceAuthLoggingIn() when loggingIn != null:
+return loggingIn();case DeviceAuthLoggedIn() when loggedIn != null:
+return loggedIn(_that.devicePassword,_that.deviceId,_that.deviceName);case DeviceAuthError() when error != null:
+return error(_that.message);case _:
+  return null;
+
+}
 }
 
-/// @nodoc
-abstract class _$$DeviceAuthInitialImplCopyWith<$Res> {
-  factory _$$DeviceAuthInitialImplCopyWith(_$DeviceAuthInitialImpl value,
-          $Res Function(_$DeviceAuthInitialImpl) then) =
-      __$$DeviceAuthInitialImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$DeviceAuthInitialImplCopyWithImpl<$Res>
-    extends _$DeviceAuthStateCopyWithImpl<$Res, _$DeviceAuthInitialImpl>
-    implements _$$DeviceAuthInitialImplCopyWith<$Res> {
-  __$$DeviceAuthInitialImplCopyWithImpl(_$DeviceAuthInitialImpl _value,
-      $Res Function(_$DeviceAuthInitialImpl) _then)
-      : super(_value, _then);
-}
-
-/// @nodoc
-
-class _$DeviceAuthInitialImpl implements DeviceAuthInitial {
-  const _$DeviceAuthInitialImpl();
-
-  @override
-  String toString() {
-    return 'DeviceAuthState.initial()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$DeviceAuthInitialImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function() notLoggedIn,
-    required TResult Function() loggingIn,
-    required TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)
-        loggedIn,
-    required TResult Function(String message) error,
-  }) {
-    return initial();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? initial,
-    TResult? Function()? notLoggedIn,
-    TResult? Function()? loggingIn,
-    TResult? Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult? Function(String message)? error,
-  }) {
-    return initial?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function()? notLoggedIn,
-    TResult Function()? loggingIn,
-    TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult Function(String message)? error,
-    required TResult orElse(),
-  }) {
-    if (initial != null) {
-      return initial();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(DeviceAuthInitial value) initial,
-    required TResult Function(DeviceAuthNotLoggedIn value) notLoggedIn,
-    required TResult Function(DeviceAuthLoggingIn value) loggingIn,
-    required TResult Function(DeviceAuthLoggedIn value) loggedIn,
-    required TResult Function(DeviceAuthError value) error,
-  }) {
-    return initial(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(DeviceAuthInitial value)? initial,
-    TResult? Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult? Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult? Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult? Function(DeviceAuthError value)? error,
-  }) {
-    return initial?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(DeviceAuthInitial value)? initial,
-    TResult Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult Function(DeviceAuthError value)? error,
-    required TResult orElse(),
-  }) {
-    if (initial != null) {
-      return initial(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class DeviceAuthInitial implements DeviceAuthState {
-  const factory DeviceAuthInitial() = _$DeviceAuthInitialImpl;
-}
-
-/// @nodoc
-abstract class _$$DeviceAuthNotLoggedInImplCopyWith<$Res> {
-  factory _$$DeviceAuthNotLoggedInImplCopyWith(
-          _$DeviceAuthNotLoggedInImpl value,
-          $Res Function(_$DeviceAuthNotLoggedInImpl) then) =
-      __$$DeviceAuthNotLoggedInImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$DeviceAuthNotLoggedInImplCopyWithImpl<$Res>
-    extends _$DeviceAuthStateCopyWithImpl<$Res, _$DeviceAuthNotLoggedInImpl>
-    implements _$$DeviceAuthNotLoggedInImplCopyWith<$Res> {
-  __$$DeviceAuthNotLoggedInImplCopyWithImpl(_$DeviceAuthNotLoggedInImpl _value,
-      $Res Function(_$DeviceAuthNotLoggedInImpl) _then)
-      : super(_value, _then);
 }
 
 /// @nodoc
 
-class _$DeviceAuthNotLoggedInImpl implements DeviceAuthNotLoggedIn {
-  const _$DeviceAuthNotLoggedInImpl();
 
-  @override
-  String toString() {
-    return 'DeviceAuthState.notLoggedIn()';
-  }
+class DeviceAuthInitial implements DeviceAuthState {
+  const DeviceAuthInitial();
+  
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DeviceAuthNotLoggedInImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function() notLoggedIn,
-    required TResult Function() loggingIn,
-    required TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)
-        loggedIn,
-    required TResult Function(String message) error,
-  }) {
-    return notLoggedIn();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? initial,
-    TResult? Function()? notLoggedIn,
-    TResult? Function()? loggingIn,
-    TResult? Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult? Function(String message)? error,
-  }) {
-    return notLoggedIn?.call();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function()? notLoggedIn,
-    TResult Function()? loggingIn,
-    TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult Function(String message)? error,
-    required TResult orElse(),
-  }) {
-    if (notLoggedIn != null) {
-      return notLoggedIn();
-    }
-    return orElse();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(DeviceAuthInitial value) initial,
-    required TResult Function(DeviceAuthNotLoggedIn value) notLoggedIn,
-    required TResult Function(DeviceAuthLoggingIn value) loggingIn,
-    required TResult Function(DeviceAuthLoggedIn value) loggedIn,
-    required TResult Function(DeviceAuthError value) error,
-  }) {
-    return notLoggedIn(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(DeviceAuthInitial value)? initial,
-    TResult? Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult? Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult? Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult? Function(DeviceAuthError value)? error,
-  }) {
-    return notLoggedIn?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(DeviceAuthInitial value)? initial,
-    TResult Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult Function(DeviceAuthError value)? error,
-    required TResult orElse(),
-  }) {
-    if (notLoggedIn != null) {
-      return notLoggedIn(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceAuthInitial);
 }
 
-abstract class DeviceAuthNotLoggedIn implements DeviceAuthState {
-  const factory DeviceAuthNotLoggedIn() = _$DeviceAuthNotLoggedInImpl;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'DeviceAuthState.initial()';
 }
 
-/// @nodoc
-abstract class _$$DeviceAuthLoggingInImplCopyWith<$Res> {
-  factory _$$DeviceAuthLoggingInImplCopyWith(_$DeviceAuthLoggingInImpl value,
-          $Res Function(_$DeviceAuthLoggingInImpl) then) =
-      __$$DeviceAuthLoggingInImplCopyWithImpl<$Res>;
+
 }
 
-/// @nodoc
-class __$$DeviceAuthLoggingInImplCopyWithImpl<$Res>
-    extends _$DeviceAuthStateCopyWithImpl<$Res, _$DeviceAuthLoggingInImpl>
-    implements _$$DeviceAuthLoggingInImplCopyWith<$Res> {
-  __$$DeviceAuthLoggingInImplCopyWithImpl(_$DeviceAuthLoggingInImpl _value,
-      $Res Function(_$DeviceAuthLoggingInImpl) _then)
-      : super(_value, _then);
-}
+
+
 
 /// @nodoc
 
-class _$DeviceAuthLoggingInImpl implements DeviceAuthLoggingIn {
-  const _$DeviceAuthLoggingInImpl();
 
-  @override
-  String toString() {
-    return 'DeviceAuthState.loggingIn()';
-  }
+class DeviceAuthNotLoggedIn implements DeviceAuthState {
+  const DeviceAuthNotLoggedIn();
+  
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DeviceAuthLoggingInImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function() notLoggedIn,
-    required TResult Function() loggingIn,
-    required TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)
-        loggedIn,
-    required TResult Function(String message) error,
-  }) {
-    return loggingIn();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? initial,
-    TResult? Function()? notLoggedIn,
-    TResult? Function()? loggingIn,
-    TResult? Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult? Function(String message)? error,
-  }) {
-    return loggingIn?.call();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function()? notLoggedIn,
-    TResult Function()? loggingIn,
-    TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult Function(String message)? error,
-    required TResult orElse(),
-  }) {
-    if (loggingIn != null) {
-      return loggingIn();
-    }
-    return orElse();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(DeviceAuthInitial value) initial,
-    required TResult Function(DeviceAuthNotLoggedIn value) notLoggedIn,
-    required TResult Function(DeviceAuthLoggingIn value) loggingIn,
-    required TResult Function(DeviceAuthLoggedIn value) loggedIn,
-    required TResult Function(DeviceAuthError value) error,
-  }) {
-    return loggingIn(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(DeviceAuthInitial value)? initial,
-    TResult? Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult? Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult? Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult? Function(DeviceAuthError value)? error,
-  }) {
-    return loggingIn?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(DeviceAuthInitial value)? initial,
-    TResult Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult Function(DeviceAuthError value)? error,
-    required TResult orElse(),
-  }) {
-    if (loggingIn != null) {
-      return loggingIn(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceAuthNotLoggedIn);
 }
 
-abstract class DeviceAuthLoggingIn implements DeviceAuthState {
-  const factory DeviceAuthLoggingIn() = _$DeviceAuthLoggingInImpl;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'DeviceAuthState.notLoggedIn()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class DeviceAuthLoggingIn implements DeviceAuthState {
+  const DeviceAuthLoggingIn();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceAuthLoggingIn);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'DeviceAuthState.loggingIn()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class DeviceAuthLoggedIn implements DeviceAuthState {
+  const DeviceAuthLoggedIn({required this.devicePassword, this.deviceId, this.deviceName});
+  
+
+ final  String devicePassword;
+ final  String? deviceId;
+ final  String? deviceName;
+
+/// Create a copy of DeviceAuthState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DeviceAuthLoggedInCopyWith<DeviceAuthLoggedIn> get copyWith => _$DeviceAuthLoggedInCopyWithImpl<DeviceAuthLoggedIn>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceAuthLoggedIn&&(identical(other.devicePassword, devicePassword) || other.devicePassword == devicePassword)&&(identical(other.deviceId, deviceId) || other.deviceId == deviceId)&&(identical(other.deviceName, deviceName) || other.deviceName == deviceName));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,devicePassword,deviceId,deviceName);
+
+@override
+String toString() {
+  return 'DeviceAuthState.loggedIn(devicePassword: $devicePassword, deviceId: $deviceId, deviceName: $deviceName)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$DeviceAuthLoggedInImplCopyWith<$Res> {
-  factory _$$DeviceAuthLoggedInImplCopyWith(_$DeviceAuthLoggedInImpl value,
-          $Res Function(_$DeviceAuthLoggedInImpl) then) =
-      __$$DeviceAuthLoggedInImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String devicePassword, String? deviceId, String? deviceName});
+abstract mixin class $DeviceAuthLoggedInCopyWith<$Res> implements $DeviceAuthStateCopyWith<$Res> {
+  factory $DeviceAuthLoggedInCopyWith(DeviceAuthLoggedIn value, $Res Function(DeviceAuthLoggedIn) _then) = _$DeviceAuthLoggedInCopyWithImpl;
+@useResult
+$Res call({
+ String devicePassword, String? deviceId, String? deviceName
+});
+
+
+
+
+}
+/// @nodoc
+class _$DeviceAuthLoggedInCopyWithImpl<$Res>
+    implements $DeviceAuthLoggedInCopyWith<$Res> {
+  _$DeviceAuthLoggedInCopyWithImpl(this._self, this._then);
+
+  final DeviceAuthLoggedIn _self;
+  final $Res Function(DeviceAuthLoggedIn) _then;
+
+/// Create a copy of DeviceAuthState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? devicePassword = null,Object? deviceId = freezed,Object? deviceName = freezed,}) {
+  return _then(DeviceAuthLoggedIn(
+devicePassword: null == devicePassword ? _self.devicePassword : devicePassword // ignore: cast_nullable_to_non_nullable
+as String,deviceId: freezed == deviceId ? _self.deviceId : deviceId // ignore: cast_nullable_to_non_nullable
+as String?,deviceName: freezed == deviceName ? _self.deviceName : deviceName // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-/// @nodoc
-class __$$DeviceAuthLoggedInImplCopyWithImpl<$Res>
-    extends _$DeviceAuthStateCopyWithImpl<$Res, _$DeviceAuthLoggedInImpl>
-    implements _$$DeviceAuthLoggedInImplCopyWith<$Res> {
-  __$$DeviceAuthLoggedInImplCopyWithImpl(_$DeviceAuthLoggedInImpl _value,
-      $Res Function(_$DeviceAuthLoggedInImpl) _then)
-      : super(_value, _then);
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? devicePassword = null,
-    Object? deviceId = freezed,
-    Object? deviceName = freezed,
-  }) {
-    return _then(_$DeviceAuthLoggedInImpl(
-      devicePassword: null == devicePassword
-          ? _value.devicePassword
-          : devicePassword // ignore: cast_nullable_to_non_nullable
-              as String,
-      deviceId: freezed == deviceId
-          ? _value.deviceId
-          : deviceId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      deviceName: freezed == deviceName
-          ? _value.deviceName
-          : deviceName // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
-  }
 }
 
 /// @nodoc
 
-class _$DeviceAuthLoggedInImpl implements DeviceAuthLoggedIn {
-  const _$DeviceAuthLoggedInImpl(
-      {required this.devicePassword, this.deviceId, this.deviceName});
 
-  @override
-  final String devicePassword;
-  @override
-  final String? deviceId;
-  @override
-  final String? deviceName;
+class DeviceAuthError implements DeviceAuthState {
+  const DeviceAuthError({required this.message});
+  
 
-  @override
-  String toString() {
-    return 'DeviceAuthState.loggedIn(devicePassword: $devicePassword, deviceId: $deviceId, deviceName: $deviceName)';
-  }
+ final  String message;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DeviceAuthLoggedInImpl &&
-            (identical(other.devicePassword, devicePassword) ||
-                other.devicePassword == devicePassword) &&
-            (identical(other.deviceId, deviceId) ||
-                other.deviceId == deviceId) &&
-            (identical(other.deviceName, deviceName) ||
-                other.deviceName == deviceName));
-  }
+/// Create a copy of DeviceAuthState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DeviceAuthErrorCopyWith<DeviceAuthError> get copyWith => _$DeviceAuthErrorCopyWithImpl<DeviceAuthError>(this, _$identity);
 
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, devicePassword, deviceId, deviceName);
 
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$DeviceAuthLoggedInImplCopyWith<_$DeviceAuthLoggedInImpl> get copyWith =>
-      __$$DeviceAuthLoggedInImplCopyWithImpl<_$DeviceAuthLoggedInImpl>(
-          this, _$identity);
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function() notLoggedIn,
-    required TResult Function() loggingIn,
-    required TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)
-        loggedIn,
-    required TResult Function(String message) error,
-  }) {
-    return loggedIn(devicePassword, deviceId, deviceName);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? initial,
-    TResult? Function()? notLoggedIn,
-    TResult? Function()? loggingIn,
-    TResult? Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult? Function(String message)? error,
-  }) {
-    return loggedIn?.call(devicePassword, deviceId, deviceName);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function()? notLoggedIn,
-    TResult Function()? loggingIn,
-    TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult Function(String message)? error,
-    required TResult orElse(),
-  }) {
-    if (loggedIn != null) {
-      return loggedIn(devicePassword, deviceId, deviceName);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(DeviceAuthInitial value) initial,
-    required TResult Function(DeviceAuthNotLoggedIn value) notLoggedIn,
-    required TResult Function(DeviceAuthLoggingIn value) loggingIn,
-    required TResult Function(DeviceAuthLoggedIn value) loggedIn,
-    required TResult Function(DeviceAuthError value) error,
-  }) {
-    return loggedIn(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(DeviceAuthInitial value)? initial,
-    TResult? Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult? Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult? Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult? Function(DeviceAuthError value)? error,
-  }) {
-    return loggedIn?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(DeviceAuthInitial value)? initial,
-    TResult Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult Function(DeviceAuthError value)? error,
-    required TResult orElse(),
-  }) {
-    if (loggedIn != null) {
-      return loggedIn(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceAuthError&&(identical(other.message, message) || other.message == message));
 }
 
-abstract class DeviceAuthLoggedIn implements DeviceAuthState {
-  const factory DeviceAuthLoggedIn(
-      {required final String devicePassword,
-      final String? deviceId,
-      final String? deviceName}) = _$DeviceAuthLoggedInImpl;
 
-  String get devicePassword;
-  String? get deviceId;
-  String? get deviceName;
-  @JsonKey(ignore: true)
-  _$$DeviceAuthLoggedInImplCopyWith<_$DeviceAuthLoggedInImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'DeviceAuthState.error(message: $message)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$DeviceAuthErrorImplCopyWith<$Res> {
-  factory _$$DeviceAuthErrorImplCopyWith(_$DeviceAuthErrorImpl value,
-          $Res Function(_$DeviceAuthErrorImpl) then) =
-      __$$DeviceAuthErrorImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String message});
-}
+abstract mixin class $DeviceAuthErrorCopyWith<$Res> implements $DeviceAuthStateCopyWith<$Res> {
+  factory $DeviceAuthErrorCopyWith(DeviceAuthError value, $Res Function(DeviceAuthError) _then) = _$DeviceAuthErrorCopyWithImpl;
+@useResult
+$Res call({
+ String message
+});
 
+
+
+
+}
 /// @nodoc
-class __$$DeviceAuthErrorImplCopyWithImpl<$Res>
-    extends _$DeviceAuthStateCopyWithImpl<$Res, _$DeviceAuthErrorImpl>
-    implements _$$DeviceAuthErrorImplCopyWith<$Res> {
-  __$$DeviceAuthErrorImplCopyWithImpl(
-      _$DeviceAuthErrorImpl _value, $Res Function(_$DeviceAuthErrorImpl) _then)
-      : super(_value, _then);
+class _$DeviceAuthErrorCopyWithImpl<$Res>
+    implements $DeviceAuthErrorCopyWith<$Res> {
+  _$DeviceAuthErrorCopyWithImpl(this._self, this._then);
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? message = null,
-  }) {
-    return _then(_$DeviceAuthErrorImpl(
-      message: null == message
-          ? _value.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+  final DeviceAuthError _self;
+  final $Res Function(DeviceAuthError) _then;
+
+/// Create a copy of DeviceAuthState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(DeviceAuthError(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
 
-class _$DeviceAuthErrorImpl implements DeviceAuthError {
-  const _$DeviceAuthErrorImpl({required this.message});
-
-  @override
-  final String message;
-
-  @override
-  String toString() {
-    return 'DeviceAuthState.error(message: $message)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DeviceAuthErrorImpl &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$DeviceAuthErrorImplCopyWith<_$DeviceAuthErrorImpl> get copyWith =>
-      __$$DeviceAuthErrorImplCopyWithImpl<_$DeviceAuthErrorImpl>(
-          this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function() notLoggedIn,
-    required TResult Function() loggingIn,
-    required TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)
-        loggedIn,
-    required TResult Function(String message) error,
-  }) {
-    return error(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? initial,
-    TResult? Function()? notLoggedIn,
-    TResult? Function()? loggingIn,
-    TResult? Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult? Function(String message)? error,
-  }) {
-    return error?.call(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function()? notLoggedIn,
-    TResult Function()? loggingIn,
-    TResult Function(
-            String devicePassword, String? deviceId, String? deviceName)?
-        loggedIn,
-    TResult Function(String message)? error,
-    required TResult orElse(),
-  }) {
-    if (error != null) {
-      return error(message);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(DeviceAuthInitial value) initial,
-    required TResult Function(DeviceAuthNotLoggedIn value) notLoggedIn,
-    required TResult Function(DeviceAuthLoggingIn value) loggingIn,
-    required TResult Function(DeviceAuthLoggedIn value) loggedIn,
-    required TResult Function(DeviceAuthError value) error,
-  }) {
-    return error(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(DeviceAuthInitial value)? initial,
-    TResult? Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult? Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult? Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult? Function(DeviceAuthError value)? error,
-  }) {
-    return error?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(DeviceAuthInitial value)? initial,
-    TResult Function(DeviceAuthNotLoggedIn value)? notLoggedIn,
-    TResult Function(DeviceAuthLoggingIn value)? loggingIn,
-    TResult Function(DeviceAuthLoggedIn value)? loggedIn,
-    TResult Function(DeviceAuthError value)? error,
-    required TResult orElse(),
-  }) {
-    if (error != null) {
-      return error(this);
-    }
-    return orElse();
-  }
 }
 
-abstract class DeviceAuthError implements DeviceAuthState {
-  const factory DeviceAuthError({required final String message}) =
-      _$DeviceAuthErrorImpl;
-
-  String get message;
-  @JsonKey(ignore: true)
-  _$$DeviceAuthErrorImplCopyWith<_$DeviceAuthErrorImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
+// dart format on

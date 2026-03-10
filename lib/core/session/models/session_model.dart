@@ -8,7 +8,7 @@ part 'session_model.g.dart';
 ///
 /// Represents a session snapshot with fixed content/layout/pricing.
 @freezed
-class SessionModel with _$SessionModel {
+sealed class SessionModel with _$SessionModel {
   const factory SessionModel({
     required String sessionId,
     required DateTime startTime,

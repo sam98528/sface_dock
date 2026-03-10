@@ -6,8 +6,8 @@ part of 'session_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$SessionModelImpl _$$SessionModelImplFromJson(Map<String, dynamic> json) =>
-    _$SessionModelImpl(
+_SessionModel _$SessionModelFromJson(Map<String, dynamic> json) =>
+    _SessionModel(
       sessionId: json['sessionId'] as String,
       startTime: DateTime.parse(json['startTime'] as String),
       contentSnapshot: json['contentSnapshot'] as Map<String, dynamic>,
@@ -17,7 +17,7 @@ _$SessionModelImpl _$$SessionModelImplFromJson(Map<String, dynamic> json) =>
       pricing: json['pricing'] as Map<String, dynamic>,
     );
 
-Map<String, dynamic> _$$SessionModelImplToJson(_$SessionModelImpl instance) =>
+Map<String, dynamic> _$SessionModelToJson(_SessionModel instance) =>
     <String, dynamic>{
       'sessionId': instance.sessionId,
       'startTime': instance.startTime.toIso8601String(),

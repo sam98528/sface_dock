@@ -7,7 +7,7 @@ part 'device_auth_models.g.dart';
 
 /// Backend login response: POST /client/device/login
 @freezed
-class DeviceLoginResponse with _$DeviceLoginResponse {
+sealed class DeviceLoginResponse with _$DeviceLoginResponse {
   const factory DeviceLoginResponse({
     required bool success,
     String? message,
@@ -19,7 +19,7 @@ class DeviceLoginResponse with _$DeviceLoginResponse {
 }
 
 @freezed
-class DeviceLoginData with _$DeviceLoginData {
+sealed class DeviceLoginData with _$DeviceLoginData {
   const factory DeviceLoginData({
     // ignore: non_constant_identifier_names
     String? device_id,
@@ -35,7 +35,7 @@ class DeviceLoginData with _$DeviceLoginData {
 
 /// Request body for PUT /client/device (전체 optional 필드 — 테스트용)
 @freezed
-class UpdateDeviceRequest with _$UpdateDeviceRequest {
+sealed class UpdateDeviceRequest with _$UpdateDeviceRequest {
   const factory UpdateDeviceRequest({
     // ignore: non_constant_identifier_names
     String? device_name,
@@ -112,7 +112,7 @@ class UpdateDeviceRequest with _$UpdateDeviceRequest {
 
 /// Backend 4xx/5xx common error shape
 @freezed
-class ApiError with _$ApiError {
+sealed class ApiError with _$ApiError {
   const factory ApiError({
     int? statusCode,
     String? message,

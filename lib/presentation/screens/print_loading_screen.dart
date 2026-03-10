@@ -1,13 +1,14 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:sfacedock/app/sfacedock_app.dart';
 import 'package:sfacedock/core/admin/controllers/admin_controller.dart';
+import 'package:sfacedock/core/constants/layout_constants.dart';
 import 'package:sfacedock/core/device/services/device_service_providers.dart';
 import 'package:sfacedock/core/theme/kiosk_colors.dart';
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
@@ -34,52 +35,90 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
     });
   }
 
-  /// Load logo asset bytes once and cache for reuse.
-  Future<Uint8List> _loadLogoBytes() async {
-    final byteData = await rootBundle.load('assets/images/logo.png');
-    return byteData.buffer.asUint8List();
-  }
+  static const _canvasW = LayoutConstants.canvasW;
+  static const _canvasH = LayoutConstants.canvasH;
+  static const _slotLeft = LayoutConstants.slotLeft;
+  static const _slotTop = LayoutConstants.slotTop;
+  static const _slotW = LayoutConstants.slotW;
+  static const _slotH = LayoutConstants.slotH;
 
-  /// Download image, composite logo watermark, save as local JPEG.
-  Future<String> _compositeWithLogo(
+  /// Composite photo onto 1200x1800 canvas with frame overlay.
+  Future<String> _compositeWithFrame(
     File sourceFile,
-    Uint8List logoBytes,
+    Uint8List frameBytes,
     String outputPath,
   ) async {
     final sourceBytes = await sourceFile.readAsBytes();
     final photo = img.decodeImage(sourceBytes);
     if (photo == null) throw Exception('Failed to decode image');
 
-    final logo = img.decodePng(logoBytes);
-    if (logo == null) throw Exception('Failed to decode logo');
+    // 1. Create black canvas
+    final canvas = img.Image(width: _canvasW, height: _canvasH);
+    img.fill(canvas, color: img.ColorRgba8(0, 0, 0, 255));
 
-    // Scale logo relative to photo, preserving 460:176 aspect ratio
-    final shortSide = photo.width < photo.height ? photo.width : photo.height;
-    final logoWidth = (shortSide * 0.12).round().clamp(40, 500);
-    final logoHeight = (logoWidth * 176 / 460).round();
-    final scaledLogo = img.copyResize(logo, width: logoWidth, height: logoHeight);
+    // 2. Contain-fit photo into slot (letterbox with black fill)
+    final resized = _containFit(photo, _slotW, _slotH);
 
-    // Apply opacity to logo (70%)
-    for (final pixel in scaledLogo) {
-      final a = pixel.a;
-      pixel.a = a * 0.7;
+    // 3. Place photo in slot
+    img.compositeImage(canvas, resized, dstX: _slotLeft, dstY: _slotTop);
+
+    // 4. Overlay frame PNG
+    final frame = img.decodeImage(frameBytes);
+    if (frame != null) {
+      final scaledFrame = (frame.width != _canvasW || frame.height != _canvasH)
+          ? img.copyResize(frame, width: _canvasW, height: _canvasH)
+          : frame;
+      img.compositeImage(canvas, scaledFrame, dstX: 0, dstY: 0);
     }
 
-    // Composite at bottom-right with margin
-    final margin = (logoWidth * 0.15).round();
-    img.compositeImage(
-      photo,
-      scaledLogo,
-      dstX: photo.width - logoWidth - margin,
-      dstY: photo.height - logoHeight - margin,
-    );
-
-    // Save as JPEG (quality 95)
-    final jpegBytes = img.encodeJpg(photo, quality: 95);
-    final outputFile = File(outputPath);
-    await outputFile.writeAsBytes(jpegBytes);
-
+    // 5. Encode and save as JPEG
+    final jpegBytes = img.encodeJpg(canvas, quality: 95);
+    await File(outputPath).writeAsBytes(jpegBytes);
     return outputPath;
+  }
+
+  /// Composite photo onto 1200x1800 canvas without frame (fallback).
+  Future<String> _compositeNoFrame(File sourceFile, String outputPath) async {
+    final sourceBytes = await sourceFile.readAsBytes();
+    final photo = img.decodeImage(sourceBytes);
+    if (photo == null) throw Exception('Failed to decode image');
+
+    final canvas = img.Image(width: _canvasW, height: _canvasH);
+    img.fill(canvas, color: img.ColorRgba8(0, 0, 0, 255));
+
+    final resized = _containFit(photo, _slotW, _slotH);
+    img.compositeImage(canvas, resized, dstX: _slotLeft, dstY: _slotTop);
+
+    final jpegBytes = img.encodeJpg(canvas, quality: 95);
+    await File(outputPath).writeAsBytes(jpegBytes);
+    return outputPath;
+  }
+
+  /// Contain-fit: resize to fit within target, center on black background.
+  img.Image _containFit(img.Image src, int targetW, int targetH) {
+    final srcAspect = src.width / src.height;
+    final tgtAspect = targetW / targetH;
+
+    int newW, newH;
+    if (srcAspect > tgtAspect) {
+      newW = targetW;
+      newH = (targetW / srcAspect).round();
+    } else {
+      newH = targetH;
+      newW = (targetH * srcAspect).round();
+    }
+
+    final resized = img.copyResize(src, width: newW, height: newH);
+
+    // Create black target and center the resized image
+    final result = img.Image(width: targetW, height: targetH);
+    img.fill(result, color: img.ColorRgba8(0, 0, 0, 255));
+
+    final offsetX = ((targetW - newW) / 2).round();
+    final offsetY = ((targetH - newH) / 2).round();
+    img.compositeImage(result, resized, dstX: offsetX, dstY: offsetY);
+
+    return result;
   }
 
   Future<void> _printAllItems() async {
@@ -107,7 +146,6 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
 
     final cacheManager = DefaultCacheManager();
     final tempDir = await getTemporaryDirectory();
-    final logoBytes = await _loadLogoBytes();
 
     try {
       for (final item in items) {
@@ -115,11 +153,18 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
         final imageUrl = item.photoData.originalImageUrl;
         final cachedFile = await cacheManager.getSingleFile(imageUrl);
 
-        // Composite logo watermark and save to temp
-        final outputPath =
-            '${tempDir.path}/print_${item.feedsIdx}_watermarked.jpg';
-        final printFilePath =
-            await _compositeWithLogo(cachedFile, logoBytes, outputPath);
+        // Composite with frame (or without if no frame selected)
+        final outputPath = '${tempDir.path}/print_${item.feedsIdx}_framed.jpg';
+        final String printFilePath;
+        if (item.selectedFrameBytes != null) {
+          printFilePath = await _compositeWithFrame(
+            cachedFile,
+            item.selectedFrameBytes!,
+            outputPath,
+          );
+        } else {
+          printFilePath = await _compositeNoFrame(cachedFile, outputPath);
+        }
 
         for (int q = 0; q < item.quantity; q++) {
           final jobId = 'print_${item.feedsIdx}_$q';
@@ -140,12 +185,10 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
         }
       }
 
-      // Clean up temp watermarked files
+      // Clean up temp framed files
       for (final item in items) {
         try {
-          final f = File(
-            '${tempDir.path}/print_${item.feedsIdx}_watermarked.jpg',
-          );
+          final f = File('${tempDir.path}/print_${item.feedsIdx}_framed.jpg');
           if (await f.exists()) await f.delete();
         } catch (_) {}
       }
@@ -180,11 +223,7 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
               begin: Alignment.bottomLeft,
               end: Alignment.bottomRight,
               stops: [0.0, 0.5, 1.0],
-              colors: [
-                Color(0xFFFFBFE9),
-                Color(0xFFDEBAF6),
-                Color(0xFFA3F0E2),
-              ],
+              colors: [Color(0xFFFFBFE9), Color(0xFFDEBAF6), Color(0xFFA3F0E2)],
             ),
           ),
           child: Center(
@@ -329,10 +368,9 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
           const SizedBox(height: 32),
           GestureDetector(
             onTap: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                introRouteName,
-                (_) => false,
-              );
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil(introRouteName, (_) => false);
             },
             child: Container(
               width: double.infinity,

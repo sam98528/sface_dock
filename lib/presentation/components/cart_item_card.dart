@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/constants/layout_constants.dart';
 import '../../core/services/audio_service.dart';
 import '../../core/services/image_prefetch_service.dart';
 import '../../core/theme/kiosk_colors.dart';
@@ -54,50 +55,61 @@ class CartItemCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               AspectRatio(
-                aspectRatio: 4 / 6,
+                aspectRatio: LayoutConstants.canvasAspect,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: KioskColors.black,
+                    color: Colors.black,
                     borderRadius: BorderRadius.circular(1),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      if (imageUrl.isNotEmpty)
-                        CachedNetworkImage(
-                          cacheManager: KioskPhotoCacheManager.instance,
-                          imageUrl: imageUrl,
-                          fit: BoxFit.contain,
-                          filterQuality: FilterQuality.medium,
-                          errorWidget: (context, url, error) => const Icon(
-                            Icons.broken_image,
-                            color: KioskColors.grey200,
-                            size: 32,
-                          ),
-                        )
-                      else
-                        const Center(
-                          child: Icon(
-                            Icons.image_not_supported,
-                            color: KioskColors.grey200,
-                            size: 32,
-                          ),
-                        ),
-                      Positioned(
-                        right: 6,
-                        bottom: 6,
-                        child: Opacity(
-                          opacity: 0.7,
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            width: 28,
-                            height: 28,
-                            filterQuality: FilterQuality.medium,
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final w = constraints.maxWidth;
+                      final h = constraints.maxHeight;
+
+                      return Stack(
+                        children: [
+                          // Photo in slot position
+                          if (imageUrl.isNotEmpty)
+                            Positioned(
+                              left: LayoutConstants.slotLeftFrac * w,
+                              top: LayoutConstants.slotTopFrac * h,
+                              width: LayoutConstants.slotWFrac * w,
+                              height: LayoutConstants.slotHFrac * h,
+                              child: CachedNetworkImage(
+                                cacheManager: KioskPhotoCacheManager.instance,
+                                imageUrl: imageUrl,
+                                fit: BoxFit.contain,
+                                filterQuality: FilterQuality.medium,
+                                errorWidget: (context, url, error) =>
+                                    const Icon(
+                                  Icons.broken_image,
+                                  color: KioskColors.grey200,
+                                  size: 32,
+                                ),
+                              ),
+                            )
+                          else
+                            const Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                color: KioskColors.grey200,
+                                size: 32,
+                              ),
+                            ),
+
+                          // Frame overlay
+                          if (item.selectedFrameBytes != null)
+                            Positioned.fill(
+                              child: Image.memory(
+                                item.selectedFrameBytes!,
+                                fit: BoxFit.fill,
+                                filterQuality: FilterQuality.medium,
+                              ),
+                            ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),

@@ -8,7 +8,7 @@ part 'device_summary_state.freezed.dart';
 /// This state comes from IPC communication with the service.
 /// Flutter treats service as a black box.
 @freezed
-class DeviceSummaryState with _$DeviceSummaryState {
+sealed class DeviceSummaryState with _$DeviceSummaryState {
   const factory DeviceSummaryState({
     required bool connected,
     required Map<String, dynamic>? summary,
