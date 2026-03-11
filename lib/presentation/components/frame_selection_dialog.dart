@@ -156,11 +156,11 @@ class _FrameSelectionDialogState extends ConsumerState<FrameSelectionDialog> {
                       padding: const EdgeInsets.only(bottom: 8),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: LayoutConstants.canvasAspect,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
+                            crossAxisCount: 3,
+                            childAspectRatio: LayoutConstants.canvasAspect,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
                       itemCount: frames.length,
                       itemBuilder: (context, index) {
                         return _buildFrameCard(frames[index], index);
@@ -180,8 +180,9 @@ class _FrameSelectionDialogState extends ConsumerState<FrameSelectionDialog> {
                         onTap: () {
                           context.playTapSound();
                           final selected = frames[_selectedIndex];
-                          Navigator.of(context)
-                              .pop(FrameSelectionResult(selected));
+                          Navigator.of(
+                            context,
+                          ).pop(FrameSelectionResult(selected));
                         },
                         child: Container(
                           width: double.infinity,
@@ -191,8 +192,9 @@ class _FrameSelectionDialogState extends ConsumerState<FrameSelectionDialog> {
                             borderRadius: BorderRadius.circular(32),
                             boxShadow: [
                               BoxShadow(
-                                color:
-                                    KioskColors.primary.withValues(alpha: 0.3),
+                                color: KioskColors.primary.withValues(
+                                  alpha: 0.3,
+                                ),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -270,7 +272,7 @@ class _FrameSelectionDialogState extends ConsumerState<FrameSelectionDialog> {
                         child: CachedNetworkImage(
                           cacheManager: KioskPhotoCacheManager.instance,
                           imageUrl: widget.photo.attachedMediaDisplayUrl,
-                          fit: BoxFit.contain,
+                          fit: BoxFit.cover,
                           errorWidget: (context, url, error) => Container(
                             color: KioskColors.grey50,
                             child: const Icon(
@@ -283,7 +285,10 @@ class _FrameSelectionDialogState extends ConsumerState<FrameSelectionDialog> {
 
                       // Frame overlay
                       Positioned.fill(
-                        child: Image.memory(frame.imageBytes, fit: BoxFit.fill),
+                        child: Image.memory(
+                          frame.imageBytes,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ],
                   );

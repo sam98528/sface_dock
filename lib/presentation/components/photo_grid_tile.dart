@@ -32,19 +32,17 @@ class PhotoGridTile extends StatelessWidget {
             transitionDuration: const Duration(milliseconds: 400),
             reverseTransitionDuration: const Duration(milliseconds: 350),
             pageBuilder: (context, animation, secondaryAnimation) =>
-                PhotoDetailDialog(
-              photo: photo,
-            ),
+                PhotoDetailDialog(photo: photo),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOut,
-                ),
-                child: child,
-              );
-            },
+                  return FadeTransition(
+                    opacity: CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut,
+                    ),
+                    child: child,
+                  );
+                },
           ),
         );
       },

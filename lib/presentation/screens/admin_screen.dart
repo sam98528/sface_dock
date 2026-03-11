@@ -406,6 +406,47 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     }
   }
 
+  Future<void> _onCancelPrint() async {
+    final proxy = ref.read(deviceControllerProxyProvider);
+    if (!proxy.isConnected) {
+      final ok = await proxy.ensureConnected();
+      ref.read(connectionStateProvider.notifier).state = ok;
+      if (!mounted) return;
+      if (!proxy.isConnected) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+            ..clearSnackBars()
+            ..showSnackBar(const SnackBar(content: Text('서비스에 연결되어 있지 않습니다.')));
+        }
+        return;
+      }
+    }
+    try {
+      final response = await proxy.cancelPrinter();
+      if (mounted) {
+        if (response?['status']?.toLowerCase() == 'ok') {
+          ScaffoldMessenger.of(context)
+            ..clearSnackBars()
+            ..showSnackBar(const SnackBar(content: Text('출력 취소 명령을 전송했습니다.')));
+        } else {
+          ScaffoldMessenger.of(context)
+            ..clearSnackBars()
+            ..showSnackBar(
+              SnackBar(
+                content: Text('취소 실패: ${response?['error'] ?? 'unknown'}'),
+              ),
+            );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(SnackBar(content: Text('출력 취소 오류: $e')));
+      }
+    }
+  }
+
   Future<void> _onAutoDetect() async {
     if (_isAutoDetecting) return;
     setState(() => _isAutoDetecting = true);
@@ -798,6 +839,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                 notifier.updateDraft((d) => d.copyWith(printerMarginV: v)),
             onTestPrint: _onTestPrint,
             onPrintSessionProduct: _onPrintSessionProduct,
+            onCancelPrint: _onCancelPrint,
             printerStatus: _printerStatus,
             paymentTerminalEnabled: draft.paymentTerminalEnabled,
             onPaymentTerminalEnabledChanged: (v) => notifier.updateDraft(

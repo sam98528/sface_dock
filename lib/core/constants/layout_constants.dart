@@ -5,10 +5,10 @@ class LayoutConstants {
 
   static const int canvasW = 1200;
   static const int canvasH = 1800;
-  static const int slotLeft = 51;
-  static const int slotTop = 132;
-  static const int slotW = 1098;
-  static const int slotH = 1210;
+  static const int slotLeft = 118;
+  static const int slotTop = 96;
+  static const int slotW = 963;
+  static const int slotH = 1308;
 
   // Normalized fractions for UI positioning (0.0 ~ 1.0)
   static const double slotLeftFrac = slotLeft / canvasW;

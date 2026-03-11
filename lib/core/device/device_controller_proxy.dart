@@ -434,6 +434,11 @@ class DeviceControllerProxy {
     throw Exception('printerPrint: provide filePath or dataBase64');
   }
 
+  /// 프린터 출력 취소 (모든 대기/진행 중인 인쇄 작업 취소)
+  Future<Map<String, dynamic>?> cancelPrinter() async {
+    return await sendCommand('printer_cancel', {});
+  }
+
   /// DNP DS-RX1 프린터 상태 조회 (CyStat64.dll 기반)
   /// 반환: {connected, status, statusText, mediaType, mediaRemaining, ...}
   Future<Map<String, String>?> getPrinterStatus() async {

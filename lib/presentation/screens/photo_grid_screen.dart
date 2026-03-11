@@ -20,6 +20,8 @@ class PhotoGridScreen extends ConsumerStatefulWidget {
 }
 
 class _PhotoGridScreenState extends ConsumerState<PhotoGridScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -33,9 +35,22 @@ class _PhotoGridScreenState extends ConsumerState<PhotoGridScreen> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final photos = ref.watch(filteredPhotosProvider);
     final isReady = ref.watch(prefetchInitialLoadDoneProvider);
+
+    // 정렬 옵션이 변경될 때 스크롤을 최상단으로 즉시 이동
+    ref.listen<PhotoSortOption>(photoSortOptionProvider, (previous, next) {
+      if (previous != null && previous != next && _scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+    });
 
     return Scaffold(
       body: Stack(
@@ -86,8 +101,13 @@ class _PhotoGridScreenState extends ConsumerState<PhotoGridScreen> {
       );
     }
 
+    // 정렬 옵션에 따른 고유 키 생성
+    final sortOption = ref.watch(photoSortOptionProvider);
+
     return MasonryGridView.custom(
-      cacheExtent: 1000,
+      key: ValueKey('grid-$sortOption'),
+      controller: _scrollController,
+      cacheExtent: 500,
       padding: const EdgeInsets.only(
         top: 120,
         left: 24,
@@ -102,10 +122,14 @@ class _PhotoGridScreenState extends ConsumerState<PhotoGridScreen> {
       childrenDelegate: SliverChildBuilderDelegate(
         (context, index) {
           final photo = photos[index];
-          return PhotoGridTile(photo: photo, index: index);
+          // key 제거하여 위젯이 매번 새로 생성되도록 함
+          return PhotoGridTile(
+            photo: photo,
+            index: index,
+          );
         },
         childCount: photos.length,
-        addAutomaticKeepAlives: true,
+        addAutomaticKeepAlives: false,
         addRepaintBoundaries: true,
       ),
     );

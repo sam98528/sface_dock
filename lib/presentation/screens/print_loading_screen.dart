@@ -35,90 +35,113 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
     });
   }
 
-  static const _canvasW = LayoutConstants.canvasW;
-  static const _canvasH = LayoutConstants.canvasH;
-  static const _slotLeft = LayoutConstants.slotLeft;
-  static const _slotTop = LayoutConstants.slotTop;
-  static const _slotW = LayoutConstants.slotW;
-  static const _slotH = LayoutConstants.slotH;
-
-  /// Composite photo onto 1200x1800 canvas with frame overlay.
+  /// Composite photo onto canvas with frame overlay, applying print margins.
   Future<String> _compositeWithFrame(
     File sourceFile,
     Uint8List frameBytes,
     String outputPath,
   ) async {
+    // Admin 설정에서 마진 값 가져오기
+    final admin = ref.read(adminControllerProvider);
+    final marginV = admin.printerMarginV; // 상하 마진
+
+    // 마진이 적용된 실제 캔버스 크기 계산
+    final canvasW = LayoutConstants.canvasW;
+    final canvasH = LayoutConstants.canvasH - (marginV * 2); // 상하 마진 적용
+
+    // 마진이 적용된 슬롯 위치 계산
+    final slotLeft = LayoutConstants.slotLeft;
+    final slotTop = LayoutConstants.slotTop - marginV; // 상단 마진 조정
+    final slotW = LayoutConstants.slotW;
+    final slotH = LayoutConstants.slotH;
     final sourceBytes = await sourceFile.readAsBytes();
     final photo = img.decodeImage(sourceBytes);
     if (photo == null) throw Exception('Failed to decode image');
 
-    // 1. Create black canvas
-    final canvas = img.Image(width: _canvasW, height: _canvasH);
+    // 1. Create black canvas with margin applied
+    final canvas = img.Image(width: canvasW, height: canvasH);
     img.fill(canvas, color: img.ColorRgba8(0, 0, 0, 255));
 
-    // 2. Contain-fit photo into slot (letterbox with black fill)
-    final resized = _containFit(photo, _slotW, _slotH);
+    // 2. Cover-fit photo into slot (crop to fill)
+    final resized = _coverFit(photo, slotW, slotH);
 
-    // 3. Place photo in slot
-    img.compositeImage(canvas, resized, dstX: _slotLeft, dstY: _slotTop);
+    // 3. Place photo in slot with margin adjustment
+    img.compositeImage(canvas, resized, dstX: slotLeft, dstY: slotTop);
 
-    // 4. Overlay frame PNG
+    // 4. Overlay frame PNG (scale to canvas size with margins)
     final frame = img.decodeImage(frameBytes);
     if (frame != null) {
-      final scaledFrame = (frame.width != _canvasW || frame.height != _canvasH)
-          ? img.copyResize(frame, width: _canvasW, height: _canvasH)
+      final scaledFrame = (frame.width != canvasW || frame.height != canvasH)
+          ? img.copyResize(frame, width: canvasW, height: canvasH)
           : frame;
       img.compositeImage(canvas, scaledFrame, dstX: 0, dstY: 0);
     }
 
-    // 5. Encode and save as JPEG
-    final jpegBytes = img.encodeJpg(canvas, quality: 95);
+    // 5. Encode and save as JPEG with maximum quality
+    final jpegBytes = img.encodeJpg(canvas, quality: 100);
     await File(outputPath).writeAsBytes(jpegBytes);
     return outputPath;
   }
 
-  /// Composite photo onto 1200x1800 canvas without frame (fallback).
+  /// Composite photo onto canvas without frame (fallback), applying print margins.
   Future<String> _compositeNoFrame(File sourceFile, String outputPath) async {
+    // Admin 설정에서 마진 값 가져오기
+    final admin = ref.read(adminControllerProvider);
+    final marginV = admin.printerMarginV; // 상하 마진
+
+    // 마진이 적용된 실제 캔버스 크기와 슬롯 위치 계산
+    final canvasW = LayoutConstants.canvasW;
+    final canvasH = LayoutConstants.canvasH - (marginV * 2);
+    final slotLeft = LayoutConstants.slotLeft;
+    final slotTop = LayoutConstants.slotTop - marginV;
+    final slotW = LayoutConstants.slotW;
+    final slotH = LayoutConstants.slotH;
+
     final sourceBytes = await sourceFile.readAsBytes();
     final photo = img.decodeImage(sourceBytes);
     if (photo == null) throw Exception('Failed to decode image');
 
-    final canvas = img.Image(width: _canvasW, height: _canvasH);
+    final canvas = img.Image(width: canvasW, height: canvasH);
     img.fill(canvas, color: img.ColorRgba8(0, 0, 0, 255));
 
-    final resized = _containFit(photo, _slotW, _slotH);
-    img.compositeImage(canvas, resized, dstX: _slotLeft, dstY: _slotTop);
+    final resized = _coverFit(photo, slotW, slotH);
+    img.compositeImage(canvas, resized, dstX: slotLeft, dstY: slotTop);
 
-    final jpegBytes = img.encodeJpg(canvas, quality: 95);
+    final jpegBytes = img.encodeJpg(canvas, quality: 100);
     await File(outputPath).writeAsBytes(jpegBytes);
     return outputPath;
   }
 
-  /// Contain-fit: resize to fit within target, center on black background.
-  img.Image _containFit(img.Image src, int targetW, int targetH) {
+  /// Cover-fit: resize to cover entire target, crop center if needed.
+  img.Image _coverFit(img.Image src, int targetW, int targetH) {
     final srcAspect = src.width / src.height;
     final tgtAspect = targetW / targetH;
 
     int newW, newH;
     if (srcAspect > tgtAspect) {
-      newW = targetW;
-      newH = (targetW / srcAspect).round();
-    } else {
+      // Source is wider - fit height and crop width
       newH = targetH;
       newW = (targetH * srcAspect).round();
+    } else {
+      // Source is taller - fit width and crop height
+      newW = targetW;
+      newH = (targetW / srcAspect).round();
     }
 
-    final resized = img.copyResize(src, width: newW, height: newH);
+    // Resize image to cover the target area with high quality interpolation
+    final resized = img.copyResize(src, width: newW, height: newH,
+        interpolation: img.Interpolation.cubic);
 
-    // Create black target and center the resized image
-    final result = img.Image(width: targetW, height: targetH);
-    img.fill(result, color: img.ColorRgba8(0, 0, 0, 255));
+    // Crop to target dimensions from center
+    final offsetX = ((newW - targetW) / 2).round();
+    final offsetY = ((newH - targetH) / 2).round();
 
-    final offsetX = ((targetW - newW) / 2).round();
-    final offsetY = ((targetH - newH) / 2).round();
-    img.compositeImage(result, resized, dstX: offsetX, dstY: offsetY);
-
-    return result;
+    return img.copyCrop(resized,
+      x: offsetX,
+      y: offsetY,
+      width: targetW,
+      height: targetH,
+    );
   }
 
   Future<void> _printAllItems() async {

@@ -51,36 +51,39 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
       _eventSub = proxy.eventStream
           .where((e) => e['eventType'] == 'external_navigate')
           .listen((e) async {
-        final target = (e['data'] as Map<String, dynamic>?)?['target'];
-        if (target == 'intro' && mounted) {
-          // 소켓 서버 중지 (명령이 서비스에 구현되지 않았으므로 에러 무시)
-          try {
-            await proxy.stopSocketServer();
-          } catch (e) {
-            debugPrint('[IntroScreen] stopSocketServer failed (ignored): $e');
-          }
+            final target = (e['data'] as Map<String, dynamic>?)?['target'];
+            if (target == 'intro' && mounted) {
+              // 소켓 서버 중지 (명령이 서비스에 구현되지 않았으므로 에러 무시)
+              try {
+                await proxy.stopSocketServer();
+              } catch (e) {
+                debugPrint(
+                  '[IntroScreen] stopSocketServer failed (ignored): $e',
+                );
+              }
 
-          // 하드웨어 포트 재초기화 (RGB 세션 종료)
-          debugPrint('[IntroScreen] Resuming hardware after RGB session...');
-          await proxy.resumeHardware();
-          debugPrint('[IntroScreen] Hardware resumed - RGB session ended');
+              // 하드웨어 포트 재초기화 (RGB 세션 종료)
+              debugPrint(
+                '[IntroScreen] Resuming hardware after RGB session...',
+              );
+              await proxy.resumeHardware();
+              debugPrint('[IntroScreen] Hardware resumed - RGB session ended');
 
-          // Windows에서 Flutter 창 다시 표시 및 alwaysOnTop 활성화
-          if (Platform.isWindows) {
-            await windowManager.show();
-            await windowManager.setAlwaysOnTop(true);
-            await windowManager.focus();
-          }
+              // Windows에서 Flutter 창 다시 표시 및 alwaysOnTop 활성화
+              if (Platform.isWindows) {
+                await windowManager.show();
+                await windowManager.setAlwaysOnTop(true);
+                await windowManager.focus();
+              }
 
-          // Intro 화면으로 복귀
-          if (mounted) {
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              introRouteName,
-              (_) => false,
-            );
-          }
-        }
-      });
+              // Intro 화면으로 복귀
+              if (mounted) {
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil(introRouteName, (_) => false);
+              }
+            }
+          });
     }
   }
 
@@ -104,7 +107,9 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
           // 연결 실패해도 RGB 프로그램 자체는 실행되도록 계속 진행
         }
       } else {
-        debugPrint('[IntroScreen] IPC already connected - RGB navigation ready');
+        debugPrint(
+          '[IntroScreen] IPC already connected - RGB navigation ready',
+        );
       }
 
       // 연결 상태 업데이트
@@ -149,9 +154,13 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
     ref.read(connectionStateProvider.notifier).state = proxy.isConnected;
 
     if (proxy.isConnected) {
-      debugPrint('[IntroScreen] IPC already connected - proceeding to loading screen');
+      debugPrint(
+        '[IntroScreen] IPC already connected - proceeding to loading screen',
+      );
     } else {
-      debugPrint('[IntroScreen] IPC not connected - loading screen will handle device initialization');
+      debugPrint(
+        '[IntroScreen] IPC not connected - loading screen will handle device initialization',
+      );
     }
 
     // Navigate to loading screen
@@ -211,52 +220,58 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               spacing: 40,
                               children: [
                                 if (admin.rgbEnabled)
-                                Expanded(
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.easeInOut,
-                                    child: GestureDetector(
-                                      onTap: _startRgbSession,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(40),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.8,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            50,
-                                          ),
-                                          border: Border.all(
-                                            color: const Color(
-                                              0xFF000000,
-                                            ).withValues(alpha: 0.05),
-                                            width: 5,
-                                            strokeAlign:
-                                                BorderSide.strokeAlignInside,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.1,
-                                              ),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 4),
+                                  SizedBox(
+                                    width: 800,
+                                    height: 700,
+                                    child: AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      curve: Curves.easeInOut,
+                                      child: GestureDetector(
+                                        onTap: _startRgbSession,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(40),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.8,
                                             ),
-                                          ],
-                                        ),
-                                        child: Image.asset(
-                                          'assets/images/RGB_image.png',
-                                          fit: BoxFit.cover,
+                                            borderRadius: BorderRadius.circular(
+                                              50,
+                                            ),
+                                            border: Border.all(
+                                              color: const Color(
+                                                0xFF000000,
+                                              ).withValues(alpha: 0.05),
+                                              width: 5,
+                                              strokeAlign:
+                                                  BorderSide.strokeAlignInside,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.1,
+                                                ),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Image.asset(
+                                            'assets/images/RGB_image.png',
+                                            fit: BoxFit.contain,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                Expanded(
+                                SizedBox(
+                                  width: 800,
+                                  height: 700,
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     curve: Curves.easeInOut,

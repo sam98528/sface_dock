@@ -88,8 +88,11 @@ class CartNotifier extends StateNotifier<CartState> {
     String? frameDisplayName,
   }) {
     final feedsIdx = int.tryParse(photoData.postId) ?? 0;
+    // 같은 사진 + 같은 프레임인 경우만 중복으로 처리
     final existingItemIndex = state.items.indexWhere(
-      (item) => item.feedsIdx == feedsIdx,
+      (item) =>
+        item.feedsIdx == feedsIdx &&
+        item.selectedFrameDisplayName == frameDisplayName,
     );
 
     if (existingItemIndex != -1) {
@@ -118,18 +121,19 @@ class CartNotifier extends StateNotifier<CartState> {
     _recalculateCouponDiscounts();
   }
 
-  void removeItem(int feedsIdx) {
+  void removeItem(int feedsIdx, {String? frameDisplayName}) {
     final updatedItems = state.items
-        .where((item) => item.feedsIdx != feedsIdx)
+        .where((item) => !(item.feedsIdx == feedsIdx &&
+            item.selectedFrameDisplayName == frameDisplayName))
         .toList();
 
     state = state.copyWith(items: updatedItems);
     _recalculateCouponDiscounts();
   }
 
-  void updateQuantity(int feedsIdx, int newQuantity) {
+  void updateQuantity(int feedsIdx, int newQuantity, {String? frameDisplayName}) {
     if (newQuantity <= 0) {
-      removeItem(feedsIdx);
+      removeItem(feedsIdx, frameDisplayName: frameDisplayName);
       return;
     }
 
@@ -138,7 +142,8 @@ class CartNotifier extends StateNotifier<CartState> {
     }
 
     final updatedItems = state.items.map((item) {
-      if (item.feedsIdx == feedsIdx) {
+      if (item.feedsIdx == feedsIdx &&
+          item.selectedFrameDisplayName == frameDisplayName) {
         return item.copyWith(quantity: newQuantity);
       }
       return item;

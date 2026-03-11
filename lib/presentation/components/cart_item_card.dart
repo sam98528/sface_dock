@@ -12,11 +12,7 @@ class CartItemCard extends ConsumerWidget {
   final CartItem item;
   final int index;
 
-  const CartItemCard({
-    super.key,
-    required this.item,
-    required this.index,
-  });
+  const CartItemCard({super.key, required this.item, required this.index});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,10 +22,10 @@ class CartItemCard extends ConsumerWidget {
     final rotation = (index % 4 == 0)
         ? 0.02
         : (index % 4 == 1)
-            ? -0.015
-            : (index % 4 == 2)
-                ? 0.01
-                : -0.025;
+        ? -0.015
+        : (index % 4 == 2)
+        ? 0.01
+        : -0.025;
 
     return Center(
       child: Transform.rotate(
@@ -79,14 +75,14 @@ class CartItemCard extends ConsumerWidget {
                               child: CachedNetworkImage(
                                 cacheManager: KioskPhotoCacheManager.instance,
                                 imageUrl: imageUrl,
-                                fit: BoxFit.contain,
+                                fit: BoxFit.cover,
                                 filterQuality: FilterQuality.medium,
                                 errorWidget: (context, url, error) =>
                                     const Icon(
-                                  Icons.broken_image,
-                                  color: KioskColors.grey200,
-                                  size: 32,
-                                ),
+                                      Icons.broken_image,
+                                      color: KioskColors.grey200,
+                                      size: 32,
+                                    ),
                               ),
                             )
                           else
@@ -140,6 +136,8 @@ class CartItemCard extends ConsumerWidget {
                                   .updateQuantity(
                                     item.feedsIdx,
                                     item.quantity - 1,
+                                    frameDisplayName:
+                                        item.selectedFrameDisplayName,
                                   );
                             },
                           ),
@@ -161,6 +159,8 @@ class CartItemCard extends ConsumerWidget {
                                   .updateQuantity(
                                     item.feedsIdx,
                                     item.quantity + 1,
+                                    frameDisplayName:
+                                        item.selectedFrameDisplayName,
                                   );
                             },
                           ),
@@ -174,7 +174,10 @@ class CartItemCard extends ConsumerWidget {
                       context.playTapSound();
                       ref
                           .read(cartProvider.notifier)
-                          .removeItem(item.feedsIdx);
+                          .removeItem(
+                            item.feedsIdx,
+                            frameDisplayName: item.selectedFrameDisplayName,
+                          );
                     },
                     child: Container(
                       width: 56,

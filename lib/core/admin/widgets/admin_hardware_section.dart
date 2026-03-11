@@ -1,5 +1,7 @@
 // lib/screens/admin/widgets/admin_hardware_section.dart
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'admin_section_card.dart';
 import 'admin_stepper_field.dart';
@@ -202,6 +204,7 @@ class AdminHardwareSection extends StatelessWidget {
     required this.onPrinterMarginVChanged,
     required this.onTestPrint,
     this.onPrintSessionProduct,
+    this.onCancelPrint,
     this.printerStatus,
     // 결제 (COM 포트는 백엔드 자동 인식, 사용 여부 + 작동 상태만 표시)
     required this.paymentTerminalEnabled,
@@ -257,6 +260,7 @@ class AdminHardwareSection extends StatelessWidget {
   final ValueChanged<int> onPrinterMarginVChanged;
   final VoidCallback onTestPrint;
   final VoidCallback? onPrintSessionProduct;
+  final VoidCallback? onCancelPrint;
   final String? printerStatus;
 
   final bool paymentTerminalEnabled;
@@ -450,6 +454,28 @@ class AdminHardwareSection extends StatelessWidget {
                   //     ),
                   //   ),
                   // ],
+                  if (onCancelPrint != null) ...[
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: onCancelPrint,
+                        icon: const Icon(Icons.cancel_presentation, size: 22),
+                        label: const Text('출력 취소'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 56),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          foregroundColor: theme.colorScheme.error,
+                          side: BorderSide(color: theme.colorScheme.error),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
               // DNP DS-RX1 실시간 상태
@@ -485,6 +511,7 @@ class AdminHardwareSection extends StatelessWidget {
                   icon: const Icon(Icons.info_outline, size: 18),
                   label: const Text('DNP 프린터 상태 조회'),
                 ),
+                const SizedBox(height: 12),
               ],
             ],
           ),
@@ -884,23 +911,18 @@ class AdminHardwareSection extends StatelessWidget {
           ),
           if (connected) ...[
             const SizedBox(height: 8),
-            if (mediaType.isNotEmpty)
-              infoRow('미디어', mediaType),
+            if (mediaType.isNotEmpty) infoRow('미디어', mediaType),
             if (mediaRemaining >= 0)
               infoRow(
                 '남은 인화지',
                 mediaInitial > 0
                     ? '$mediaRemaining / $mediaInitial 장'
                     : '$mediaRemaining 장',
-                valueColor:
-                    mediaRemaining < 50 ? Colors.red.shade600 : null,
+                valueColor: mediaRemaining < 50 ? Colors.red.shade600 : null,
               ),
-            if (totalPrint >= 0)
-              infoRow('총 인쇄 매수', '$totalPrint 장'),
-            if (firmware.isNotEmpty)
-              infoRow('펌웨어', firmware),
-            if (serial.isNotEmpty)
-              infoRow('시리얼', serial),
+            if (totalPrint >= 0) infoRow('총 인쇄 매수', '$totalPrint 장'),
+            if (firmware.isNotEmpty) infoRow('펌웨어', firmware),
+            if (serial.isNotEmpty) infoRow('시리얼', serial),
           ],
         ],
       ),

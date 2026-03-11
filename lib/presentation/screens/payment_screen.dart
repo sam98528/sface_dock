@@ -523,7 +523,10 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       children: [
         Expanded(
           child: GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
+            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
+              cartRouteName,
+              (route) => route.settings.name == photoGridRouteName,
+            ),
             child: Container(
               height: 56,
               decoration: BoxDecoration(
