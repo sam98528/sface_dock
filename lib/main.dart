@@ -53,11 +53,11 @@ Future<void> main() async {
       maximumSize: Size(1920, 1080),
       center: true,
       backgroundColor: Colors.transparent,
+      skipTaskbar: false,
       titleBarStyle: TitleBarStyle.normal,
       title: 'SFace Kiosk',
-      // skipTaskbar: true,
       fullScreen: true,
-      alwaysOnTop: true, // 초기 시작 시에는 alwaysOnTop 활성화
+      alwaysOnTop: true,
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {

@@ -23,6 +23,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
     with WidgetsBindingObserver {
   int _tapCount = 0;
   StreamSubscription<Map<String, dynamic>>? _eventSub;
+  bool _isTransitioningToRGB = false;
 
   @override
   void initState() {
@@ -69,6 +70,40 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
               await proxy.resumeHardware();
               debugPrint('[IntroScreen] Hardware resumed - RGB session ended');
 
+              // 카메라 재연결 시도 (RGB에서 돌아온 후)
+              debugPrint('[IntroScreen] Checking camera connection...');
+              await Future.delayed(const Duration(milliseconds: 500));
+
+              // detect_hardware로 카메라 상태 확인
+              final response = await proxy.sendCommand('detect_hardware', {
+                'probe': 'false',
+              });
+
+              if (response != null && response['result'] is Map) {
+                final summary = Map<String, dynamic>.from(response['result'] as Map);
+                final cameraState = summary['camera.stateString']?.toString().toUpperCase();
+
+                debugPrint('[IntroScreen] Camera state after resume: $cameraState');
+
+                // 카메라가 연결 해제 상태면 재연결 시도
+                if (cameraState == 'DISCONNECTED' || cameraState == 'ERROR' || cameraState == null) {
+                  debugPrint('[IntroScreen] Camera disconnected, attempting reconnect...');
+                  await proxy.reconnectCamera();
+                  await Future.delayed(const Duration(seconds: 1));
+
+                  // 재연결 후 상태 재확인
+                  final retryResponse = await proxy.sendCommand('detect_hardware', {
+                    'probe': 'false',
+                  });
+
+                  if (retryResponse != null && retryResponse['result'] is Map) {
+                    final retrySummary = Map<String, dynamic>.from(retryResponse['result'] as Map);
+                    final retryCameraState = retrySummary['camera.stateString']?.toString().toUpperCase();
+                    debugPrint('[IntroScreen] Camera state after reconnect: $retryCameraState');
+                  }
+                }
+              }
+
               // Windows에서 Flutter 창 다시 표시 및 alwaysOnTop 활성화
               if (Platform.isWindows) {
                 await windowManager.show();
@@ -92,12 +127,18 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
     final admin = ref.read(adminControllerProvider);
     if (!admin.rgbEnabled || admin.rgbProcessName.isEmpty) return;
 
+    // 로딩 상태 시작
+    setState(() {
+      _isTransitioningToRGB = true;
+    });
+
     final proxy = ref.read(deviceControllerProxyProvider);
 
-    // Windows에서만 동작
-    if (Platform.isWindows) {
-      // 1. IPC 연결 확인 (main.dart에서 이미 연결되어 있어야 함)
-      debugPrint('[IntroScreen] Checking IPC connection for RGB session...');
+    try {
+      // Windows에서만 동작
+      if (Platform.isWindows) {
+        // 1. IPC 연결 확인 (main.dart에서 이미 연결되어 있어야 함)
+        debugPrint('[IntroScreen] Checking IPC connection for RGB session...');
       if (!proxy.isConnected) {
         debugPrint('[IntroScreen] IPC not connected, attempting to connect...');
         final connected = await proxy.ensureConnected();
@@ -118,26 +159,59 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
       // 2. external_navigate 이벤트 리스너 설정
       _listenExternalNavigate();
 
-      // 3. SFaceDock의 alwaysOnTop 해제 (RGB가 앞으로 올 수 있도록)
-      await windowManager.setAlwaysOnTop(false);
+      // 5. 창 전환 전에 충분히 대기 (저사양 PC 대응: 300ms -> 800ms)
 
-      // 4. 소켓 서버 시작 (활성화된 경우)
+      // 6. 소켓 서버 시작 (활성화된 경우)
       if (admin.socketServerEnabled) {
         await proxy.startSocketServer(admin.socketServerPort);
       }
 
-      // 5. 하드웨어 포트 해제 (RGB가 카메라/결제단말 사용할 수 있도록)
+      // 7. 하드웨어 포트 해제 (RGB가 카메라/결제단말 사용할 수 있도록)
       debugPrint('[IntroScreen] Suspending hardware for RGB session...');
       await proxy.suspendHardware();
 
-      // 6. RGB 프로세스를 최전방으로
+      // // 4. Flutter 창을 최소화하여 간섭 방지
+      // await windowManager.minimize();
+
+      // 3. SFaceDock의 alwaysOnTop 해제 (Z-order 충돌 방지)
+      await windowManager.setAlwaysOnTop(false);
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // 3-1. Flutter 창을 완전히 숨겨서 GPU 리소스 해제
+      debugPrint('[IntroScreen] Hiding Flutter window to release GPU resources...');
+      await windowManager.hide();  // minimize 대신 hide 사용
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // 8. RGB 프로세스를 최전방으로 전환 (DWM 강제 갱신 포함)
+      debugPrint('[IntroScreen] Promoting RGB process with DWM refresh...');
       await proxy.bringProcessToFront(
         targetProcess: admin.rgbProcessName,
         demoteProcess: 'sfacedock.exe',
       );
 
-      // 7. Flutter 창을 최소화 (taskbar에는 보이도록)
-      await windowManager.minimize();
+      // 9. DWM 갱신 완료 대기 (저사양 PC 대응)
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // 10. 저사양 PC를 위한 보조 시도 (2초 후 다시 한번 호출하여 포커스 보장)
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          debugPrint(
+            '[IntroScreen] Promoting RGB process (Secondary retry)...',
+          );
+          proxy.bringProcessToFront(
+            targetProcess: admin.rgbProcessName,
+            demoteProcess: 'sfacedock.exe',
+          );
+        }
+      });
+      }
+    } finally {
+      // 로딩 상태 종료
+      if (mounted) {
+        setState(() {
+          _isTransitioningToRGB = false;
+        });
+      }
     }
   }
 
@@ -233,12 +307,12 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
                                       ),
                                       curve: Curves.easeInOut,
                                       child: GestureDetector(
-                                        onTap: _startRgbSession,
+                                        onTap: _isTransitioningToRGB ? null : _startRgbSession,
                                         child: Container(
                                           padding: const EdgeInsets.all(40),
                                           decoration: BoxDecoration(
                                             color: Colors.white.withValues(
-                                              alpha: 0.8,
+                                              alpha: _isTransitioningToRGB ? 0.5 : 0.8,
                                             ),
                                             borderRadius: BorderRadius.circular(
                                               50,
@@ -261,9 +335,51 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
                                               ),
                                             ],
                                           ),
-                                          child: Image.asset(
-                                            'assets/images/RGB_image.png',
-                                            fit: BoxFit.contain,
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              AnimatedOpacity(
+                                                opacity: _isTransitioningToRGB ? 0.3 : 1.0,
+                                                duration: const Duration(milliseconds: 200),
+                                                child: Image.asset(
+                                                  'assets/images/RGB_image.png',
+                                                  fit: BoxFit.contain,
+                                                ),
+                                              ),
+                                              if (_isTransitioningToRGB)
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black.withValues(alpha: 0.3),
+                                                    borderRadius: BorderRadius.circular(45),
+                                                  ),
+                                                  child: const Center(
+                                                    child: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        SizedBox(
+                                                          width: 60,
+                                                          height: 60,
+                                                          child: CircularProgressIndicator(
+                                                            strokeWidth: 5,
+                                                            valueColor: AlwaysStoppedAnimation<Color>(
+                                                              Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 20),
+                                                        Text(
+                                                          'RGB로 전환 중...',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 24,
+                                                            fontWeight: FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
                                           ),
                                         ),
                                       ),
