@@ -26,6 +26,7 @@ import '../../core/admin/widgets/admin_feature_section.dart';
 import '../../core/constants/decorate_filters.dart';
 import '../../core/admin/widgets/admin_hardware_section.dart';
 import '../../core/admin/widgets/admin_system_section.dart';
+import '../../app/sfacedock_app.dart' show maintenanceRouteName;
 import '../../utils/file_logger.dart' as file_logger;
 
 /// Minimal 1x1 pixel JPEG (base64) for test print.
@@ -869,12 +870,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             rgbProcessName: draft.rgbProcessName,
             onRgbProcessNameChanged: (v) =>
                 notifier.updateDraft((d) => d.copyWith(rgbProcessName: v)),
-            socketServerEnabled: draft.socketServerEnabled,
-            onSocketServerEnabledChanged: (v) =>
-                notifier.updateDraft((d) => d.copyWith(socketServerEnabled: v)),
-            socketServerPort: draft.socketServerPort,
-            onSocketServerPortChanged: (v) =>
-                notifier.updateDraft((d) => d.copyWith(socketServerPort: v)),
             dnpPrinterInfo: _dnpPrinterInfo,
             onRefreshDnpStatus: _refreshDnpPrinterStatus,
           ),
@@ -1052,8 +1047,10 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           ref.read(sessionControllerProvider.notifier).resetToIdle();
         },
         onMaintenanceScreen: () {
-          ref.read(maintenanceModeProvider.notifier).state = true;
-          Navigator.of(context).popUntil((r) => r.isFirst);
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            maintenanceRouteName,
+            (route) => false,
+          );
         },
         onVerificationCheck: () {
           Navigator.of(context).pushNamed(verificationRouteName);

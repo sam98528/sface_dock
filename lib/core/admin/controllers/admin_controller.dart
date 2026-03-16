@@ -34,8 +34,9 @@ class AdminController extends StateNotifier<AdminSettings> {
   }
 
   /// 드래프트를 적용·저장 (설정 저장 버튼용). 저장 후 호출 측에서 테마/로케일 적용·버전 증가.
+  /// 최초 저장 시 setupCompleted를 true로 설정.
   Future<void> applyDraft(AdminSettings draft) async {
-    state = draft;
+    state = draft.setupCompleted ? draft : draft.copyWith(setupCompleted: true);
     await _save();
   }
 

@@ -128,27 +128,25 @@ class _SearchActionBarState extends ConsumerState<SearchActionBar> {
               ],
             ),
             child: GestureDetector(
-              onTap: () async {
+              onTap: () {
                 context.playTapSound();
                 KioskKeyboardOverlay.dismiss();
 
                 // Clear cart and end session
                 ref.read(cartProvider.notifier).clearCart();
 
-                // Disconnect IPC to release device ports
+                // Navigate immediately (don't block UI with IPC call)
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  introRouteName,
+                  (_) => false,
+                );
+
+                // Suspend hardware in background after navigation
                 final proxy = ref.read(deviceControllerProxyProvider);
-                await proxy.disconnect();
-                debugPrint('[SearchActionBar] IPC disconnected - returning to intro');
-
-                // Update connection state
-                ref.read(connectionStateProvider.notifier).state = false;
-
-                // Navigate to intro screen
-                if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    introRouteName,
-                    (_) => false,
-                  );
+                if (proxy.isConnected) {
+                  proxy.suspendHardware().then((_) {
+                    debugPrint('[SearchActionBar] Hardware suspended after navigation');
+                  });
                 }
               },
               child: Row(

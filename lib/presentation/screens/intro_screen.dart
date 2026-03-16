@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sfacedock/app/sfacedock_app.dart';
 import 'package:sfacedock/core/admin/controllers/admin_controller.dart';
 import 'package:sfacedock/core/device/device_controller_proxy_provider.dart';
-import 'package:sfacedock/core/services/image_prefetch_service.dart';
 import 'package:sfacedock/core/theme/kiosk_colors.dart';
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
 import 'package:shimmer/shimmer.dart';
@@ -25,27 +25,101 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
   StreamSubscription<Map<String, dynamic>>? _eventSub;
   bool _isTransitioningToRGB = false;
 
+  // 디버그 오버레이 상태 (static → pushNamedAndRemoveUntil로 화면 재생성되어도 유지)
+  Timer? _debugTimer;
+  Timer? _hwPollTimer;
+  static int _rgbSwitchCount = 0;
+  int _memoryUsageMB = 0;
+  bool _ipcConnected = false;
+  String _cameraState = '-';
+  String _paymentState = '-';
+  String _printerState = '-';
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Start background pre-fetching of kiosk photos
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(imagePrefetchProvider.notifier).start();
       _listenExternalNavigate();
+      if (kDebugMode) _startDebugTimer();
+
+      // IPC 연결 상태 변경 감시 — Admin에서 연결 후 복귀 시 리스너 재등록
+      ref.listenManual(connectionStateProvider, (prev, next) {
+        if (next == true && prev != true) {
+          _listenExternalNavigate();
+          _refreshHardwareInfo();
+        }
+      });
     });
   }
 
   @override
   void dispose() {
+    _debugTimer?.cancel();
+    _hwPollTimer?.cancel();
     _eventSub?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  /// 디버그 오버레이 갱신 타이머
+  void _startDebugTimer() {
+    _refreshLightInfo(); // 즉시 1회
+    _refreshHardwareInfo(); // 즉시 1회
+
+    // 경량 정보 (메모리, IPC 상태) — 2초 주기
+    _debugTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      _refreshLightInfo();
+    });
+
+    // 하드웨어 상태 (detect_hardware IPC 호출) — 30초 주기
+    _hwPollTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      _refreshHardwareInfo();
+    });
+  }
+
+  /// 경량 정보 갱신 (IPC 호출 없음)
+  void _refreshLightInfo() {
+    if (!mounted) return;
+
+    final rss = ProcessInfo.currentRss;
+    final memMB = (rss / (1024 * 1024)).round();
+    final proxy = ref.read(deviceControllerProxyProvider);
+
+    setState(() {
+      _memoryUsageMB = memMB;
+      _ipcConnected = proxy.isConnected;
+    });
+  }
+
+  /// 하드웨어 상태 갱신 (detect_hardware IPC 호출, 30초 주기)
+  Future<void> _refreshHardwareInfo() async {
+    if (!mounted) return;
+
+    final proxy = ref.read(deviceControllerProxyProvider);
+    if (!proxy.isConnected) return;
+
+    try {
+      final response = await proxy.sendCommand('detect_hardware', {
+        'probe': 'false',
+      });
+      if (response != null && response['result'] is Map && mounted) {
+        final summary = Map<String, dynamic>.from(response['result'] as Map);
+        setState(() {
+          _cameraState = summary['camera.stateString']?.toString() ?? '-';
+          _paymentState = summary['payment.stateString']?.toString() ?? '-';
+          _printerState = summary['printer.stateString']?.toString() ?? '-';
+        });
+      }
+    } catch (_) {
+      // 조회 실패 시 이전 값 유지
+    }
+  }
+
   /// external_navigate 이벤트 수신 (RGB 프로그램 → Flutter 복귀)
   void _listenExternalNavigate() {
+    _eventSub?.cancel(); // 기존 구독 해제 (listener 누적 방지)
     final proxy = ref.read(deviceControllerProxyProvider);
     // IPC가 연결되어 있을 때만 이벤트 수신
     if (proxy.isConnected) {
@@ -54,55 +128,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
           .listen((e) async {
             final target = (e['data'] as Map<String, dynamic>?)?['target'];
             if (target == 'intro' && mounted) {
-              // 소켓 서버 중지 (명령이 서비스에 구현되지 않았으므로 에러 무시)
-              try {
-                await proxy.stopSocketServer();
-              } catch (e) {
-                debugPrint(
-                  '[IntroScreen] stopSocketServer failed (ignored): $e',
-                );
-              }
-
-              // 하드웨어 포트 재초기화 (RGB 세션 종료)
-              debugPrint(
-                '[IntroScreen] Resuming hardware after RGB session...',
-              );
-              await proxy.resumeHardware();
-              debugPrint('[IntroScreen] Hardware resumed - RGB session ended');
-
-              // 카메라 재연결 시도 (RGB에서 돌아온 후)
-              debugPrint('[IntroScreen] Checking camera connection...');
-              await Future.delayed(const Duration(milliseconds: 500));
-
-              // detect_hardware로 카메라 상태 확인
-              final response = await proxy.sendCommand('detect_hardware', {
-                'probe': 'false',
-              });
-
-              if (response != null && response['result'] is Map) {
-                final summary = Map<String, dynamic>.from(response['result'] as Map);
-                final cameraState = summary['camera.stateString']?.toString().toUpperCase();
-
-                debugPrint('[IntroScreen] Camera state after resume: $cameraState');
-
-                // 카메라가 연결 해제 상태면 재연결 시도
-                if (cameraState == 'DISCONNECTED' || cameraState == 'ERROR' || cameraState == null) {
-                  debugPrint('[IntroScreen] Camera disconnected, attempting reconnect...');
-                  await proxy.reconnectCamera();
-                  await Future.delayed(const Duration(seconds: 1));
-
-                  // 재연결 후 상태 재확인
-                  final retryResponse = await proxy.sendCommand('detect_hardware', {
-                    'probe': 'false',
-                  });
-
-                  if (retryResponse != null && retryResponse['result'] is Map) {
-                    final retrySummary = Map<String, dynamic>.from(retryResponse['result'] as Map);
-                    final retryCameraState = retrySummary['camera.stateString']?.toString().toUpperCase();
-                    debugPrint('[IntroScreen] Camera state after reconnect: $retryCameraState');
-                  }
-                }
-              }
+              debugPrint('[IntroScreen] RGB → Flutter 복귀 시작');
 
               // Windows에서 Flutter 창 다시 표시 및 alwaysOnTop 활성화
               if (Platform.isWindows) {
@@ -112,6 +138,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
               }
 
               // Intro 화면으로 복귀
+              // (하드웨어 resume/detect/reconnect는 intro_loading_screen에서 처리)
               if (mounted) {
                 Navigator.of(
                   context,
@@ -127,83 +154,62 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
     final admin = ref.read(adminControllerProvider);
     if (!admin.rgbEnabled || admin.rgbProcessName.isEmpty) return;
 
-    // 로딩 상태 시작
+    // 로딩 상태 시작 + RGB 전환 횟수 카운트
     setState(() {
       _isTransitioningToRGB = true;
+      _rgbSwitchCount++;
     });
 
-    final proxy = ref.read(deviceControllerProxyProvider);
-
     try {
-      // Windows에서만 동작
       if (Platform.isWindows) {
-        // 1. IPC 연결 확인 (main.dart에서 이미 연결되어 있어야 함)
-        debugPrint('[IntroScreen] Checking IPC connection for RGB session...');
-      if (!proxy.isConnected) {
-        debugPrint('[IntroScreen] IPC not connected, attempting to connect...');
-        final connected = await proxy.ensureConnected();
-        if (!connected) {
-          debugPrint('[IntroScreen] IPC connection failed for RGB mode');
-          debugPrint('[IntroScreen] RGB navigation will not work properly');
-          // 연결 실패해도 RGB 프로그램 자체는 실행되도록 계속 진행
+        final proxy = ref.read(deviceControllerProxyProvider);
+
+        // IPC 연결된 경우에만 서비스 명령 실행
+        if (proxy.isConnected) {
+          _debugTimer?.cancel();
+          _hwPollTimer?.cancel();
+          debugPrint('[IntroScreen] Suspending hardware for RGB session...');
+          await proxy.suspendHardware();
+          debugPrint('[IntroScreen] Hardware suspended — proceeding to RGB');
+        } else {
+          debugPrint('[IntroScreen] IPC not connected - skipping service commands for RGB');
+          _debugTimer?.cancel();
+          _hwPollTimer?.cancel();
         }
-      } else {
-        debugPrint(
-          '[IntroScreen] IPC already connected - RGB navigation ready',
-        );
-      }
 
-      // 연결 상태 업데이트
-      ref.read(connectionStateProvider.notifier).state = proxy.isConnected;
+        // 창 관리 (IPC 무관)
+        await windowManager.setAlwaysOnTop(false);
+        await Future.delayed(const Duration(milliseconds: 100));
 
-      // 2. external_navigate 이벤트 리스너 설정
-      _listenExternalNavigate();
+        // RGB 전환 시 메모리 해제 — resume 시 prefetch가 다시 채움
+        PaintingBinding.instance.imageCache.clear();
+        PaintingBinding.instance.imageCache.clearLiveImages();
 
-      // 5. 창 전환 전에 충분히 대기 (저사양 PC 대응: 300ms -> 800ms)
+        debugPrint('[IntroScreen] Hiding Flutter window to release GPU resources...');
+        await windowManager.hide();
+        await Future.delayed(const Duration(milliseconds: 300));
 
-      // 6. 소켓 서버 시작 (활성화된 경우)
-      if (admin.socketServerEnabled) {
-        await proxy.startSocketServer(admin.socketServerPort);
-      }
-
-      // 7. 하드웨어 포트 해제 (RGB가 카메라/결제단말 사용할 수 있도록)
-      debugPrint('[IntroScreen] Suspending hardware for RGB session...');
-      await proxy.suspendHardware();
-
-      // // 4. Flutter 창을 최소화하여 간섭 방지
-      // await windowManager.minimize();
-
-      // 3. SFaceDock의 alwaysOnTop 해제 (Z-order 충돌 방지)
-      await windowManager.setAlwaysOnTop(false);
-      await Future.delayed(const Duration(milliseconds: 100));
-
-      // 3-1. Flutter 창을 완전히 숨겨서 GPU 리소스 해제
-      debugPrint('[IntroScreen] Hiding Flutter window to release GPU resources...');
-      await windowManager.hide();  // minimize 대신 hide 사용
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      // 8. RGB 프로세스를 최전방으로 전환 (DWM 강제 갱신 포함)
-      debugPrint('[IntroScreen] Promoting RGB process with DWM refresh...');
-      await proxy.bringProcessToFront(
-        targetProcess: admin.rgbProcessName,
-        demoteProcess: 'sfacedock.exe',
-      );
-
-      // 9. DWM 갱신 완료 대기 (저사양 PC 대응)
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // 10. 저사양 PC를 위한 보조 시도 (2초 후 다시 한번 호출하여 포커스 보장)
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          debugPrint(
-            '[IntroScreen] Promoting RGB process (Secondary retry)...',
-          );
-          proxy.bringProcessToFront(
+        // RGB 프로세스 전환 (IPC 필요)
+        if (proxy.isConnected) {
+          debugPrint('[IntroScreen] Promoting RGB process with DWM refresh...');
+          await proxy.bringProcessToFront(
             targetProcess: admin.rgbProcessName,
             demoteProcess: 'sfacedock.exe',
           );
+          await Future.delayed(const Duration(milliseconds: 500));
+
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              debugPrint(
+                '[IntroScreen] Promoting RGB process (Secondary retry)...',
+              );
+              proxy.bringProcessToFront(
+                targetProcess: admin.rgbProcessName,
+                demoteProcess: 'sfacedock.exe',
+              );
+            }
+          });
         }
-      });
       }
     } finally {
       // 로딩 상태 종료
@@ -217,28 +223,6 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
 
   /// SFACE DOCK 로딩 화면으로 이동
   Future<void> _navigateToLoading() async {
-    // Pause pre-fetching while user is actively using the kiosk
-    ref.read(imagePrefetchProvider.notifier).pause();
-
-    // Check IPC connection status (should already be connected from main.dart)
-    final proxy = ref.read(deviceControllerProxyProvider);
-    debugPrint('[IntroScreen] Checking IPC connection for SFace session...');
-
-    // Update connection state based on current status
-    ref.read(connectionStateProvider.notifier).state = proxy.isConnected;
-
-    if (proxy.isConnected) {
-      debugPrint(
-        '[IntroScreen] IPC already connected - proceeding to loading screen',
-      );
-    } else {
-      debugPrint(
-        '[IntroScreen] IPC not connected - loading screen will handle device initialization',
-      );
-    }
-
-    // Navigate to loading screen
-    // The loading screen will handle device initialization
     if (mounted) {
       Navigator.pushReplacementNamed(context, introLoadingRouteName);
     }
@@ -258,8 +242,6 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Watch prefetch state to show sync status indicator
-    final prefetchState = ref.watch(imagePrefetchProvider);
     final admin = ref.watch(adminControllerProvider);
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
@@ -480,43 +462,55 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
             ),
           ),
 
-          // Pre-fetch status indicator (하단 우측, 디버그용)
-          if (prefetchState.isSyncing)
+          // 디버그 오버레이 (우측 상단) — debug 모드에서만 표시
+          if (kDebugMode)
             Positioned(
               right: 16,
-              bottom: 16,
+              top: 16,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.black.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 12,
-                      height: 12,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white.withValues(alpha: 0.7),
+                child: DefaultTextStyle(
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontFamily: 'monospace',
+                    height: 1.5,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('DEBUG', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      const SizedBox(height: 4),
+                      Text('MEM: $_memoryUsageMB MB'),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('IPC: '),
+                          Container(
+                            width: 8, height: 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _ipcConnected ? Colors.greenAccent : Colors.redAccent,
+                            ),
+                          ),
+                          Text(_ipcConnected ? ' Connected' : ' Disconnected'),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${prefetchState.photos.length}장 준비됨',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                      Text('CAM: $_cameraState'),
+                      Text('PAY: $_paymentState'),
+                      Text('PRN: $_printerState'),
+                      Text('RGB전환: $_rgbSwitchCount회'),
+                    ],
+                  ),
                 ),
               ),
             ),
+
         ],
       ),
     );

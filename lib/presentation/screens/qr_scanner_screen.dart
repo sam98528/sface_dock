@@ -55,8 +55,9 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
   }
 
   Future<void> _initializeCamera() async {
-    // 서비스 연결 상태 + 디버그 스킵 옵션 확인
-    final isConnected = ref.read(connectionStateProvider);
+    // 서비스 연결 상태 + 디버그 스킵 옵션 확인 (proxy.isConnected로 실제 IPC 상태 확인)
+    final proxy = ref.read(deviceControllerProxyProvider);
+    final isConnected = proxy.isConnected;
     final adminState = ref.read(adminControllerProvider);
 
     if (!isConnected || adminState.debugSkipDeviceConnection) {
@@ -597,63 +598,70 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
       );
     }
 
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white, width: 4),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: _mjpegUrl != null
-                ? MjpegViewer(
-                    streamUrl: _mjpegUrl!,
-                    fit: BoxFit.contain,
-                    loading: Container(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 3,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    child: const Center(
-                      child: Text(
-                        'QR 감지 대기 중...',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                  ),
-          ),
-        ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 컨테이너 높이 기준으로 QR 프레임 크기 계산 — DPI 무관하게 정사각형 유지
+        final qrSize = constraints.maxHeight * 0.54;  // 560 기준 ~300px
 
-        // QR 타겟 영역
-        Center(
-          child: Container(
-            width: 300,
-            height: 300,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: _showQRFeedback
-                    ? (_isQRSuccess ? KioskColors.success : KioskColors.error)
-                    : Colors.white,
-                width: 5,
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white, width: 4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: _mjpegUrl != null
+                      ? MjpegViewer(
+                          streamUrl: _mjpegUrl!,
+                          fit: BoxFit.cover,
+                          loading: Container(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 3,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          child: const Center(
+                            child: Text(
+                              'QR 감지 대기 중...',
+                              style: TextStyle(fontSize: 18, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                ),
               ),
             ),
-          ),
-        ),
+
+            // QR 타겟 영역 — 높이 기준 비례 크기로 정사각형 유지
+            Center(
+              child: Container(
+                width: qrSize,
+                height: qrSize,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: _showQRFeedback
+                        ? (_isQRSuccess ? KioskColors.success : KioskColors.error)
+                        : Colors.white,
+                    width: 5,
+                  ),
+                ),
+              ),
+            ),
 
         // 피드백 아이콘
         if (_showQRFeedback)
@@ -685,7 +693,9 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
               ),
             ),
           ),
-      ],
+        ],
+      );
+      },
     );
   }
 }

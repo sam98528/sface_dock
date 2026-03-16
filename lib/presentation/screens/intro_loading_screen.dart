@@ -7,7 +7,7 @@ import 'package:sfacedock/core/admin/controllers/admin_controller.dart';
 import 'package:sfacedock/core/services/image_prefetch_service.dart';
 import 'package:sfacedock/core/theme/kiosk_colors.dart';
 import 'package:sfacedock/core/transitions/slide_animation_widget.dart';
-import 'package:sfacedock/core/services/audio_service.dart';
+import 'package:sfacedock/presentation/screens/maintenance_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
 class IntroLoadingScreen extends ConsumerStatefulWidget {
@@ -86,11 +86,24 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
       final adminState = ref.read(adminControllerProvider);
       final proxy = ref.read(deviceControllerProxyProvider);
 
+      // 최초 설정 미완료 시 Intro로 돌아간 뒤 Admin 화면을 push.
+      // Admin X 버튼(pop) 시 Intro 화면으로 자연스럽게 복귀.
+      if (!adminState.setupCompleted) {
+        debugPrint('⚠️ 최초 설정이 필요합니다. Admin 화면으로 이동합니다.');
+        await loadingFuture;
+        if (!mounted) return;
+        final nav = Navigator.of(context);
+        nav.pushNamedAndRemoveUntil(introRouteName, (_) => false);
+        nav.pushNamed(adminRouteName);
+        return;
+      }
+
       // 디버그 모드: 장비 연결 확인 스킵 옵션 체크
       if (adminState.debugSkipDeviceConnection) {
         debugPrint('🔧 [DEBUG] 장비 연결 확인 스킵 - 바로 다음 화면으로 이동');
         await loadingFuture;
         if (!mounted) return;
+        ref.read(imagePrefetchProvider.notifier).start();
         await _waitForPrefetchAndNavigate();
         return;
       }
@@ -140,22 +153,35 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
 
       if (!isConnected) {
         debugPrint('❌ IPC Pipe 연결 실패');
-        _showErrorDialog(
-          'Device Service 서버(IPC)와 연결할 수 없습니다.\n프로그램이 실행 중인지 확인해주세요.',
+        _navigateToMaintenance(
+          [],
+          errorMessage: 'Device Service 서버(IPC)와 연결할 수 없습니다.\n프로그램이 실행 중인지 확인해주세요.',
         );
         return;
       }
+
+      // 명시적 장비 초기화 (HARDWARE_RESUME) — 타임아웃 10초
+      debugPrint('🔧 Initializing hardware devices...');
+      try {
+        await proxy.sendCommand('hardware_resume', {},
+            timeout: const Duration(seconds: 10));
+      } catch (e) {
+        debugPrint('⚠️ hardware_resume 타임아웃 또는 실패: $e');
+      }
+      if (!mounted) return;
 
       // 파이프 연결 성공. 디바이스 검증.
       bool isAllDevicesReady = true;
       final List<String> disconnectedDevices = [];
 
-      // admin_screen과 동일하게 detect_hardware 명령으로 실제 장비 상태 조회
+      // detect_hardware 명령으로 실제 장비 상태 조회 — 타임아웃 15초
       Map<String, dynamic>? summary;
       try {
         final response = await proxy.sendCommand('detect_hardware', {
-          'probe': 'false',
-        });
+          'probe': 'true',
+          'payment.enabled': adminState.paymentTerminalEnabled ? '1' : '0',
+          'cash.enabled': adminState.cashDeviceEnabled ? '1' : '0',
+        }, timeout: const Duration(seconds: 15));
         if (response != null && response['result'] is Map) {
           summary = Map<String, dynamic>.from(response['result'] as Map);
         }
@@ -261,17 +287,17 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
         debugPrint('✅ 장치 초기화 및 파이프 연결 확인 완료');
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
+        // 장비 검증 성공 후 prefetch 시작 (첫 진입: initialLoad, 재진입: deltaSync)
+        ref.read(imagePrefetchProvider.notifier).start();
         await _waitForPrefetchAndNavigate();
       } else {
-        final deviceListStr = disconnectedDevices.join(', ');
-        _showErrorDialog(
-          '다음 장치를 연결할 수 없습니다:\n$deviceListStr\n케이블 상태를 확인해 주세요.',
-        );
+        if (!mounted) return;
+        _navigateToMaintenance(disconnectedDevices);
       }
     } catch (e) {
       debugPrint('❌ IPC 연결 중 오류: $e');
       if (!mounted) return;
-      _showErrorDialog('예기치 않은 오류가 발생했습니다.\n$e');
+      _navigateToMaintenance([], errorMessage: '예기치 않은 오류가 발생했습니다.\n$e');
     } finally {
       if (mounted) {
         setState(() {
@@ -281,14 +307,15 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
     }
   }
 
-  /// Wait for prefetch to finish caching all images, then navigate.
+  /// Wait for minimal prefetch cache (~20 images) then navigate.
+  /// Remaining images continue caching in background on photo_grid.
   Future<void> _waitForPrefetchAndNavigate() async {
     setState(() => _waitingForPrefetch = true);
 
-    // Poll until prefetch is done (check every 200ms)
+    // Poll until minimal cache is done (check every 200ms)
     while (mounted) {
       final prefetchState = ref.read(imagePrefetchProvider);
-      if (prefetchState.isInitialLoadDone) break;
+      if (prefetchState.isMinimalCacheDone) break;
       await Future.delayed(const Duration(milliseconds: 200));
     }
 
@@ -297,139 +324,20 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
     Navigator.pushReplacementNamed(context, photoGridRouteName);
   }
 
-  void _showErrorDialog(String bodyMessage) {
-    final textTheme = Theme.of(context).textTheme;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-
-        title: SizedBox(
-          width: 500,
-          child: Column(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 28),
-              const SizedBox(height: 12),
-              Text(
-                '오류가 발생했습니다',
-                style: textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+  void _navigateToMaintenance(
+    List<String> disconnectedDevices, {
+    String? errorMessage,
+  }) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MaintenanceScreen(
+          disconnectedDevices: disconnectedDevices,
+          errorMessage: errorMessage,
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: Text(
-                bodyMessage,
-                style: textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black87,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () async {
-                  context.playTapSound();
-                  Navigator.of(context).pop();
-                  // 다시 시도
-                  await _retryConnection();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF475C1), // ColorName.pink
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                ),
-                child: Text(
-                  '다시 시도',
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () async {
-                  context.playTapSound();
-
-                  // Disconnect IPC when going back to intro
-                  final proxy = ref.read(deviceControllerProxyProvider);
-                  await proxy.disconnect();
-                  debugPrint('[IntroLoadingScreen] IPC disconnected - returning to intro');
-
-                  // Update connection state
-                  ref.read(connectionStateProvider.notifier).state = false;
-
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                    Navigator.pushReplacementNamed(context, introRouteName);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[300],
-                  foregroundColor: Colors.black87,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                ),
-                child: Text(
-                  '돌아가기',
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+        settings: const RouteSettings(name: maintenanceRouteName),
       ),
     );
-  }
-
-  Future<void> _retryConnection() async {
-    try {
-      setState(() {
-        _isConnecting = true;
-      });
-
-      final proxy = ref.read(deviceControllerProxyProvider);
-      proxy.disconnect();
-      debugPrint('🔄 기존 파이프 연결 해제 완료');
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-      await _initializeAndNavigate();
-    } catch (e) {
-      debugPrint('❌ 재연결 시도 중 오류: $e');
-      if (mounted) {
-        _showErrorDialog('재연결 중 오류가 발생했습니다.\n$e');
-      }
-    }
   }
 
   @override
@@ -485,33 +393,20 @@ class _IntroLoadingScreenState extends ConsumerState<IntroLoadingScreen>
                         ),
                       ),
 
-                      // Prefetch progress bar
                       if (_waitingForPrefetch) ...[
                         const SizedBox(height: 40),
                         SizedBox(
                           width: 500,
-                          child: Column(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: LinearProgressIndicator(
-                                  value: prefetchState.cacheProgress,
-                                  minHeight: 12,
-                                  backgroundColor: Colors.white.withValues(alpha: 0.4),
-                                  valueColor: const AlwaysStoppedAnimation<Color>(
-                                    KioskColors.primary,
-                                  ),
-                                ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: LinearProgressIndicator(
+                              value: prefetchState.cacheProgress,
+                              minHeight: 8,
+                              backgroundColor: Colors.white.withValues(alpha: 0.4),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                KioskColors.primary,
                               ),
-                              const SizedBox(height: 12),
-                              Text(
-                                '${prefetchState.cachedCount} / ${prefetchState.totalToCache}장',
-                                style: textTheme.bodyLarge?.copyWith(
-                                  color: Colors.black54,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ],

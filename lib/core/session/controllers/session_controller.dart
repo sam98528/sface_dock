@@ -62,10 +62,10 @@ class SessionController extends StateNotifier<SessionState> {
   Future<void> endSession() async {
     state = const SessionState.ended(reason: SessionEndReason.normal);
 
-    // Disconnect IPC to release device ports for other programs
+    // Suspend hardware (release device ports) but keep IPC pipe open
     final deviceProxy = ref.read(deviceControllerProxyProvider);
-    await deviceProxy.disconnect();
-    print('[SessionController] IPC disconnected - device ports released');
+    await deviceProxy.suspendHardware();
+    print('[SessionController] Hardware suspended - device ports released');
   }
 
   /// Reset to idle state (ready for new session)

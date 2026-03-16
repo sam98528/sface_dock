@@ -34,6 +34,7 @@ class PrefetchConfig {
 class KioskPhotoPrefetchState {
   final List<KioskPhoto> photos;
   final bool isInitialLoadDone;
+  final bool isMinimalCacheDone;
   final bool isSyncing;
   final int? latestTimestamp;
 
@@ -46,6 +47,7 @@ class KioskPhotoPrefetchState {
   const KioskPhotoPrefetchState({
     this.photos = const [],
     this.isInitialLoadDone = false,
+    this.isMinimalCacheDone = false,
     this.isSyncing = false,
     this.latestTimestamp,
     this.totalToCache = 0,
@@ -59,6 +61,7 @@ class KioskPhotoPrefetchState {
   KioskPhotoPrefetchState copyWith({
     List<KioskPhoto>? photos,
     bool? isInitialLoadDone,
+    bool? isMinimalCacheDone,
     bool? isSyncing,
     int? latestTimestamp,
     int? totalToCache,
@@ -67,6 +70,7 @@ class KioskPhotoPrefetchState {
     return KioskPhotoPrefetchState(
       photos: photos ?? this.photos,
       isInitialLoadDone: isInitialLoadDone ?? this.isInitialLoadDone,
+      isMinimalCacheDone: isMinimalCacheDone ?? this.isMinimalCacheDone,
       isSyncing: isSyncing ?? this.isSyncing,
       latestTimestamp: latestTimestamp ?? this.latestTimestamp,
       totalToCache: totalToCache ?? this.totalToCache,
@@ -175,7 +179,7 @@ class ImagePrefetchNotifier extends StateNotifier<KioskPhotoPrefetchState> {
     debugPrint('[Prefetch] API returned ${allPhotos.length} photos in ${fetchMs}ms');
 
     if (allPhotos.isEmpty) {
-      if (mounted) state = state.copyWith(isInitialLoadDone: true);
+      if (mounted) state = state.copyWith(isInitialLoadDone: true, isMinimalCacheDone: true);
       return;
     }
 
@@ -192,7 +196,9 @@ class ImagePrefetchNotifier extends StateNotifier<KioskPhotoPrefetchState> {
     }
 
     // Pre-download all images to disk cache (concurrent)
-    await _precacheToDisk(allPhotos, reportProgress: true);
+    // First ~20 images trigger isMinimalCacheDone for fast UI entry
+    const minimalCacheCount = 20;
+    await _precacheToDisk(allPhotos, reportProgress: true, minimalCount: minimalCacheCount);
     final cacheMs = stopwatch.elapsedMilliseconds;
 
     if (mounted) {
@@ -242,12 +248,15 @@ class ImagePrefetchNotifier extends StateNotifier<KioskPhotoPrefetchState> {
 
   /// Pre-download images to disk cache concurrently.
   /// CachedNetworkImage will read from this disk cache later.
+  /// When [minimalCount] > 0, sets [isMinimalCacheDone] after that many images.
   Future<void> _precacheToDisk(
     List<KioskPhoto> photos, {
     bool reportProgress = false,
+    int minimalCount = 0,
   }) async {
     const concurrency = 10;
     int cached = 0;
+    bool minimalDone = minimalCount <= 0;
 
     for (var i = 0; i < photos.length; i += concurrency) {
       if (_isPaused || _isStopped) break;
@@ -267,6 +276,18 @@ class ImagePrefetchNotifier extends StateNotifier<KioskPhotoPrefetchState> {
         cached += batch.length;
         state = state.copyWith(cachedCount: cached);
       }
+
+      // Signal minimal cache done once we've cached enough for the first screen
+      if (!minimalDone && cached >= minimalCount && mounted) {
+        minimalDone = true;
+        state = state.copyWith(isMinimalCacheDone: true);
+        debugPrint('[Prefetch] Minimal cache done ($cached/$minimalCount) - UI can enter');
+      }
+    }
+
+    // If total photos < minimalCount, mark minimal done at the end
+    if (!minimalDone && mounted) {
+      state = state.copyWith(isMinimalCacheDone: true);
     }
   }
 
@@ -294,6 +315,11 @@ final prefetchedPhotosProvider = Provider<List<KioskPhoto>>((ref) {
 /// Convenience provider: whether initial load is done.
 final prefetchInitialLoadDoneProvider = Provider<bool>((ref) {
   return ref.watch(imagePrefetchProvider).isInitialLoadDone;
+});
+
+/// Convenience provider: whether minimal cache (first screen) is done.
+final prefetchMinimalCacheDoneProvider = Provider<bool>((ref) {
+  return ref.watch(imagePrefetchProvider).isMinimalCacheDone;
 });
 
 /// Convenience provider: cache progress (0.0 ~ 1.0).

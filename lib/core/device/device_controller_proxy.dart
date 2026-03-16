@@ -99,6 +99,7 @@ class DeviceControllerProxy {
   Future<bool> suspendHardware() async {
     if (!_isWindows) return true;
     try {
+      FileLogger.instance.logSessionMarker('HARDWARE_SUSPEND');
       debugPrint('DeviceControllerProxy: Suspending hardware for external app...');
       final response = await sendCommand('hardware_suspend', {});
       final success = response != null && response['status'] == 'ok';
@@ -118,6 +119,7 @@ class DeviceControllerProxy {
   Future<bool> resumeHardware() async {
     if (!_isWindows) return true;
     try {
+      FileLogger.instance.logSessionMarker('HARDWARE_RESUME');
       debugPrint('DeviceControllerProxy: Resuming hardware...');
       final response = await sendCommand('hardware_resume', {});
       final success = response != null && response['status'] == 'ok';
@@ -519,16 +521,6 @@ class DeviceControllerProxy {
     });
   }
 
-  /// 소켓 서버 시작
-  Future<Map<String, dynamic>?> startSocketServer(int port) async {
-    return await sendCommand('socket_server_start', {'port': port.toString()});
-  }
-
-  /// 소켓 서버 중지
-  Future<Map<String, dynamic>?> stopSocketServer() async {
-    return await sendCommand('socket_server_stop', {});
-  }
-
   /// 프로세스를 최전방으로 (demoteProcess의 topmost 해제 후 target을 앞으로)
   Future<Map<String, dynamic>?> bringProcessToFront({
     required String targetProcess,
@@ -539,6 +531,22 @@ class DeviceControllerProxy {
       params['demoteProcess'] = demoteProcess;
     }
     return await sendCommand('window_bring_to_front', params);
+  }
+
+  /// 서비스 프로세스 종료 요청 (F5 등 개발 중 재시작 시 사용)
+  Future<bool> shutdownService() async {
+    if (!_isWindows) return true;
+    try {
+      debugPrint('DeviceControllerProxy: Requesting service shutdown...');
+      final response = await sendCommand('shutdown_service', {},
+          timeout: const Duration(seconds: 3));
+      final success = response != null && response['status'] == 'ok';
+      debugPrint('DeviceControllerProxy: Shutdown request ${success ? "accepted" : "failed"}');
+      return success;
+    } catch (e) {
+      debugPrint('DeviceControllerProxy: Exception requesting shutdown: $e');
+      return false;
+    }
   }
 
   /// 이벤트 스트림 (Controller에서 사용)

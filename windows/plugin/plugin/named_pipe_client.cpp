@@ -73,8 +73,8 @@ EXPORT_FUNC int connectPipe(void* client) {
         handle->lastError = GetLastError();
         
         if (handle->lastError == ERROR_PIPE_BUSY) {
-            // Wait for pipe to become available (short timeout to avoid blocking UI)
-            if (!WaitNamedPipeW(widePipeName.c_str(), 1500)) {
+            // Short timeout - Dart retry loop handles reconnection
+            if (!WaitNamedPipeW(widePipeName.c_str(), 200)) {
                 handle->lastError = GetLastError();
                 return 0;
             }

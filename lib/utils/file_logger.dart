@@ -13,6 +13,7 @@ class FileLogger {
   static final FileLogger instance = FileLogger._();
 
   File? _logFile;
+  File? _errorFile;
   bool _initialized = false;
 
   Future<void> initialize() async {
@@ -31,6 +32,9 @@ class FileLogger {
       _logFile = File(
         '${logDir.path}${Platform.pathSeparator}app_$dateStr.log',
       );
+      _errorFile = File(
+        '${logDir.path}${Platform.pathSeparator}error_summary.log',
+      );
       _initialized = true;
       info('FileLogger initialized: ${_logFile!.path}');
     } catch (e) {
@@ -46,6 +50,25 @@ class FileLogger {
     debugPrint(line.trimRight());
     try {
       _logFile?.writeAsStringSync(line, mode: FileMode.append, flush: true);
+    } catch (_) {}
+    if (level == 'WARN' || level == 'ERROR') {
+      try {
+        _errorFile?.writeAsStringSync(line, mode: FileMode.append, flush: true);
+      } catch (_) {}
+    }
+  }
+
+  void logSessionMarker(String label) {
+    final now = DateTime.now();
+    final ts =
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}.${now.millisecond.toString().padLeft(3, '0')}';
+    final marker = '[$ts] ========== $label ==========\n';
+    debugPrint(marker.trimRight());
+    try {
+      _logFile?.writeAsStringSync(marker, mode: FileMode.append, flush: true);
+    } catch (_) {}
+    try {
+      _errorFile?.writeAsStringSync(marker, mode: FileMode.append, flush: true);
     } catch (_) {}
   }
 

@@ -125,10 +125,7 @@ _FrameResult? _extractBySoiEoi(Uint8List data) {
   for (int j = start + 2; j < len - 1; j++) {
     if (data[j] == 0xFF && data[j + 1] == 0xD9) {
       final end = j + 2;
-      return _FrameResult(
-        data.sublist(start, end),
-        data.sublist(end),
-      );
+      return _FrameResult(data.sublist(start, end), data.sublist(end));
     }
   }
   return null;

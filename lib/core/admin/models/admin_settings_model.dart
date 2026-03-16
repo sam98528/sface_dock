@@ -21,8 +21,6 @@ class AdminSettings {
     // RGB 연동
     this.rgbEnabled = false,
     this.rgbProcessName = '',
-    this.socketServerEnabled = false,
-    this.socketServerPort = 8080,
     // 촬영
     this.mirrorEnabled = false,
     this.countdownEnabled = true,
@@ -50,6 +48,9 @@ class AdminSettings {
 
     /// 디버그용: true면 장비 연결 여부 확인 스킵 (UI 디버깅용)
     bool debugSkipDeviceConnection = false,
+
+    /// 최초 설정 완료 여부. Admin에서 설정 저장 시 true로 변경.
+    this.setupCompleted = false,
 
     /// 인쇄 대기 시간(초). 프린터 장당 약 20초 기준. Admin에서 조절 가능.
     this.printWaitDurationSeconds = 20,
@@ -101,8 +102,6 @@ class AdminSettings {
   final bool cashDeviceEnabled;
   final bool rgbEnabled;
   final String rgbProcessName;
-  final bool socketServerEnabled;
-  final int socketServerPort;
   final bool mirrorEnabled;
   final bool countdownEnabled;
   final int countdownSec;
@@ -128,6 +127,9 @@ class AdminSettings {
 
   /// 디버그용. true면 장비 연결 여부 확인 스킵 (UI 디버깅용).
   final bool _debugSkipDeviceConnection;
+
+  /// 최초 설정 완료 여부.
+  final bool setupCompleted;
 
   bool get debugDisablePhaseTimers => kDebugMode && _debugDisablePhaseTimers;
   bool get debugSkipBackendApi => kDebugMode && _debugSkipBackendApi;
@@ -166,8 +168,6 @@ class AdminSettings {
     bool? cashDeviceEnabled,
     bool? rgbEnabled,
     String? rgbProcessName,
-    bool? socketServerEnabled,
-    int? socketServerPort,
     bool? mirrorEnabled,
     bool? countdownEnabled,
     int? countdownSec,
@@ -185,6 +185,7 @@ class AdminSettings {
     bool? debugSkipBackendApi,
     bool? debugPausePhotoCapture,
     bool? debugSkipDeviceConnection,
+    bool? setupCompleted,
     int? printWaitDurationSeconds,
     int? themeBackgroundValue,
     int? themeKeyColorValue,
@@ -210,8 +211,6 @@ class AdminSettings {
       cashDeviceEnabled: cashDeviceEnabled ?? this.cashDeviceEnabled,
       rgbEnabled: rgbEnabled ?? this.rgbEnabled,
       rgbProcessName: rgbProcessName ?? this.rgbProcessName,
-      socketServerEnabled: socketServerEnabled ?? this.socketServerEnabled,
-      socketServerPort: socketServerPort ?? this.socketServerPort,
       mirrorEnabled: mirrorEnabled ?? this.mirrorEnabled,
       countdownEnabled: countdownEnabled ?? this.countdownEnabled,
       countdownSec: countdownSec ?? this.countdownSec,
@@ -231,6 +230,7 @@ class AdminSettings {
       debugPausePhotoCapture: debugPausePhotoCapture ?? _debugPausePhotoCapture,
       debugSkipDeviceConnection:
           debugSkipDeviceConnection ?? _debugSkipDeviceConnection,
+      setupCompleted: setupCompleted ?? this.setupCompleted,
       printWaitDurationSeconds:
           printWaitDurationSeconds ?? this.printWaitDurationSeconds,
       themeBackgroundValue: themeBackgroundValue ?? this.themeBackgroundValue,
@@ -264,8 +264,6 @@ class AdminSettings {
       'cashDeviceEnabled': cashDeviceEnabled,
       'rgbEnabled': rgbEnabled,
       'rgbProcessName': rgbProcessName,
-      'socketServerEnabled': socketServerEnabled,
-      'socketServerPort': socketServerPort,
       'mirrorEnabled': mirrorEnabled,
       'countdownEnabled': countdownEnabled,
       'countdownSec': countdownSec,
@@ -283,6 +281,7 @@ class AdminSettings {
       'debugSkipBackendApi': _debugSkipBackendApi,
       'debugPausePhotoCapture': _debugPausePhotoCapture,
       'debugSkipDeviceConnection': _debugSkipDeviceConnection,
+      'setupCompleted': setupCompleted,
       'printWaitDurationSeconds': printWaitDurationSeconds,
       'themeBackgroundValue': themeBackgroundValue,
       'themeKeyColorValue': themeKeyColorValue,
@@ -329,8 +328,6 @@ class AdminSettings {
       cashDeviceEnabled: json['cashDeviceEnabled'] as bool? ?? false,
       rgbEnabled: json['rgbEnabled'] as bool? ?? false,
       rgbProcessName: json['rgbProcessName'] as String? ?? '',
-      socketServerEnabled: json['socketServerEnabled'] as bool? ?? false,
-      socketServerPort: (json['socketServerPort'] as num?)?.toInt() ?? 8080,
       mirrorEnabled: json['mirrorEnabled'] as bool? ?? false,
       countdownEnabled: json['countdownEnabled'] as bool? ?? true,
       countdownSec: (json['countdownSec'] as num?)?.toInt() ?? 10,
@@ -356,6 +353,7 @@ class AdminSettings {
       debugPausePhotoCapture: json['debugPausePhotoCapture'] as bool? ?? false,
       debugSkipDeviceConnection:
           json['debugSkipDeviceConnection'] as bool? ?? false,
+      setupCompleted: json['setupCompleted'] as bool? ?? false,
       printWaitDurationSeconds:
           (json['printWaitDurationSeconds'] as num?)?.toInt() ?? 20,
       themeBackgroundValue:

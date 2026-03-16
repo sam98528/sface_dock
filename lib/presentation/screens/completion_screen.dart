@@ -40,23 +40,23 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen> {
     });
   }
 
-  Future<void> _endSession() async {
+  void _endSession() {
     // 장바구니 초기화 (세션 종료)
     ref.read(cartProvider.notifier).clearCart();
 
-    // Disconnect IPC to release device ports
-    final proxy = ref.read(deviceControllerProxyProvider);
-    await proxy.disconnect();
-    debugPrint('[CompletionScreen] IPC disconnected - device ports released');
-
-    // Update connection state
-    ref.read(connectionStateProvider.notifier).state = false;
-
-    // 첫 화면으로 돌아가기
+    // Navigate immediately (don't block UI with IPC call)
     if (mounted) {
       Navigator.of(
         context,
       ).pushNamedAndRemoveUntil(introRouteName, (_) => false);
+    }
+
+    // Suspend hardware in background after navigation
+    final proxy = ref.read(deviceControllerProxyProvider);
+    if (proxy.isConnected) {
+      proxy.suspendHardware().then((_) {
+        debugPrint('[CompletionScreen] Hardware suspended - device ports released');
+      });
     }
   }
 

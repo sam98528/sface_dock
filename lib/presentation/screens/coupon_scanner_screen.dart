@@ -53,7 +53,8 @@ class _CouponScannerScreenState extends ConsumerState<CouponScannerScreen> {
   }
 
   Future<void> _initializeCamera() async {
-    final isConnected = ref.read(connectionStateProvider);
+    final proxy = ref.read(deviceControllerProxyProvider);
+    final isConnected = proxy.isConnected;
     final adminState = ref.read(adminControllerProvider);
 
     if (!isConnected || adminState.debugSkipDeviceConnection) {
@@ -601,43 +602,45 @@ class _CouponScannerScreenState extends ConsumerState<CouponScannerScreen> {
 
     return Stack(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white, width: 4),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: _mjpegUrl != null
-                ? MjpegViewer(
-                    streamUrl: _mjpegUrl!,
-                    fit: BoxFit.contain,
-                    loading: Container(
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white, width: 4),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: _mjpegUrl != null
+                  ? MjpegViewer(
+                      streamUrl: _mjpegUrl!,
+                      fit: BoxFit.contain,
+                      loading: Container(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(
                       color: Colors.white.withValues(alpha: 0.1),
                       child: const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 3,
+                        child: Text(
+                          'QR 감지 대기 중...',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
                         ),
                       ),
                     ),
-                  )
-                : Container(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    child: const Center(
-                      child: Text(
-                        'QR 감지 대기 중...',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                  ),
+            ),
           ),
         ),
 

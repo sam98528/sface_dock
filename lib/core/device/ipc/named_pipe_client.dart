@@ -16,6 +16,12 @@ class NamedPipeClient {
   Timer? _receiveTimer;
   StreamController<Map<String, dynamic>>? _eventController;
 
+  // FFI 함수 캐시 — lookup 비용을 초기 1회로 제한
+  int Function(Pointer<Void>, Pointer<Utf8>, int, Pointer<Int32>)?
+      _receiveMessageFunc;
+  int Function(Pointer<Void>)? _isConnectedFunc;
+  int Function(Pointer<Void>, Pointer<Utf8>)? _sendMessageFunc;
+
   NamedPipeClient({String? pipeName})
     : _pipeName = pipeName ?? _defaultPipeName;
 
@@ -82,30 +88,13 @@ class NamedPipeClient {
         return false;
       }
 
-      // Connect
-      logInfo('[Pipe] Calling connectPipe...');
+      // Connect (WaitNamedPipe 최대 1.5초 블로킹 가능하나, 보통은 즉시 완료)
       final result = connectPipe(_clientHandle!);
 
       if (result == 0) {
         final errorCode = getLastError(_clientHandle!);
         logError(
           '[Pipe] Failed to connect to named pipe. Error code: $errorCode',
-        );
-        logError('[Pipe] Common error codes:');
-        logError(
-          '[Pipe]   2 (ERROR_FILE_NOT_FOUND): Pipe does not exist - service not running',
-        );
-        logError(
-          '[Pipe]   231 (ERROR_PIPE_BUSY): Pipe is busy - another client connected',
-        );
-        logError('[Pipe]   109 (ERROR_BROKEN_PIPE): Pipe was closed');
-        logError('[Pipe] Please check:');
-        logError('[Pipe]   1. Kiorobo Controller is running');
-        logError(
-          '[Pipe]   2. Service console shows "IPC Server started successfully"',
-        );
-        logError(
-          '[Pipe]   3. Service console shows "Named pipe created, waiting for client connection..."',
         );
         _closeHandle();
         return false;
@@ -136,14 +125,15 @@ class NamedPipeClient {
     try {
       _loadLibrary();
 
-      final sendMessageFunc = _dylib!
+      // 캐시된 함수 사용 (첫 호출 시 lookup)
+      _sendMessageFunc ??= _dylib!
           .lookupFunction<
             Int32 Function(Pointer<Void>, Pointer<Utf8>),
             int Function(Pointer<Void>, Pointer<Utf8>)
           >('sendMessage');
 
       final messagePtr = message.toNativeUtf8();
-      final result = sendMessageFunc(_clientHandle!, messagePtr);
+      final result = _sendMessageFunc!(_clientHandle!, messagePtr);
       malloc.free(messagePtr);
 
       if (result == 0) {
@@ -158,36 +148,38 @@ class NamedPipeClient {
     }
   }
 
-  /// Start receiving messages in background
+  /// Start receiving messages in background.
+  /// receiveMessage는 PeekNamedPipe 기반 비블로킹.
   void _startReceiving() {
     _eventController = StreamController<Map<String, dynamic>>.broadcast();
+
+    // FFI 함수 lookup을 타이머 밖에서 1회만 수행
+    _loadLibrary();
+    _receiveMessageFunc = _dylib!.lookupFunction<
+      Int32 Function(Pointer<Void>, Pointer<Utf8>, Int32, Pointer<Int32>),
+      int Function(Pointer<Void>, Pointer<Utf8>, int, Pointer<Int32>)
+    >('receiveMessage');
+    _isConnectedFunc = _dylib!.lookupFunction<
+      Int32 Function(Pointer<Void>),
+      int Function(Pointer<Void>)
+    >('isConnected');
+
+    // 수신 버퍼를 재사용 (매 100ms calloc/free 방지)
+    const bufferSize = 65536;
+    final buffer = calloc<Uint8>(bufferSize);
+    final messageLength = calloc<Int32>(1);
 
     _receiveTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       if (!_connected) {
         timer.cancel();
+        calloc.free(buffer);
+        calloc.free(messageLength);
         return;
       }
 
       try {
-        _loadLibrary();
-
-        final receiveMessageFunc = _dylib!
-            .lookupFunction<
-              Int32 Function(
-                Pointer<Void>,
-                Pointer<Utf8>,
-                Int32,
-                Pointer<Int32>,
-              ),
-              int Function(Pointer<Void>, Pointer<Utf8>, int, Pointer<Int32>)
-            >('receiveMessage');
-
-        const bufferSize = 65536;
-        final buffer = calloc<Uint8>(bufferSize);
-        final messageLength = calloc<Int32>(1);
-
         final bufferUtf8 = buffer.cast<Utf8>();
-        final result = receiveMessageFunc(
+        final result = _receiveMessageFunc!(
           _clientHandle!,
           bufferUtf8,
           bufferSize,
@@ -205,7 +197,7 @@ class NamedPipeClient {
           }
           if (decoded != null) {
             try {
-              // JSON 문자열 내 제어문자(0x00-0x1F) 제거 — C++ 쪽 CP949 등 비UTF-8 바이트가 제어문자로 해석되면 jsonDecode 실패
+              // JSON 문자열 내 제어문자(0x00-0x1F) 제거
               final sanitized = decoded.replaceAll(RegExp(r'[\x00-\x1f]'), ' ');
               final json = jsonDecode(sanitized) as Map<String, dynamic>;
               final kind = json['kind'] as String?;
@@ -227,25 +219,20 @@ class NamedPipeClient {
           }
         }
 
-        calloc.free(buffer);
-        calloc.free(messageLength);
-
         // Check connection status
-        final isConnectedFunc = _dylib!
-            .lookupFunction<
-              Int32 Function(Pointer<Void>),
-              int Function(Pointer<Void>)
-            >('isConnected');
-
-        if (isConnectedFunc(_clientHandle!) == 0) {
+        if (_isConnectedFunc!(_clientHandle!) == 0) {
           _connected = false;
           timer.cancel();
+          calloc.free(buffer);
+          calloc.free(messageLength);
           logWarn('[Pipe] Connection lost (isConnected returned 0)');
         }
       } catch (e) {
         logError('[Pipe] Error receiving message: $e');
         _connected = false;
         timer.cancel();
+        calloc.free(buffer);
+        calloc.free(messageLength);
       }
     });
   }

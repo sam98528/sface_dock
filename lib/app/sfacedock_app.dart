@@ -25,6 +25,7 @@ import '../presentation/screens/payment_screen.dart';
 import '../presentation/screens/print_loading_screen.dart';
 import '../presentation/screens/qr_scanner_screen.dart';
 import '../presentation/screens/completion_screen.dart';
+import '../presentation/screens/maintenance_screen.dart';
 
 /// Route names
 const String adminRouteName = '/admin';
@@ -39,6 +40,7 @@ const String endRouteName = '/end';
 const String qrScannerRouteName = '/qr-scanner';
 const String printLoadingRouteName = '/print-loading';
 const String completionRouteName = '/completion';
+const String maintenanceRouteName = '/maintenance';
 
 /// Main SFaceDock kiosk application widget.
 /// - Wraps content in KioskViewport (1920x1080 fixed)
@@ -54,6 +56,7 @@ class SFaceDockApp extends ConsumerStatefulWidget {
 
 class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
+  bool _isShuttingDown = false;
 
   @override
   void initState() {
@@ -129,12 +132,13 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
           qrScannerRouteName: (context) => const QrScannerScreen(),
           printLoadingRouteName: (context) => const PrintLoadingScreen(),
           completionRouteName: (context) => const CompletionScreen(),
+          maintenanceRouteName: (context) => const MaintenanceScreen(),
         },
       ),
     );
   }
 
-  void _handleKeyEvent(KeyEvent event) {
+  void _handleKeyEvent(KeyEvent event) async {
     if (event is! KeyDownEvent) return;
 
     final navigatorObserver = ref.read(navigatorObserverProvider);
@@ -151,13 +155,11 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
     // F2: Return to home screen
     if (event.logicalKey == LogicalKeyboardKey.f2) {
       if (currentRoute != homeRouteName && currentRoute != introRouteName) {
-        // Disconnect IPC when returning to intro screen
+        // Suspend hardware but keep IPC pipe open — await로 해제 완료 후 화면 전환
         final proxy = ref.read(deviceControllerProxyProvider);
         if (proxy.isConnected) {
-          proxy.disconnect().then((_) {
-            debugPrint('[F2] IPC disconnected - returning to intro');
-            ref.read(connectionStateProvider.notifier).state = false;
-          });
+          await proxy.suspendHardware();
+          debugPrint('[F2] Hardware suspended - returning to intro');
         }
 
         // Resume background pre-fetching when returning to idle screen
@@ -170,8 +172,44 @@ class _SFaceDockAppState extends ConsumerState<SFaceDockApp> {
       return;
     }
 
-    // F5: Exit app
+    // F4: Maintenance screen (점검중)
+    if (event.logicalKey == LogicalKeyboardKey.f4) {
+      if (currentRoute != maintenanceRouteName) {
+        _navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          maintenanceRouteName,
+          (route) => false,
+        );
+      }
+      return;
+    }
+
+    // F5: Exit app + shutdown service (개발 중 재시작 시 서비스도 같이 종료)
     if (event.logicalKey == LogicalKeyboardKey.f5) {
+      // 연타 방어
+      if (_isShuttingDown) return;
+      _isShuttingDown = true;
+
+      final proxy = ref.read(deviceControllerProxyProvider);
+      if (proxy.isConnected) {
+        debugPrint('[F5] Shutting down service before exit...');
+        // try-catch + await: .then() 체인의 예외 전파 문제 해결
+        try {
+          await proxy.shutdownService().timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              debugPrint('[F5] shutdownService timed out - forcing exit');
+              return false;
+            },
+          );
+        } catch (_) {}
+        try {
+          await proxy.disconnect().timeout(
+            const Duration(seconds: 2),
+            onTimeout: () {},
+          );
+        } catch (_) {}
+      }
+      debugPrint('[F5] Cleanup done - exiting');
       exitApp();
       return;
     }

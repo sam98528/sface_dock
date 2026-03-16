@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,112 +36,50 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
   }
 
   /// Composite photo onto canvas with frame overlay, applying print margins.
+  /// Runs CPU-intensive image processing in a separate isolate via compute().
   Future<String> _compositeWithFrame(
     File sourceFile,
     Uint8List frameBytes,
     String outputPath,
   ) async {
-    // Admin 설정에서 마진 값 가져오기
     final admin = ref.read(adminControllerProvider);
-    final marginV = admin.printerMarginV; // 상하 마진
-
-    // 마진이 적용된 실제 캔버스 크기 계산
-    final canvasW = LayoutConstants.canvasW;
-    final canvasH = LayoutConstants.canvasH - (marginV * 2); // 상하 마진 적용
-
-    // 마진이 적용된 슬롯 위치 계산
-    final slotLeft = LayoutConstants.slotLeft;
-    final slotTop = LayoutConstants.slotTop - marginV; // 상단 마진 조정
-    final slotW = LayoutConstants.slotW;
-    final slotH = LayoutConstants.slotH;
     final sourceBytes = await sourceFile.readAsBytes();
-    final photo = img.decodeImage(sourceBytes);
-    if (photo == null) throw Exception('Failed to decode image');
 
-    // 1. Create black canvas with margin applied
-    final canvas = img.Image(width: canvasW, height: canvasH);
-    img.fill(canvas, color: img.ColorRgba8(0, 0, 0, 255));
+    final resultBytes = await compute(_compositeWithFrameIsolate, {
+      'sourceBytes': sourceBytes,
+      'frameBytes': frameBytes,
+      'marginV': admin.printerMarginV,
+      'canvasW': LayoutConstants.canvasW,
+      'canvasH': LayoutConstants.canvasH,
+      'slotLeft': LayoutConstants.slotLeft,
+      'slotTop': LayoutConstants.slotTop,
+      'slotW': LayoutConstants.slotW,
+      'slotH': LayoutConstants.slotH,
+    });
 
-    // 2. Cover-fit photo into slot (crop to fill)
-    final resized = _coverFit(photo, slotW, slotH);
-
-    // 3. Place photo in slot with margin adjustment
-    img.compositeImage(canvas, resized, dstX: slotLeft, dstY: slotTop);
-
-    // 4. Overlay frame PNG (scale to canvas size with margins)
-    final frame = img.decodeImage(frameBytes);
-    if (frame != null) {
-      final scaledFrame = (frame.width != canvasW || frame.height != canvasH)
-          ? img.copyResize(frame, width: canvasW, height: canvasH)
-          : frame;
-      img.compositeImage(canvas, scaledFrame, dstX: 0, dstY: 0);
-    }
-
-    // 5. Encode and save as JPEG with maximum quality
-    final jpegBytes = img.encodeJpg(canvas, quality: 100);
-    await File(outputPath).writeAsBytes(jpegBytes);
+    await File(outputPath).writeAsBytes(resultBytes);
     return outputPath;
   }
 
   /// Composite photo onto canvas without frame (fallback), applying print margins.
+  /// Runs CPU-intensive image processing in a separate isolate via compute().
   Future<String> _compositeNoFrame(File sourceFile, String outputPath) async {
-    // Admin 설정에서 마진 값 가져오기
     final admin = ref.read(adminControllerProvider);
-    final marginV = admin.printerMarginV; // 상하 마진
-
-    // 마진이 적용된 실제 캔버스 크기와 슬롯 위치 계산
-    final canvasW = LayoutConstants.canvasW;
-    final canvasH = LayoutConstants.canvasH - (marginV * 2);
-    final slotLeft = LayoutConstants.slotLeft;
-    final slotTop = LayoutConstants.slotTop - marginV;
-    final slotW = LayoutConstants.slotW;
-    final slotH = LayoutConstants.slotH;
-
     final sourceBytes = await sourceFile.readAsBytes();
-    final photo = img.decodeImage(sourceBytes);
-    if (photo == null) throw Exception('Failed to decode image');
 
-    final canvas = img.Image(width: canvasW, height: canvasH);
-    img.fill(canvas, color: img.ColorRgba8(0, 0, 0, 255));
+    final resultBytes = await compute(_compositeNoFrameIsolate, {
+      'sourceBytes': sourceBytes,
+      'marginV': admin.printerMarginV,
+      'canvasW': LayoutConstants.canvasW,
+      'canvasH': LayoutConstants.canvasH,
+      'slotLeft': LayoutConstants.slotLeft,
+      'slotTop': LayoutConstants.slotTop,
+      'slotW': LayoutConstants.slotW,
+      'slotH': LayoutConstants.slotH,
+    });
 
-    final resized = _coverFit(photo, slotW, slotH);
-    img.compositeImage(canvas, resized, dstX: slotLeft, dstY: slotTop);
-
-    final jpegBytes = img.encodeJpg(canvas, quality: 100);
-    await File(outputPath).writeAsBytes(jpegBytes);
+    await File(outputPath).writeAsBytes(resultBytes);
     return outputPath;
-  }
-
-  /// Cover-fit: resize to cover entire target, crop center if needed.
-  img.Image _coverFit(img.Image src, int targetW, int targetH) {
-    final srcAspect = src.width / src.height;
-    final tgtAspect = targetW / targetH;
-
-    int newW, newH;
-    if (srcAspect > tgtAspect) {
-      // Source is wider - fit height and crop width
-      newH = targetH;
-      newW = (targetH * srcAspect).round();
-    } else {
-      // Source is taller - fit width and crop height
-      newW = targetW;
-      newH = (targetW / srcAspect).round();
-    }
-
-    // Resize image to cover the target area with high quality interpolation
-    final resized = img.copyResize(src, width: newW, height: newH,
-        interpolation: img.Interpolation.cubic);
-
-    // Crop to target dimensions from center
-    final offsetX = ((newW - targetW) / 2).round();
-    final offsetY = ((newH - targetH) / 2).round();
-
-    return img.copyCrop(resized,
-      x: offsetX,
-      y: offsetY,
-      width: targetW,
-      height: targetH,
-    );
   }
 
   Future<void> _printAllItems() async {
@@ -169,6 +107,9 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
 
     final cacheManager = DefaultCacheManager();
     final tempDir = await getTemporaryDirectory();
+
+    // UI 빌드 완료 후 작업 시작 (shimmer/progress bar 렌더링 보장)
+    await Future.delayed(Duration.zero);
 
     try {
       for (final item in items) {
@@ -414,4 +355,88 @@ class _PrintLoadingScreenState extends ConsumerState<PrintLoadingScreen> {
       ),
     );
   }
+}
+
+// ── Top-level isolate functions (must be top-level for compute()) ──
+
+/// Cover-fit: resize to cover entire target, crop center.
+img.Image _coverFitStatic(img.Image src, int targetW, int targetH) {
+  final srcAspect = src.width / src.height;
+  final tgtAspect = targetW / targetH;
+
+  int newW, newH;
+  if (srcAspect > tgtAspect) {
+    newH = targetH;
+    newW = (targetH * srcAspect).round();
+  } else {
+    newW = targetW;
+    newH = (targetW / srcAspect).round();
+  }
+
+  final resized = img.copyResize(
+    src,
+    width: newW,
+    height: newH,
+    interpolation: img.Interpolation.cubic,
+  );
+
+  final offsetX = ((newW - targetW) / 2).round();
+  final offsetY = ((newH - targetH) / 2).round();
+
+  return img.copyCrop(resized, x: offsetX, y: offsetY, width: targetW, height: targetH);
+}
+
+/// Isolate entry-point: composite photo with frame overlay.
+Uint8List _compositeWithFrameIsolate(Map<String, dynamic> params) {
+  final sourceBytes = params['sourceBytes'] as Uint8List;
+  final frameBytes = params['frameBytes'] as Uint8List;
+  final marginV = params['marginV'] as int;
+  final canvasW = params['canvasW'] as int;
+  final canvasH = (params['canvasH'] as int) - (marginV * 2);
+  final slotLeft = params['slotLeft'] as int;
+  final slotTop = (params['slotTop'] as int) - marginV;
+  final slotW = params['slotW'] as int;
+  final slotH = params['slotH'] as int;
+
+  final photo = img.decodeImage(sourceBytes);
+  if (photo == null) throw Exception('Failed to decode image');
+
+  final canvas = img.Image(width: canvasW, height: canvasH);
+  img.fill(canvas, color: img.ColorRgba8(0, 0, 0, 255));
+
+  final resized = _coverFitStatic(photo, slotW, slotH);
+  img.compositeImage(canvas, resized, dstX: slotLeft, dstY: slotTop);
+
+  final frame = img.decodeImage(frameBytes);
+  if (frame != null) {
+    final scaledFrame = (frame.width != canvasW || frame.height != canvasH)
+        ? img.copyResize(frame, width: canvasW, height: canvasH)
+        : frame;
+    img.compositeImage(canvas, scaledFrame, dstX: 0, dstY: 0);
+  }
+
+  return Uint8List.fromList(img.encodeJpg(canvas, quality: 100));
+}
+
+/// Isolate entry-point: composite photo without frame.
+Uint8List _compositeNoFrameIsolate(Map<String, dynamic> params) {
+  final sourceBytes = params['sourceBytes'] as Uint8List;
+  final marginV = params['marginV'] as int;
+  final canvasW = params['canvasW'] as int;
+  final canvasH = (params['canvasH'] as int) - (marginV * 2);
+  final slotLeft = params['slotLeft'] as int;
+  final slotTop = (params['slotTop'] as int) - marginV;
+  final slotW = params['slotW'] as int;
+  final slotH = params['slotH'] as int;
+
+  final photo = img.decodeImage(sourceBytes);
+  if (photo == null) throw Exception('Failed to decode image');
+
+  final canvas = img.Image(width: canvasW, height: canvasH);
+  img.fill(canvas, color: img.ColorRgba8(0, 0, 0, 255));
+
+  final resized = _coverFitStatic(photo, slotW, slotH);
+  img.compositeImage(canvas, resized, dstX: slotLeft, dstY: slotTop);
+
+  return Uint8List.fromList(img.encodeJpg(canvas, quality: 100));
 }

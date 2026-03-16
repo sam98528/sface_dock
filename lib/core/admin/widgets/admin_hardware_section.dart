@@ -230,10 +230,6 @@ class AdminHardwareSection extends StatelessWidget {
     this.onRgbEnabledChanged,
     this.rgbProcessName = '',
     this.onRgbProcessNameChanged,
-    this.socketServerEnabled = false,
-    this.onSocketServerEnabledChanged,
-    this.socketServerPort = 8080,
-    this.onSocketServerPortChanged,
     // DNP 프린터 상태 (CyStat64.dll)
     this.dnpPrinterInfo,
     this.onRefreshDnpStatus,
@@ -286,11 +282,6 @@ class AdminHardwareSection extends StatelessWidget {
   final ValueChanged<bool>? onRgbEnabledChanged;
   final String rgbProcessName;
   final ValueChanged<String>? onRgbProcessNameChanged;
-  final bool socketServerEnabled;
-  final ValueChanged<bool>? onSocketServerEnabledChanged;
-  final int socketServerPort;
-  final ValueChanged<int>? onSocketServerPortChanged;
-
   // DNP 프린터 상태 (CyStat64.dll)
   final Map<String, String>? dnpPrinterInfo;
   final VoidCallback? onRefreshDnpStatus;
@@ -713,22 +704,6 @@ class AdminHardwareSection extends StatelessWidget {
                   onChanged: (v) => onRgbProcessNameChanged?.call(v),
                   hint: '예: RGB_Photo_Studio.exe',
                 ),
-                const SizedBox(height: 16),
-                AdminSwitchField(
-                  label: '소켓 서버 활성화',
-                  value: socketServerEnabled,
-                  onChanged: (v) => onSocketServerEnabledChanged?.call(v),
-                ),
-                if (socketServerEnabled) ...[
-                  const SizedBox(height: 12),
-                  AdminStepperField(
-                    label: '소켓 서버 포트',
-                    value: socketServerPort,
-                    onChanged: (v) => onSocketServerPortChanged?.call(v),
-                    min: 1024,
-                    max: 65535,
-                  ),
-                ],
               ],
             ],
           ),

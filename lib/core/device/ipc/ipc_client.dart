@@ -162,6 +162,9 @@ class IpcClient {
     }
   }
 
+  /// 의도적 disconnect 시 재연결 방지 플래그
+  bool _disconnectedIntentionally = false;
+
   /// Handle disconnection
   void _handleDisconnection() {
     _connected = false;
@@ -174,8 +177,10 @@ class IpcClient {
     }
     _pendingCommands.clear();
 
-    // Attempt to reconnect
-    _reconnect();
+    // 의도적 disconnect (shutdown/exit)이면 재연결 시도 안 함
+    if (!_disconnectedIntentionally) {
+      _reconnect();
+    }
   }
 
   /// Reconnect to pipe
@@ -194,6 +199,7 @@ class IpcClient {
 
   /// 연결 해제
   Future<void> disconnect() async {
+    _disconnectedIntentionally = true;
     _connected = false;
 
     await _eventSubscription?.cancel();
