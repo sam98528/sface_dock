@@ -69,6 +69,12 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   int _cashPaymentPresetIndex = 0;
   StreamSubscription<Map<String, dynamic>>? _cashPaymentEventSub;
 
+  // 결제 디버그 패널
+  bool _paymentDebugEnabled = false;
+  String _cardPaymentState = '';
+  int _cardPaymentAmount = 0;
+  final List<String> _paymentEventLog = [];
+
   @override
   void initState() {
     super.initState();
@@ -97,6 +103,22 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     _cashPaymentEventSub = proxy.eventStream.listen((event) {
       final type = event['eventType']?.toString();
       final data = event['data'] as Map<String, dynamic>?;
+      final deviceType = event['deviceType']?.toString() ?? '';
+
+      // 결제 관련 이벤트 로그 기록
+      if (_paymentDebugEnabled && mounted) {
+        final now = DateTime.now();
+        final ts = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}';
+        final logLine = '[$ts] $type ${data != null ? data.toString() : ''}';
+        if (type != null && (deviceType == 'payment' || deviceType == 'cash' ||
+            (type.contains('payment') || type.contains('cash')))) {
+          setState(() {
+            _paymentEventLog.add(logLine);
+            if (_paymentEventLog.length > 200) _paymentEventLog.removeAt(0);
+          });
+        }
+      }
+
       if (type == 'cash_payment_target_reached') {
         final total = int.tryParse(data?['totalAmount']?.toString() ?? '') ?? 0;
         if (mounted) {
@@ -115,10 +137,44 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         }
         return;
       }
-      if (type != 'payment_complete') return;
-      if (data?['transactionMedium'] != 'CASH') return;
-      final amt = int.tryParse(data?['amount']?.toString() ?? '') ?? 0;
-      if (mounted && amt > 0) setState(() => _cashPaymentCurrent += amt);
+      // 카드 결제 이벤트
+      if (type == 'payment_complete' && deviceType == 'payment') {
+        final amt = int.tryParse(data?['amount']?.toString() ?? '') ?? 0;
+        if (mounted) {
+          setState(() {
+            _cardPaymentState = '결제 완료';
+            _cardPaymentAmount = amt;
+          });
+        }
+        return;
+      }
+      if (type == 'payment_failed' && deviceType == 'payment') {
+        final errMsg = data?['errorMessage']?.toString() ?? data?['errorCode']?.toString() ?? '실패';
+        if (mounted) {
+          setState(() {
+            _cardPaymentState = 'ERROR: $errMsg';
+            _cardPaymentAmount = 0;
+          });
+        }
+        return;
+      }
+      if (type == 'payment_cancelled') {
+        if (mounted) setState(() => _cardPaymentState = '취소됨');
+        return;
+      }
+      if (type == 'device_state_changed' && deviceType == 'payment') {
+        final stateStr = data?['stateString']?.toString() ?? '';
+        if (mounted && stateStr.isNotEmpty) {
+          setState(() => _cardPaymentState = stateStr);
+        }
+        return;
+      }
+      // 현금 결제 완료 (payment_complete + CASH)
+      if (type == 'payment_complete' && data?['transactionMedium'] == 'CASH') {
+        final amt = int.tryParse(data?['amount']?.toString() ?? '') ?? 0;
+        if (mounted && amt > 0) setState(() => _cashPaymentCurrent += amt);
+        return;
+      }
     });
     if (proxy.isConnected) {
       // COM 목록·장치 상태·모델명은 서비스에서 실제로 가져옴
@@ -870,6 +926,19 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             onCashPaymentPresetChanged: (v) =>
                 setState(() => _cashPaymentPresetIndex = v),
             onCashPaymentRequest: _onCashPaymentRequest,
+            // 결제 디버그 패널
+            paymentDebugEnabled: _paymentDebugEnabled,
+            onPaymentDebugToggle: () => setState(() {
+              _paymentDebugEnabled = !_paymentDebugEnabled;
+              if (!_paymentDebugEnabled) _paymentEventLog.clear();
+            }),
+            onCardPaymentTest: _onCardPaymentTest,
+            onCardPaymentCancel: _onCardPaymentCancel,
+            onCardPaymentStatus: _onCardPaymentStatus,
+            cardPaymentState: _cardPaymentState,
+            cardPaymentAmount: _cardPaymentAmount,
+            paymentEventLog: List.unmodifiable(_paymentEventLog),
+            onClearEventLog: () => setState(() => _paymentEventLog.clear()),
             rgbEnabled: draft.rgbEnabled,
             onRgbEnabledChanged: (v) =>
                 notifier.updateDraft((d) => d.copyWith(rgbEnabled: v)),
@@ -927,6 +996,51 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
 
   Future<void> _onCashTestStop() async {
     await ref.read(deviceControllerProxyProvider).cancelPayment();
+  }
+
+  Future<void> _onCardPaymentTest(int amount) async {
+    final proxy = ref.read(deviceControllerProxyProvider);
+    setState(() {
+      _cardPaymentState = '결제 요청 중...';
+      _cardPaymentAmount = amount;
+    });
+    _addPaymentLog('카드 결제 요청: ${amount}원');
+    final res = await proxy.startPayment(amount);
+    if (!mounted) return;
+    final status = res?['status']?.toString().toLowerCase();
+    if (status == 'ok') {
+      setState(() => _cardPaymentState = '단말기 대기 중 (카드를 대어 주세요)');
+      _addPaymentLog('단말기 대기 시작');
+    } else {
+      final err = res?['errorMessage'] ?? res?['error']?['message'] ?? res?['status'] ?? 'unknown';
+      setState(() => _cardPaymentState = 'ERROR: $err');
+      _addPaymentLog('결제 요청 실패: $err');
+    }
+  }
+
+  Future<void> _onCardPaymentCancel() async {
+    _addPaymentLog('결제 취소 요청');
+    await ref.read(deviceControllerProxyProvider).cancelPayment();
+    if (mounted) setState(() => _cardPaymentState = '취소 요청 전송됨');
+  }
+
+  Future<void> _onCardPaymentStatus() async {
+    _addPaymentLog('상태 조회 요청');
+    final res = await ref.read(deviceControllerProxyProvider).checkPaymentStatus();
+    if (!mounted) return;
+    final stateStr = res?['stateString']?.toString() ?? res?.toString() ?? 'no response';
+    setState(() => _cardPaymentState = stateStr);
+    _addPaymentLog('상태: $stateStr');
+  }
+
+  void _addPaymentLog(String msg) {
+    if (!_paymentDebugEnabled) return;
+    final now = DateTime.now();
+    final ts = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}';
+    setState(() {
+      _paymentEventLog.add('[$ts] $msg');
+      if (_paymentEventLog.length > 200) _paymentEventLog.removeAt(0);
+    });
   }
 
   Widget _buildFeatureTab(AdminSettings draft, AdminDraftNotifier notifier) {

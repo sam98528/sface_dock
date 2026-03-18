@@ -9,6 +9,14 @@ import 'admin_dropdown_field.dart';
 import 'admin_switch_field.dart';
 import 'admin_text_field.dart';
 
+/// 금액 포맷 (1000 → "1,000")
+String _formatKrw(int amount) {
+  return amount.toString().replaceAllMapped(
+    RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+    (m) => '${m[1]},',
+  );
+}
+
 /// 상태 문자열(READY 등)에 따른 표시 라벨
 String _statusLabel(String? stateString) {
   if (stateString == null || stateString.isEmpty) return '장비 연결 확인 필요';
@@ -223,6 +231,16 @@ class AdminHardwareSection extends StatelessWidget {
     this.cashPaymentPresetIndex = 0,
     this.onCashPaymentPresetChanged,
     this.onCashPaymentRequest,
+    // 결제 디버그 패널
+    this.paymentDebugEnabled = false,
+    this.onPaymentDebugToggle,
+    this.onCardPaymentTest,
+    this.onCardPaymentCancel,
+    this.onCardPaymentStatus,
+    this.cardPaymentState = '',
+    this.cardPaymentAmount = 0,
+    this.paymentEventLog = const [],
+    this.onClearEventLog,
     // RGB 연동
     this.rgbEnabled = false,
     this.onRgbEnabledChanged,
@@ -271,6 +289,17 @@ class AdminHardwareSection extends StatelessWidget {
   final int cashPaymentPresetIndex;
   final ValueChanged<int>? onCashPaymentPresetChanged;
   final void Function(int amount)? onCashPaymentRequest;
+
+  // 결제 디버그 패널
+  final bool paymentDebugEnabled;
+  final VoidCallback? onPaymentDebugToggle;
+  final void Function(int amount)? onCardPaymentTest;
+  final VoidCallback? onCardPaymentCancel;
+  final VoidCallback? onCardPaymentStatus;
+  final String cardPaymentState;
+  final int cardPaymentAmount;
+  final List<String> paymentEventLog;
+  final VoidCallback? onClearEventLog;
 
   final bool rgbEnabled;
   final ValueChanged<bool>? onRgbEnabledChanged;
@@ -362,22 +391,21 @@ class AdminHardwareSection extends StatelessWidget {
               const SizedBox(height: 12),
               // 잔여 인화지: DNP 프린터에서 자동 조회 (읽기 전용)
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('잔여 인화지', style: TextStyle(fontSize: 14)),
+                  const Text('잔여 인화지', style: TextStyle(fontSize: 16)),
                   const SizedBox(width: 12),
                   Text(
                     '$printerPaperRemaining 장',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: printerPaperRemaining < 50 ? Colors.red.shade600 : null,
+                      color: printerPaperRemaining < 50
+                          ? Colors.red.shade600
+                          : null,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    '(DNP 프린터에서 자동 조회)',
-                    style: TextStyle(fontSize: 11, color: Colors.grey),
-                  ),
+                  const SizedBox(),
                 ],
               ),
               const SizedBox(height: 16),
@@ -538,105 +566,8 @@ class AdminHardwareSection extends StatelessWidget {
                   ),
                 ],
               ),
-              if (isDebugMode &&
-                  cashDeviceEnabled &&
-                  onCashTestStart != null &&
-                  onCashTestStop != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  '현금 테스트 (디버그)',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    FilledButton.tonal(
-                      onPressed: onCashTestStart,
-                      child: const Text('현금 테스트 시작'),
-                    ),
-                    const SizedBox(width: 12),
-                    OutlinedButton(
-                      onPressed: onCashTestStop,
-                      child: const Text('테스트 종료'),
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      '입금액: ${cashTestAmount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}원',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-                if (isDebugMode &&
-                    cashDeviceEnabled &&
-                    onCashPaymentRequest != null) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    '현금 결제 테스트 (요청 금액)',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      DropdownButton<int>(
-                        value: cashPaymentPresetIndex.clamp(0, 5),
-                        items: const [1000, 5000, 7000, 11000, 15000, 20000]
-                            .asMap()
-                            .entries
-                            .map(
-                              (e) => DropdownMenuItem<int>(
-                                value: e.key,
-                                child: Text('${(e.value / 1000).round()}천원'),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (v) =>
-                            onCashPaymentPresetChanged?.call(v ?? 0),
-                      ),
-                      const SizedBox(width: 8),
-                      FilledButton(
-                        onPressed: () => onCashPaymentRequest!(
-                          const [
-                            1000,
-                            5000,
-                            7000,
-                            11000,
-                            15000,
-                            20000,
-                          ][cashPaymentPresetIndex.clamp(0, 5)],
-                        ),
-                        child: const Text('현금 결제 요청'),
-                      ),
-                      const SizedBox(width: 16),
-                      Text(
-                        '요청 금액: ${cashPaymentRequested.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}원',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        '현재까지 넣은 금액: ${cashPaymentCurrent.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}원${cashPaymentTargetReached ? ' · 결제 완료' : ''}',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: cashPaymentTargetReached
-                              ? theme.colorScheme.primary
-                              : theme.colorScheme.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
+              // ──── 결제 디버그 토글 ────
+              const SizedBox(height: 20),
             ],
           ),
         );
@@ -761,5 +692,4 @@ class AdminHardwareSection extends StatelessWidget {
       },
     );
   }
-
 }
