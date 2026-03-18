@@ -467,16 +467,15 @@ class DeviceControllerProxy {
       logInfo('[DeviceProxy] status 필드: $status');
 
       if (status?.toLowerCase() == 'ok') {
-        final responseMap = response['responseMap'];
-        logInfo('[DeviceProxy] responseMap: $responseMap');
-        logInfo('[DeviceProxy] responseMap type: ${responseMap.runtimeType}');
+        final resultMap = response['result'];
+        logInfo('[DeviceProxy] result: $resultMap');
 
-        if (responseMap is Map) {
-          final result = responseMap.cast<String, String>();
+        if (resultMap is Map) {
+          final result = resultMap.cast<String, String>();
           logInfo('[DeviceProxy] 프린터 상태 조회 성공, 결과: $result');
           return result;
         } else {
-          logWarn('[DeviceProxy] responseMap이 Map이 아님: ${responseMap?.runtimeType}');
+          logWarn('[DeviceProxy] result가 Map이 아님: ${resultMap?.runtimeType}');
         }
       } else {
         logWarn('[DeviceProxy] status가 ok가 아님: $status');

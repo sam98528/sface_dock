@@ -196,8 +196,6 @@ class AdminHardwareSection extends StatelessWidget {
     required this.printerPaperSize,
     required this.onPrinterPaperSizeChanged,
     required this.printerPaperRemaining,
-    required this.onPrinterPaperRemainingChanged,
-    required this.onPrinterPaperReset,
     required this.printerMarginH,
     required this.printerMarginV,
     required this.onPrinterMarginHChanged,
@@ -231,8 +229,6 @@ class AdminHardwareSection extends StatelessWidget {
     this.rgbProcessName = '',
     this.onRgbProcessNameChanged,
     // DNP 프린터 상태 (CyStat64.dll)
-    this.dnpPrinterInfo,
-    this.onRefreshDnpStatus,
   });
 
   final String cameraModel;
@@ -248,8 +244,6 @@ class AdminHardwareSection extends StatelessWidget {
   final String printerPaperSize;
   final ValueChanged<String> onPrinterPaperSizeChanged;
   final int printerPaperRemaining;
-  final ValueChanged<int> onPrinterPaperRemainingChanged;
-  final VoidCallback onPrinterPaperReset;
   final int printerMarginH;
   final int printerMarginV;
   final ValueChanged<int> onPrinterMarginHChanged;
@@ -283,8 +277,6 @@ class AdminHardwareSection extends StatelessWidget {
   final String rgbProcessName;
   final ValueChanged<String>? onRgbProcessNameChanged;
   // DNP 프린터 상태 (CyStat64.dll)
-  final Map<String, String>? dnpPrinterInfo;
-  final VoidCallback? onRefreshDnpStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -368,18 +360,25 @@ class AdminHardwareSection extends StatelessWidget {
                 onChanged: (_) {}, // 고정값이므로 onChanged에서 아무 동작 안함
               ),
               const SizedBox(height: 12),
-              AdminStepperField(
-                label: '잔여 인화지',
-                value: printerPaperRemaining,
-                onChanged: onPrinterPaperRemainingChanged,
-                min: 0,
-                max: 9999,
-              ),
-              const SizedBox(height: 8),
-              TextButton.icon(
-                onPressed: onPrinterPaperReset,
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('인화지 초기화 (980개)'),
+              // 잔여 인화지: DNP 프린터에서 자동 조회 (읽기 전용)
+              Row(
+                children: [
+                  const Text('잔여 인화지', style: TextStyle(fontSize: 14)),
+                  const SizedBox(width: 12),
+                  Text(
+                    '$printerPaperRemaining 장',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: printerPaperRemaining < 50 ? Colors.red.shade600 : null,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    '(DNP 프린터에서 자동 조회)',
+                    style: TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Text(
@@ -469,41 +468,6 @@ class AdminHardwareSection extends StatelessWidget {
                   ],
                 ],
               ),
-              // DNP DS-RX1 실시간 상태
-              if (dnpPrinterInfo != null) ...[
-                const SizedBox(height: 20),
-                const Divider(),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Text(
-                      'DNP DS-RX1 상태',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const Spacer(),
-                    if (onRefreshDnpStatus != null)
-                      IconButton(
-                        onPressed: onRefreshDnpStatus,
-                        icon: const Icon(Icons.refresh, size: 18),
-                        tooltip: '상태 새로고침',
-                        visualDensity: VisualDensity.compact,
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                _buildDnpStatusInfo(context, dnpPrinterInfo!),
-              ] else if (onRefreshDnpStatus != null) ...[
-                const SizedBox(height: 12),
-                TextButton.icon(
-                  onPressed: onRefreshDnpStatus,
-                  icon: const Icon(Icons.info_outline, size: 18),
-                  label: const Text('DNP 프린터 상태 조회'),
-                ),
-                const SizedBox(height: 12),
-              ],
             ],
           ),
         );
@@ -798,109 +762,4 @@ class AdminHardwareSection extends StatelessWidget {
     );
   }
 
-  Widget _buildDnpStatusInfo(BuildContext context, Map<String, String> info) {
-    final theme = Theme.of(context);
-    final status = info['status'] ?? 'unknown';
-    final statusText = info['statusText'] ?? '알 수 없음';
-    final connected = info['connected'] == 'true';
-    final mediaRemaining = int.tryParse(info['mediaRemaining'] ?? '') ?? -1;
-    final mediaInitial = int.tryParse(info['mediaInitialCount'] ?? '') ?? -1;
-    final totalPrint = int.tryParse(info['totalPrintCount'] ?? '') ?? -1;
-    final firmware = info['firmwareVersion'] ?? '';
-    final serial = info['serialNo'] ?? '';
-    final mediaType = info['mediaType'] ?? '';
-
-    Color statusColor;
-    switch (status) {
-      case 'idle':
-        statusColor = Colors.green.shade600;
-        break;
-      case 'printing':
-      case 'head_cooling':
-        statusColor = Colors.blue.shade600;
-        break;
-      case 'offline':
-        statusColor = Colors.grey;
-        break;
-      default:
-        statusColor = Colors.orange.shade700;
-    }
-
-    Widget infoRow(String label, String value, {Color? valueColor}) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 120,
-              child: Text(
-                label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Text(
-                value,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: valueColor,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 상태 표시
-          Row(
-            children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: connected ? statusColor : Colors.grey,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                statusText,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: connected ? statusColor : Colors.grey,
-                ),
-              ),
-            ],
-          ),
-          if (connected) ...[
-            const SizedBox(height: 8),
-            if (mediaType.isNotEmpty) infoRow('미디어', mediaType),
-            if (mediaRemaining >= 0)
-              infoRow(
-                '남은 인화지',
-                mediaInitial > 0
-                    ? '$mediaRemaining / $mediaInitial 장'
-                    : '$mediaRemaining 장',
-                valueColor: mediaRemaining < 50 ? Colors.red.shade600 : null,
-              ),
-            if (totalPrint >= 0) infoRow('총 인쇄 매수', '$totalPrint 장'),
-            if (firmware.isNotEmpty) infoRow('펌웨어', firmware),
-            if (serial.isNotEmpty) infoRow('시리얼', serial),
-          ],
-        ],
-      ),
-    );
-  }
 }

@@ -61,7 +61,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   String? _paymentStatus;
   String? _cashStatus;
   bool _isAutoDetecting = false;
-  Map<String, String>? _dnpPrinterInfo;
   int _cashTestAmount = 0;
   StreamSubscription<int>? _cashTestSubscription;
   int _cashPaymentRequested = 0;
@@ -188,6 +187,8 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
       if (mounted && printers.isNotEmpty) {
         setState(() => _availablePrinters = printers);
       }
+      // DNP 프린터 상태 자동 조회 → 잔여 인화지 자동 업데이트
+      await _refreshDnpPrinterStatus();
     }
     if (mounted) setState(() {});
   }
@@ -271,7 +272,18 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
       }
 
       if (mounted) {
-        setState(() => _dnpPrinterInfo = info);
+        // DNP 잔여 인화지를 admin 설정에 자동 반영
+        if (info != null) {
+          final remaining = int.tryParse(info['mediaRemaining'] ?? '');
+          if (remaining != null && remaining >= 0) {
+            ref.read(adminControllerProvider.notifier).updateSettings(
+              (s) => s.copyWith(printerPaperRemaining: remaining),
+            );
+            ref.read(adminDraftProvider.notifier).updateDraft(
+              (d) => d.copyWith(printerPaperRemaining: remaining),
+            );
+          }
+        }
       }
     } catch (e) {
       file_logger.logError('프린터 상태 조회 중 오류: $e [AdminScreen]');
@@ -826,12 +838,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             onPrinterPaperSizeChanged: (v) =>
                 notifier.updateDraft((d) => d.copyWith(printerPaperSize: v)),
             printerPaperRemaining: draft.printerPaperRemaining,
-            onPrinterPaperRemainingChanged: (v) => notifier.updateDraft(
-              (d) => d.copyWith(printerPaperRemaining: v),
-            ),
-            onPrinterPaperReset: () => notifier.updateDraft(
-              (d) => d.copyWith(printerPaperRemaining: 980),
-            ),
             printerMarginH: draft.printerMarginH,
             printerMarginV: draft.printerMarginV,
             onPrinterMarginHChanged: (v) =>
@@ -870,8 +876,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             rgbProcessName: draft.rgbProcessName,
             onRgbProcessNameChanged: (v) =>
                 notifier.updateDraft((d) => d.copyWith(rgbProcessName: v)),
-            dnpPrinterInfo: _dnpPrinterInfo,
-            onRefreshDnpStatus: _refreshDnpPrinterStatus,
           ),
         ],
       ),
